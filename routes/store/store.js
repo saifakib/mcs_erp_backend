@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const settings = require("../../controllers/store/settings/settings");
+const product = require("./product");
 
 // get route
 router.get("/settings/months", settings.getMonths);
@@ -16,5 +17,11 @@ router.post("/settings/products", settings.postProduct);
 
 // update routes
 router.put("/settings/categories", settings.updateCategory);
+
+
+
+
+// Product
+router.use("/product", product);
 
 module.exports = router;
