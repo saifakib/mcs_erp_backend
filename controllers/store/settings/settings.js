@@ -1,65 +1,56 @@
 const getConnection = require("../../../db/db");
 const { createResponse } = require("../../../utils/responseGenerator");
+const { getMonths, getCategories, getUnits, getSuppliers, getProducts } = require('../../../model/store/settings/index')
 
 /*------------- All Get Routes ---------------*/
 
 // months
 module.exports.getMonths = async (req, res, next) => {
   try {
-    let connection = await getConnection();
-    const result = await connection.execute("SELECT * FROM months");
-    res.json(createResponse(result.rows));
-    await connection.close();
+    const data = await getMonths();
+    res.json(createResponse(data));
   } catch (err) {
-    next(err);
+    next(err.message);
   }
 };
 
 // category
 module.exports.getCategories = async (req, res, next) => {
   try {
-    let connection = await getConnection();
-    const result = await connection.execute("SELECT * from STR_CATEGORIES");
-    res.json(createResponse(result.rows));
-    await connection.close();
+    const result = await getCategories();
+    res.json(createResponse(result));
   } catch (err) {
-    next(err);
+    next(err.message);
   }
 };
 
 // units
 module.exports.getUnits = async (req, res, next) => {
   try {
-    let connection = await getConnection();
-    const result = await connection.execute("SELECT * from STR_UNITS");
-    res.json(createResponse(result.rows));
-    await connection.close();
+    const result = await getUnits();
+    res.json(createResponse(result));
   } catch (err) {
-    next(err);
+    next(err.message);
   }
 };
 
 // suppliers
 module.exports.getSuppliers = async (req, res, next) => {
   try {
-    let connection = await getConnection();
-    const result = await connection.execute("SELECT * from STR_SUPPLIERS");
-    res.json(createResponse(result.rows));
-    await connection.close();
+    const result = await getSuppliers();
+    res.json(createResponse(result));
   } catch (err) {
-    next(err);
+    next(err.message);
   }
 };
 
 // products
 module.exports.getProducts = async (req, res, next) => {
   try {
-    let connection = await getConnection();
-    const result = await connection.execute("SELECT * from STR_STOREPRODUCTS");
-    res.json(createResponse(result.rows));
-    await connection.close();
+    const result = await getProducts();
+    res.json(createResponse(result));
   } catch (err) {
-    next(err);
+    next(err.message);
   }
 };
 

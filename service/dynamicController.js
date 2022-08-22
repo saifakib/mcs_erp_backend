@@ -11,10 +11,12 @@ const getData = (QuertyString) => {
         try {
             let connection = await getConnection();
             const result = await connection.execute(QuertyString);
-            res.json(createResponse(result));
             await connection.close();
+            // return res.json(createResponse(result.rows));
+            return result.rows;
           } catch (err) {
-            next(err);
+            // next(err);
+            return err;
           }
     }
 };
