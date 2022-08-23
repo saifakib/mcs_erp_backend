@@ -1,4 +1,3 @@
-const getConnection = require("../../../db/db");
 const { createResponse } = require("../../../utils/responseGenerator");
 const {
   getMonths,
@@ -10,7 +9,14 @@ const {
   postUnits,
   postSupplier,
   postProduct,
-  upDateCategory,
+  updateCategory,
+  updateSupplier,
+  updateUnits,
+  updateProducts,
+  deletCategory,
+  deleteSupplier,
+  deleteUnits,
+  deleteProducts,
 } = require("../../../services/store/settings/index");
 
 /*------------- All Get Routes ---------------*/
@@ -143,7 +149,55 @@ module.exports.updateCategory = async (req, res, next) => {
       res.json(createResponse(null, "Field required", true));
     } else {
       const data = { CATEGORYEN, CATEGORYBN, CAT_ID };
-      const result = await upDateCategory(data);
+      const result = await updateCategory(data);
+      res.json(createResponse(result));
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.updateUnits = async (req, res, next) => {
+  try {
+    const { UNIT } = req.body;
+    const { UNIT_ID } = req.headers;
+    if (!UNIT || !UNIT_ID) {
+      res.json(createResponse(null, "Field required", true));
+    } else {
+      const data = { UNIT, UNIT_ID };
+      const result = await updateCategory(data);
+      res.json(createResponse(result));
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.updateSupplier = async (req, res, next) => {
+  try {
+    const { SUPPLIER, SUPSLUG } = req.body;
+    const { SUP_ID } = req.headers;
+    if (!SUPPLIER || !SUPSLUG || SUP_ID) {
+      res.json(createResponse(null, "Field required", true));
+    } else {
+      const data = { SUPPLIER, SUPSLUG, SUP_ID };
+      const result = await updateSupplier(data);
+      res.json(createResponse(result));
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.updateProducts = async (req, res, next) => {
+  try {
+    const { PRONAME, PRONAMETWO, PROCATE } = req.body;
+    const { PRODID } = req.headers;
+    if (!PRONAME || !PRONAMETWO || PROCATE || PRODID) {
+      res.json(createResponse(null, "Field required", true));
+    } else {
+      const data = { PRONAME, PRONAMETWO, PROCATE, PRODID };
+      const result = await updateSupplier(data);
       res.json(createResponse(result));
     }
   } catch (err) {
@@ -152,3 +206,64 @@ module.exports.updateCategory = async (req, res, next) => {
 };
 
 /*------------- End ---------------*/
+
+/*------------- All Delete Routes ---------------*/
+module.exports.deleteCategory = async (req, res, next) => {
+  try {
+    const { CAT_ID } = req.headers;
+    if (!CAT_ID) {
+      res.json(createResponse(null, "Id required", true));
+    } else {
+      const data = { CAT_ID };
+      const result = await deleteCategory(data);
+      res.json(createResponse(result));
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.deleteUnits = async (req, res, next) => {
+  try {
+    const { UNIT_ID } = req.headers;
+    if (!UNIT_ID) {
+      res.json(createResponse(null, "Id required", true));
+    } else {
+      const data = { UNIT_ID };
+      const result = await deleteUnits(data);
+      res.json(createResponse(result));
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.deleteSupplier = async (req, res, next) => {
+  try {
+    const { SUP_ID } = req.headers;
+    if (!SUP_ID) {
+      res.json(createResponse(null, "Id required", true));
+    } else {
+      const data = { SUP_ID };
+      const result = await deleteSupplier(data);
+      res.json(createResponse(result));
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.deleteProducts = async (req, res, next) => {
+  try {
+    const { PRODID } = req.headers;
+    if (!PRODID) {
+      res.json(createResponse(null, "Id required", true));
+    } else {
+      const data = { PRODID };
+      const result = await deleteProducts(data);
+      res.json(createResponse(result));
+    }
+  } catch (err) {
+    next(err);
+  }
+};

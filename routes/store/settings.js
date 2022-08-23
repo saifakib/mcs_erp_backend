@@ -16,5 +16,14 @@ router.post("/products", settingsController.postProduct);
 
 // update routes
 router.put("/categories", settingsController.updateCategory);
+router.put("/units", settingsController.updateUnits);
+router.put("/suppliers", settingsController.updateSupplier);
+router.put("/products", settingsController.updateProducts);
+
+// delete routes
+router.delete("/categories", settingsController.deleteCategory);
+router.delete("/units", settingsController.deleteUnits);
+router.delete("/suppliers", settingsController.deleteSupplier);
+router.delete("/products", settingsController.deleteProducts);
 
 module.exports = router;
