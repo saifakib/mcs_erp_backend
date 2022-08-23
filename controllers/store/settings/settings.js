@@ -6,9 +6,12 @@ const {
   getUnits,
   getSuppliers,
   getProducts,
-  postCategory
+  postCategory,
+  postUnits,
+  postSupplier,
+  postProduct,
+  upDateCategory,
 } = require("../../../services/store/settings/index");
-const { Execute } = require('../../../utils/dynamicController')
 
 /*------------- All Get Routes ---------------*/
 
@@ -16,7 +19,7 @@ const { Execute } = require('../../../utils/dynamicController')
 module.exports.getMonths = async (req, res, next) => {
   try {
     const data = await getMonths();
-    console.log(data)
+    console.log(data);
     res.json(createResponse(data));
   } catch (err) {
     next(err.message);
@@ -70,8 +73,8 @@ module.exports.getProducts = async (req, res, next) => {
 // category
 module.exports.postCategory = async (req, res, next) => {
   try {
-    const { categoryen, categorybn } = req.body;
-    if (!categoryen) {
+    const { CATEGORYEN } = req.body;
+    if (!CATEGORYEN) {
       res.json(createResponse(null, "Category name is required", true));
     } else {
       const result = await postCategory(req.body);
@@ -85,16 +88,12 @@ module.exports.postCategory = async (req, res, next) => {
 // units
 module.exports.postUnits = async (req, res, next) => {
   try {
-    const { unit } = req.body;
-    if (!unit) {
+    const { UNIT } = req.body;
+    if (!UNIT) {
       res.json(createResponse(null, "Unit name is required", true));
     } else {
-      // statement
-      const statement = `INSERT INTO STR_UNITS (unit) VALUES ('${unit}')`;
-      let connection = await getConnection();
-      const result = await connection.execute(statement);
+      const result = await postUnits(req.body);
       res.json(createResponse(result));
-      await connection.close();
     }
   } catch (err) {
     next(err);
@@ -104,16 +103,12 @@ module.exports.postUnits = async (req, res, next) => {
 // supplier
 module.exports.postSupplier = async (req, res, next) => {
   try {
-    const { supplier, supsulg } = req.body;
-    if (!supplier || !supsulg) {
-      res.json(createResponse(null, "Field required", true));
+    const { SUPPLIER, SUPSLUG } = req.body;
+    if (!SUPPLIER || !SUPSLUG) {
+      res.json(createResponse(null, "Both field required", true));
     } else {
-      // statement
-      const statement = `INSERT INTO STR_SUPPLIERS (supplier,supsulg) VALUES ('${supplier}', '${supsulg}')`;
-      let connection = await getConnection();
-      const result = await connection.execute(statement);
+      const result = await postSupplier(req.body);
       res.json(createResponse(result));
-      await connection.close();
     }
   } catch (err) {
     next(err);
@@ -123,16 +118,12 @@ module.exports.postSupplier = async (req, res, next) => {
 // products
 module.exports.postProduct = async (req, res, next) => {
   try {
-    const { proname, pronametwo, procate } = req.body;
-    if (!proname || !pronametwo || procate) {
+    const { PRONAME, PRONAMETWO, PROCATE } = req.body;
+    if (!PRONAME || !PRONAMETWO || PROCATE) {
       res.json(createResponse(null, "Field required", true));
     } else {
-      // statement
-      const statement = `INSERT INTO STR_PRODUCTLISTS ('${proname}', '${pronametwo}', '${procate}')`;
-      let connection = await getConnection();
-      const result = await connection.execute(statement);
+      const result = await postProduct(req.body);
       res.json(createResponse(result));
-      await connection.close();
     }
   } catch (err) {
     next(err);
@@ -146,24 +137,18 @@ module.exports.postProduct = async (req, res, next) => {
 // category
 module.exports.updateCategory = async (req, res, next) => {
   try {
-    const { categoryen, categorybn } = req.body;
-    const { cat_id } = req.headers;
-    if (!categoryen) {
+    const { CATEGORYEN, CATEGORYBN } = req.body;
+    const { CAT_ID } = req.headers;
+    if (!CATEGORYEN || !CAT_ID) {
       res.json(createResponse(null, "Field required", true));
-    } else if (!cat_id) {
-      res.json(createResponse(null, "Category_id required", true));
     } else {
-      // statement
-      const statement = `UPDATE STR_CATEGORIES SET categorybn = ${categorybn}, categoryen = ${categoryen} WHERE cat_id = ${cat_id}`;
-      let connection = await getConnection();
-      const result = await connection.execute(statement);
+      const data = { CATEGORYEN, CATEGORYBN, CAT_ID };
+      const result = await upDateCategory(data);
       res.json(createResponse(result));
-      await connection.close();
     }
   } catch (err) {
     next(err);
   }
 };
-
 
 /*------------- End ---------------*/
