@@ -1,6 +1,14 @@
 const getConnection = require("../../../db/db");
 const { createResponse } = require("../../../utils/responseGenerator");
-const { getMonths, getCategories, getUnits, getSuppliers, getProducts } = require('../../../model/store/settings/index')
+const {
+  getMonths,
+  getCategories,
+  getUnits,
+  getSuppliers,
+  getProducts,
+  postCategory
+} = require("../../../services/store/settings/index");
+const { Execute } = require('../../../utils/dynamicController')
 
 /*------------- All Get Routes ---------------*/
 
@@ -8,6 +16,7 @@ const { getMonths, getCategories, getUnits, getSuppliers, getProducts } = requir
 module.exports.getMonths = async (req, res, next) => {
   try {
     const data = await getMonths();
+    console.log(data)
     res.json(createResponse(data));
   } catch (err) {
     next(err.message);
@@ -61,16 +70,12 @@ module.exports.getProducts = async (req, res, next) => {
 // category
 module.exports.postCategory = async (req, res, next) => {
   try {
-    const { categorybn, categoryen } = req.body;
+    const { categoryen, categorybn } = req.body;
     if (!categoryen) {
       res.json(createResponse(null, "Category name is required", true));
     } else {
-      // statement
-      const statement = `INSERT INTO STR_CATEGORIES (categorybn, categoryen) VALUES ('${categorybn}', '${categoryen}')`;
-      let connection = await getConnection();
-      const result = await connection.execute(statement);
+      const result = await postCategory(req.body);
       res.json(createResponse(result));
-      await connection.close();
     }
   } catch (err) {
     next(err);
@@ -85,7 +90,7 @@ module.exports.postUnits = async (req, res, next) => {
       res.json(createResponse(null, "Unit name is required", true));
     } else {
       // statement
-      const statement = `INSERT INTO STR_UNITS VALUES ('${unit}')`;
+      const statement = `INSERT INTO STR_UNITS (unit) VALUES ('${unit}')`;
       let connection = await getConnection();
       const result = await connection.execute(statement);
       res.json(createResponse(result));
@@ -104,7 +109,7 @@ module.exports.postSupplier = async (req, res, next) => {
       res.json(createResponse(null, "Field required", true));
     } else {
       // statement
-      const statement = `INSERT INTO STR_SUPPLIERS ('${supplier}', '${supsulg}')`;
+      const statement = `INSERT INTO STR_SUPPLIERS (supplier,supsulg) VALUES ('${supplier}', '${supsulg}')`;
       let connection = await getConnection();
       const result = await connection.execute(statement);
       res.json(createResponse(result));
@@ -159,5 +164,6 @@ module.exports.updateCategory = async (req, res, next) => {
     next(err);
   }
 };
+
 
 /*------------- End ---------------*/
