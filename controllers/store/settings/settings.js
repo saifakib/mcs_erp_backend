@@ -13,7 +13,7 @@ const {
   updateSupplier,
   updateUnits,
   updateProducts,
-  deletCategory,
+  deleteCategory,
   deleteSupplier,
   deleteUnits,
   deleteProducts,
@@ -25,8 +25,7 @@ const {
 module.exports.getMonths = async (req, res, next) => {
   try {
     const data = await getMonths();
-    console.log(data);
-    res.json(createResponse(data));
+    res.json(createResponse(data.rows));
   } catch (err) {
     next(err.message);
   }
@@ -36,7 +35,7 @@ module.exports.getMonths = async (req, res, next) => {
 module.exports.getCategories = async (req, res, next) => {
   try {
     const result = await getCategories();
-    res.json(createResponse(result));
+    res.json(createResponse(result.rows));
   } catch (err) {
     next(err.message);
   }
@@ -46,7 +45,7 @@ module.exports.getCategories = async (req, res, next) => {
 module.exports.getUnits = async (req, res, next) => {
   try {
     const result = await getUnits();
-    res.json(createResponse(result));
+    res.json(createResponse(result.rows));
   } catch (err) {
     next(err.message);
   }
@@ -56,7 +55,7 @@ module.exports.getUnits = async (req, res, next) => {
 module.exports.getSuppliers = async (req, res, next) => {
   try {
     const result = await getSuppliers();
-    res.json(createResponse(result));
+    res.json(createResponse(result.rows));
   } catch (err) {
     next(err.message);
   }
@@ -66,7 +65,7 @@ module.exports.getSuppliers = async (req, res, next) => {
 module.exports.getProducts = async (req, res, next) => {
   try {
     const result = await getProducts();
-    res.json(createResponse(result));
+    res.json(createResponse(result.rows));
   } catch (err) {
     next(err.message);
   }
@@ -99,6 +98,7 @@ module.exports.postUnits = async (req, res, next) => {
       res.json(createResponse(null, "Unit name is required", true));
     } else {
       const result = await postUnits(req.body);
+      console.log(result);
       res.json(createResponse(result));
     }
   } catch (err) {
@@ -165,7 +165,7 @@ module.exports.updateUnits = async (req, res, next) => {
       res.json(createResponse(null, "Field required", true));
     } else {
       const data = { UNIT, UNIT_ID };
-      const result = await updateCategory(data);
+      const result = await updateUnits(data);
       res.json(createResponse(result));
     }
   } catch (err) {
@@ -197,7 +197,7 @@ module.exports.updateProducts = async (req, res, next) => {
       res.json(createResponse(null, "Field required", true));
     } else {
       const data = { PRONAME, PRONAMETWO, PROCATE, PRODID };
-      const result = await updateSupplier(data);
+      const result = await updateProducts(data);
       res.json(createResponse(result));
     }
   } catch (err) {
