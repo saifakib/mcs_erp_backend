@@ -2,9 +2,13 @@ const { createResponse } = require("../../../utils/responseGenerator");
 const {
   getMonths,
   getCategories,
+  getSingleCategory,
   getUnits,
+  getSingleUnit,
   getSuppliers,
+  getSingleSupplier,
   getProducts,
+  getSingleProduct,
   postCategory,
   postUnits,
   postSupplier,
@@ -40,12 +44,41 @@ module.exports.getCategories = async (req, res, next) => {
     next(err.message);
   }
 };
+// single category
+module.exports.getSingleCategory = async (req, res, next) => {
+  try {
+    const { cat_id } = req.headers;
+    if (!cat_id) {
+      res.json(createResponse(null, "Id required", true));
+    } else {
+      const result = await getSingleCategory({ CAT_ID: cat_id });
+      res.json(createResponse(result.rows[0]));
+    }
+  } catch (err) {
+    next(err.message);
+  }
+};
 
 // units
 module.exports.getUnits = async (req, res, next) => {
   try {
     const result = await getUnits();
     res.json(createResponse(result.rows));
+  } catch (err) {
+    next(err.message);
+  }
+};
+
+// single unit
+module.exports.getSingleUnit = async (req, res, next) => {
+  try {
+    const { unit_id } = req.headers;
+    if (!unit_id) {
+      res.json(createResponse(null, "Id required", true));
+    } else {
+      const result = await getSingleUnit({ UNIT_ID: unit_id });
+      res.json(createResponse(result.rows[0]));
+    }
   } catch (err) {
     next(err.message);
   }
@@ -61,11 +94,41 @@ module.exports.getSuppliers = async (req, res, next) => {
   }
 };
 
+// single supplier
+module.exports.getSingleSupplier = async (req, res, next) => {
+  try {
+    const { sup_id } = req.headers;
+    if (!sup_id) {
+      res.json(createResponse(null, "Id required", true));
+    } else {
+      const result = await getSingleSupplier({ SUP_ID: sup_id });
+      res.json(createResponse(result.rows[0]));
+    }
+  } catch (err) {
+    next(err.message);
+  }
+};
+
 // products
 module.exports.getProducts = async (req, res, next) => {
   try {
     const result = await getProducts();
     res.json(createResponse(result.rows));
+  } catch (err) {
+    next(err.message);
+  }
+};
+
+// single product
+module.exports.getSingleProduct = async (req, res, next) => {
+  try {
+    const { prodid } = req.headers;
+    if (!prodid) {
+      res.json(createResponse(null, "Id required", true));
+    } else {
+      const result = await getSingleProduct({ PRODID: prodid });
+      res.json(createResponse(result.rows[0]));
+    }
   } catch (err) {
     next(err.message);
   }
@@ -210,11 +273,11 @@ module.exports.updateProducts = async (req, res, next) => {
 /*------------- All Delete Routes ---------------*/
 module.exports.deleteCategory = async (req, res, next) => {
   try {
-    const { CAT_ID } = req.headers;
-    if (!CAT_ID) {
+    const { cat_id } = req.headers;
+    if (!cat_id) {
       res.json(createResponse(null, "Id required", true));
     } else {
-      const data = { CAT_ID };
+      const data = { CAT_ID: cat_id };
       const result = await deleteCategory(data);
       res.json(createResponse(result));
     }
@@ -225,11 +288,11 @@ module.exports.deleteCategory = async (req, res, next) => {
 
 module.exports.deleteUnits = async (req, res, next) => {
   try {
-    const { UNIT_ID } = req.headers;
-    if (!UNIT_ID) {
+    const { unit_id } = req.headers;
+    if (!unit_id) {
       res.json(createResponse(null, "Id required", true));
     } else {
-      const data = { UNIT_ID };
+      const data = { UNIT_ID: unit_id };
       const result = await deleteUnits(data);
       res.json(createResponse(result));
     }
@@ -240,11 +303,11 @@ module.exports.deleteUnits = async (req, res, next) => {
 
 module.exports.deleteSupplier = async (req, res, next) => {
   try {
-    const { SUP_ID } = req.headers;
-    if (!SUP_ID) {
+    const { sup_id } = req.headers;
+    if (!sup_id) {
       res.json(createResponse(null, "Id required", true));
     } else {
-      const data = { SUP_ID };
+      const data = { SUP_ID: sup_id };
       const result = await deleteSupplier(data);
       res.json(createResponse(result));
     }
@@ -255,11 +318,11 @@ module.exports.deleteSupplier = async (req, res, next) => {
 
 module.exports.deleteProducts = async (req, res, next) => {
   try {
-    const { PRODID } = req.headers;
-    if (!PRODID) {
+    const { prodid } = req.headers;
+    if (!prodid) {
       res.json(createResponse(null, "Id required", true));
     } else {
-      const data = { PRODID };
+      const data = { PRODID: prodid };
       const result = await deleteProducts(data);
       res.json(createResponse(result));
     }

@@ -2,14 +2,29 @@ const { Execute } = require("../../../utils/dynamicController");
 
 /*------------- Get ------------*/
 module.exports.getMonths = () => Execute("SELECT * FROM months");
+// category
 module.exports.getCategories = () =>
   Execute("SELECT * FROM STR_CATEGORIES ORDER BY CAT_ID");
+module.exports.getSingleCategory = ({ CAT_ID }) =>
+  Execute(`SELECT * FROM STR_CATEGORIES WHERE CAT_ID = ${CAT_ID}`);
+
+// unit
 module.exports.getUnits = () =>
   Execute("SELECT * FROM STR_UNITS ORDER BY UNIT_ID");
+module.exports.getSingleUnit = ({ UNIT_ID }) =>
+  Execute(`SELECT * FROM STR_UNITS WHERE UNIT_ID = ${UNIT_ID}`);
+
+// supplier
 module.exports.getSuppliers = () =>
   Execute("SELECT * from STR_SUPPLIERS ORDER BY SUP_ID");
+module.exports.getSingleSupplier = ({ SUP_ID }) =>
+  Execute(`SELECT * FROM STR_SUPPLIERS WHERE SUP_ID = ${SUP_ID}`);
+
+// product
 module.exports.getProducts = () =>
   Execute("SELECT * FROM STR_STOREPRODUCTS ORDER BY PRODID");
+module.exports.getSingleProduct = ({ PRODID }) =>
+  Execute(`SELECT * FROM STR_STOREPRODUCTS WHERE PRODID = ${PRODID}`);
 
 /*-------------- Post -------------------*/
 module.exports.postCategory = ({ CATEGORYBN, CATEGORYEN }) =>

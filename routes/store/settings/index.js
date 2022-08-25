@@ -4,9 +4,16 @@ const settingsController = require("../../../controllers/store/settings/settings
 // get route
 router.get("/months", settingsController.getMonths);
 router.get("/categories", settingsController.getCategories);
+router.get("/category/id", settingsController.getSingleCategory);
+
 router.get("/units", settingsController.getUnits);
+router.get("/unit/id", settingsController.getSingleUnit);
+
 router.get("/suppliers", settingsController.getSuppliers);
+router.get("/supplier/id", settingsController.getSingleSupplier);
+
 router.get("/products", settingsController.getProducts);
+router.get("/product/id", settingsController.getSingleProduct);
 
 // post routes
 router.post("/categories", settingsController.postCategory);
