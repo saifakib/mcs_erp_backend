@@ -2,7 +2,7 @@ const oracledb = require("oracledb");
 require("dotenv").config();
 
 // config
-oracledb.initOracleClient({ libDir: "C:\\instantclient_21_3" });
+oracledb.initOracleClient({ libDir: process.env.INSTACLIENT });
 oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 oracledb.autoCommit = true;
 

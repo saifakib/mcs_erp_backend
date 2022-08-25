@@ -17,7 +17,7 @@ const {
   deleteSupplier,
   deleteUnits,
   deleteProducts,
-} = require("../../../services/store/settings/index");
+} = require("../../../services/store/settings");
 
 /*------------- All Get Routes ---------------*/
 

@@ -2,10 +2,14 @@ const { Execute } = require("../../../utils/dynamicController");
 
 /*------------- Get ------------*/
 module.exports.getMonths = () => Execute("SELECT * FROM months");
-module.exports.getCategories = () => Execute("SELECT * FROM STR_CATEGORIES");
-module.exports.getUnits = () => Execute("SELECT * FROM STR_UNITS");
-module.exports.getSuppliers = () => Execute("SELECT * from STR_SUPPLIERS");
-module.exports.getProducts = () => Execute("SELECT * FROM STR_STOREPRODUCTS");
+module.exports.getCategories = () =>
+  Execute("SELECT * FROM STR_CATEGORIES ORDER BY CAT_ID");
+module.exports.getUnits = () =>
+  Execute("SELECT * FROM STR_UNITS ORDER BY UNIT_ID");
+module.exports.getSuppliers = () =>
+  Execute("SELECT * from STR_SUPPLIERS ORDER BY SUP_ID");
+module.exports.getProducts = () =>
+  Execute("SELECT * FROM STR_STOREPRODUCTS ORDER BY PRODID");
 
 /*-------------- Post -------------------*/
 module.exports.postCategory = ({ CATEGORYBN, CATEGORYEN }) =>
@@ -49,7 +53,7 @@ module.exports.updateProducts = ({ PRONAME, PRONAMETWO, PROCATE, PRODID }) =>
   );
 
 /*------------------ Delete ----------------*/
-module.exports.deletCategory = ({ CAT_ID }) =>
+module.exports.deleteCategory = ({ CAT_ID }) =>
   Execute(`DELETE FROM STR_CATEGORIES WHERE CAT_ID = ${CAT_ID}`);
 
 module.exports.deleteUnits = ({ UNIT_ID }) =>
