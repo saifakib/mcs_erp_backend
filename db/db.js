@@ -17,15 +17,13 @@ function getConnection() {
   return new Promise(async function (resolve, reject) {
     let connection;
     try {
-      // connecting
       connection = await oracledb.getConnection(config);
       // response
       resolve(connection);
     } catch (err) {
-      // handle error
       reject(err);
     }
   });
 }
 
-module.exports = getConnection;
+module.exports = { getConnection, oracledb };

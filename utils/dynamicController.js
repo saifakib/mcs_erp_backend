@@ -1,4 +1,4 @@
-const getConnection = require("../db/db");
+const { getConnection } = require("../db/db");
 
 module.exports.Execute = (QuertyString, object = {}) => {
   return new Promise(async function (resolve, reject) {
@@ -8,6 +8,7 @@ module.exports.Execute = (QuertyString, object = {}) => {
       await connection.close();
       resolve(result);
     } catch (err) {
+      console.log(err);
       reject(err);
     }
   });

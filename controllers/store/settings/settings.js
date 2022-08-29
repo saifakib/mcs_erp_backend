@@ -44,10 +44,11 @@ module.exports.getMonths = async (req, res, next) => {
 module.exports.getCategories = async (req, res, next) => {
   try {
     const { search } = req.headers;
+    const { page, limit } = req.query;
     if (!search) {
       res.json(createResponse(null, "Parameter required", true));
     } else {
-      const result = await getCategories(search);
+      const result = await getCategories(search, page, limit);
       res.json(createResponse(result.rows));
     }
   } catch (err) {
@@ -73,10 +74,11 @@ module.exports.getSingleCategory = async (req, res, next) => {
 module.exports.getUnits = async (req, res, next) => {
   try {
     const { search } = req.headers;
+    const { page, limit } = req.query;
     if (!search) {
       res.json(createResponse(null, "Parameter required", true));
     } else {
-      const result = await getUnits(search);
+      const result = await getUnits(search, page, limit);
       res.json(createResponse(result.rows));
     }
   } catch (err) {
@@ -103,10 +105,12 @@ module.exports.getSingleUnit = async (req, res, next) => {
 module.exports.getSuppliers = async (req, res, next) => {
   try {
     const { search } = req.headers;
+    const { page, limit } = req.query;
+
     if (!search) {
       res.json(createResponse(null, "Parameter required", true));
     } else {
-      const result = await getSuppliers(search);
+      const result = await getSuppliers(search, page, limit);
       res.json(createResponse(result.rows));
     }
   } catch (err) {
@@ -133,10 +137,11 @@ module.exports.getSingleSupplier = async (req, res, next) => {
 module.exports.getProducts = async (req, res, next) => {
   try {
     const { search } = req.headers;
+    const { page, limit } = req.query;
     if (!search) {
       res.json(createResponse(null, "Parameter required", true));
     } else {
-      const result = await getProducts(search);
+      const result = await getProducts(search, page, limit);
       res.json(createResponse(result.rows));
     }
   } catch (err) {
