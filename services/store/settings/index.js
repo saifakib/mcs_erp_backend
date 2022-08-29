@@ -6,12 +6,10 @@ module.exports.getMonths = (search) =>
     `SELECT * FROM months WHERE LOWER(MONTHS) LIKE '${search}' ORDER BY ID DESC`
   );
 // category
-module.exports.getCategories = (search, page, limit) => {
-  let offset = limit * page;
-  return Execute(
-    `SELECT * FROM STR_CATEGORIES WHERE LOWER(CATEGORYEN) LIKE LOWER('${search}') ORDER BY CAT_ID ASC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+module.exports.getCategories = (search='%%', page=0, limit=1000) =>
+  Execute(
+    `SELECT * FROM STR_CATEGORIES WHERE LOWER(CATEGORYEN) LIKE LOWER('${search}') ORDER BY CAT_ID ASC OFFSET ${page} ROWS FETCH NEXT ${limit} ROWS ONLY`
   );
-};
 
 module.exports.getSingleCategory = ({ CAT_ID }) =>
   Execute(`SELECT * FROM STR_CATEGORIES WHERE CAT_ID = ${CAT_ID}`);

@@ -1,49 +1,51 @@
-const { getConnection } = require("../../../db/db");
 const { createResponse } = require("../../../utils/responseGenerator");
+const {
+  getProducts,
+  totalQuantites,
+  totalQuantitesByCategoryId,
+  getProducListById,
+  getStoreProductByProdListId,
+  getProducListByCategoryId,
+  postProductEntries,
+  postStoreProduct,
+  postProductEntriesLists,
+  postProductSummaries,
+  testProduct
+} = require("../../../services/store/product/index");
+const { getCategories, getSingleCategory } = require("../../../services/store/settings/index");
+const { format } = require('date-fns')
 
 /*------------- All Get Routes ---------------*/
 
-const manageProducts = async (req, res, next) => {
+const manageProducts = async (_, res, next) => {
   try {
-    let connection = await getConnection();
-    const categorirs = await connection.execute(
-      "SELECT * FROM STR_CATEGORIES ORDER BY categoryen ASC"
-    );
-    const totalproducts = await connection.execute(
-      "SELECT SUM(quantities) FROM STR_PRODUCTENTRILISTS"
-    );
-    const totalquantites = await connection.execute(
-      "SELECT COUNT(proid) FROM STR_STOREPRODUCTS"
-    );
-    const products = await connection.execute(
-      "SELECT * FROM STR_STOREPRODUCTS ORDER BY proid ASC"
-    );
+
+    const categorirs = await getCategories();
+    const products = await getProducts();
+    const totalProducts = products.rows.length;
+    const totalquantites = await totalQuantites();
 
     let result = {
-      categorirs: categorirs.rows,
-      totalproducts: totalproducts.rows,
-      totalquantites: totalquantites.rows,
+      categories: categorirs.rows,
       products: products.rows,
+      totalProducts,
+      totalquantites: totalquantites.rows,
     };
 
     res.json(createResponse(result));
-
-    await connection.close();
   } catch (err) {
+    console.log("Err", err)
     next(err);
   }
 };
 
 const checkProductDuplicate = async (req, res, next) => {
-  const { id } = req.params;
+  const { prod_id: PROD_ID } = req.params;
   try {
-    const statement = `SELECT * FROM str_productlists where prodid=${id}`;
-    let connection = await getConnection();
-    const result1 = await connection.execute(statement);
+    const result1 = await getProducListById(PROD_ID);
     if (result1.rows.length > 0) {
-      const result2 = await connection.execute(
-        `SELECT * FROM str_storeproducts where proname=${result1?.rows[0].proname}`
-      );
+      const result2 = await getStoreProductByProdListId(result1.rows[0].PRODID);
+      console.log(result2)
       if (result2.rows.length > 0) {
         res.json(createResponse(true));
       } else {
@@ -52,58 +54,73 @@ const checkProductDuplicate = async (req, res, next) => {
     } else {
       res.json(createResponse(null, "Product Id does not exits"));
     }
-    await connection.close();
   } catch (err) {
     next(err);
   }
 };
 
-const getCategoryProductlist = async (req, res, next) => {
-  const { id } = req.params;
+const getProductlistByCategoryId = async (req, res, next) => {
+  const { cat_id: CAT_ID } = req.params;
   try {
-    let connection = await getConnection();
-    const result = await connection.execute(
-      `SELECT * FROM str_productlists where prodid=${id}`
-    );
+    const result = await getProducListByCategoryId(CAT_ID);
     if (result.rows.length > 0) {
       res.json(createResponse(result.rows));
     } else {
-      res.json(createResponse(null, "Product Id does not exits"));
+      res.json(createResponse(null, "Category Id does not exits"));
     }
-    await connection.close();
   } catch (err) {
     next(err);
   }
 };
 
-const categoryProducts = async (req, res, next) => {
-  const { id } = req.params;
+const categoryProductsQuantitiesById = async (req, res, next) => {
+  const { cat_id: CAT_ID } = req.params;
   try {
-    let connection = await getConnection();
-    const category = await connection.execute(
-      `SELECT * FROM STR_CATEGORIES WHERE cat_id=${id}`
-    );
-    const totalproducts = await connection.execute(
-      `SELECT SUM(proqty) FROM STR_PRODUCTENTRILISTS WHERE procate=${id}`
-    );
-    // const getproducts = await connection.execute("");
+    const category = await getSingleCategory({ CAT_ID });
+    const totalProductQuantites = await totalQuantitesByCategoryId(CAT_ID);
 
     let result = {
       category: category.rows,
-      totalproducts: totalproducts.rows,
+      totalProductQuantites,
     };
-
     res.json(createResponse(result));
 
-    await connection.close();
   } catch (err) {
     next(err);
   }
 };
+
+
+const saveProductEntrilist = async (req, res, next) => {
+  const { mrrnno, supplier, products, username } = req.body;
+  let date = new Date();
+  let entridate = date.toISOString().split('T')[0];
+  let entritime = format(date, 'hh:mm a');
+  let entrimonth = format(date, 'LLLL-yyyy');
+  let summdate = format(date, 'yyyy-MM-dd');
+  try {
+    const postProEntries = await postProductEntries(req.body, entridate, entritime, entrimonth);
+    if (postProEntries.outBinds.id) {
+      // product should be an object
+      products.forEach(async (product) => {
+        const postStorePro = await postStoreProduct(product)
+
+        const postProtEntriesLists = await postProductEntriesLists(product, mrrnno, supplier, postStorePro.outBinds.id, entridate, entrimonth, username);
+        const postProSummaries = await postProductSummaries(product, postStorePro.outBinds.id, entridate, summdate, entrimonth)
+        }
+      )
+      res.json(createResponse(null, "Product Upload Succesfully"));
+    }
+  }
+  catch (err) {
+    next(err);
+  }
+}
 
 module.exports = {
   manageProducts,
   checkProductDuplicate,
-  getCategoryProductlist,
-  categoryProducts,
+  getProductlistByCategoryId,
+  categoryProductsQuantitiesById,
+  saveProductEntrilist
 };

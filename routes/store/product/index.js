@@ -1,12 +1,12 @@
 const router = require("express").Router();
-const { manageProducts, checkProductDuplicate, getCategoryProductlist } = require("../../../controllers/store/product");
+const { manageProducts, checkProductDuplicate, getProductlistByCategoryId, categoryProductsQuantitiesById, saveProductEntrilist } = require("../../../controllers/store/product");
 
 
 router.get("/manageproducts", manageProducts)
-router.get("/checkProductDuplicate/:id", checkProductDuplicate);
-router.get("/getCategoryProductlist/:id", getCategoryProductlist);
-router.get('categoryProducts/:id')
-router.post("/saveproductentrilist");
-router.post("/reupdateproductentrilist")
+router.get("/checkProductDuplicate/:prod_id", checkProductDuplicate);
+router.get("/getCategoryProductlist/:cat_id", getProductlistByCategoryId);
+router.get('categoryProductsQuantities/:cat_id', categoryProductsQuantitiesById)
+router.post("/saveproductentrilist", saveProductEntrilist);
+// router.post("/reupdateproductentrilist")
 
 module.exports = router;

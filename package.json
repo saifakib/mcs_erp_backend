@@ -15,7 +15,7 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "date-fns": "^2.28.0",
+    "date-fns": "^2.29.2",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "oracledb": "^5.4.0"
