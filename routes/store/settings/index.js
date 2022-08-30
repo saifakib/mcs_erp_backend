@@ -15,6 +15,9 @@ router.get("/supplier/:id", settingsController.getSingleSupplier);
 router.get("/products", settingsController.getProducts);
 router.get("/product/:id", settingsController.getSingleProduct);
 
+router.get("/categories-data", settingsController.getCategoryWithLength);
+router.get("/productByCatId/:id", settingsController.getProductByCatId);
+
 // post routes
 router.post("/categories", settingsController.postCategory);
 router.post("/units", settingsController.postUnits);
