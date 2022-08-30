@@ -9,6 +9,8 @@ const {
   getSingleSupplier,
   getProducts,
   getSingleProduct,
+  getCategoryWithLength,
+  getProductByCatId,
   postCategory,
   postUnits,
   postSupplier,
@@ -159,6 +161,32 @@ module.exports.getSingleProduct = async (req, res, next) => {
       const result = await getSingleProduct({ PRODID: id });
       res.json(createResponse(result.rows[0]));
     }
+  } catch (err) {
+    next(err.message);
+  }
+};
+
+// get product by cat id
+module.exports.getProductByCatId = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.json(createResponse(null, "Id required", true));
+    } else {
+      const result = await getProductByCatId({ CAT_ID: id });
+      res.json(createResponse(result.rows));
+    }
+  } catch (err) {
+    next(err.message);
+  }
+};
+
+// product category with length
+module.exports.getCategoryWithLength = async (req, res, next) => {
+  try {
+    const result = await getCategoryWithLength();
+    console.log(result);
+    res.json(createResponse(result.rows));
   } catch (err) {
     next(err.message);
   }

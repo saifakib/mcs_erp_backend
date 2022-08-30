@@ -10,6 +10,9 @@ const {
   postStoreProduct,
   postProductEntriesLists,
   postProductSummaries,
+  getStoreProductByCategoryId,
+  getTotalStoreProducts,
+  getTotalStoreProdQty,
   testProduct
 } = require("../../../services/store/product/index");
 const { getCategories, getSingleCategory } = require("../../../services/store/settings/index");
@@ -19,17 +22,15 @@ const { format } = require('date-fns')
 
 const manageProducts = async (_, res, next) => {
   try {
-
     const categorirs = await getCategories();
-    const products = await getProducts();
-    const totalProducts = products.rows.length;
-    const totalquantites = await totalQuantites();
+    const { rows } = await getTotalStoreProdQty();
+    //const tt = await getCatWithStoreProdNum();
+    //console.log(tt)
 
     let result = {
       categories: categorirs.rows,
-      products: products.rows,
-      totalProducts,
-      totalquantites: totalquantites.rows,
+      totalProducts: rows[0].PRODUCT,
+      totalquantites: rows[0].QUENTITY,
     };
 
     res.json(createResponse(result));
@@ -38,6 +39,16 @@ const manageProducts = async (_, res, next) => {
     next(err);
   }
 };
+
+const getStoreProByCatId = async (req, res, next) => {
+  const { cat_id: CAT_ID } = req.params;
+  try {
+    const result = await getStoreProductByCategoryId(CAT_ID);
+    res.json(createResponse(result.rows));
+  } catch (err) {
+    next(err);
+  }
+}
 
 const checkProductDuplicate = async (req, res, next) => {
   const { prod_id: PROD_ID } = req.params;
@@ -100,16 +111,29 @@ const saveProductEntrilist = async (req, res, next) => {
   let summdate = format(date, 'yyyy-MM-dd');
   try {
     const postProEntries = await postProductEntries(req.body, entridate, entritime, entrimonth);
-    if (postProEntries.outBinds.id) {
+
+    if (postProEntries.outBinds.id[0]) {
       // product should be an object
       products.forEach(async (product) => {
-        const postStorePro = await postStoreProduct(product)
+        const postStorePro = await postStoreProduct(product);
 
-        const postProtEntriesLists = await postProductEntriesLists(product, mrrnno, supplier, postStorePro.outBinds.id, entridate, entrimonth, username);
-        const postProSummaries = await postProductSummaries(product, postStorePro.outBinds.id, entridate, summdate, entrimonth)
+        if (postStorePro.outBinds.id[0]) {
+          const dd = await postProductEntriesLists(product, mrrnno, supplier, postStorePro.outBinds.id[0], entridate, entrimonth, username);
+          const ee = await postProductSummaries(product, postStorePro.outBinds.id[0], entridate, summdate, entrimonth);
+
+          if (!dd.outBinds.id[0] && !ee.outBinds.id) {
+            res.json(createResponse(null, "RRRR", true));
+          }
         }
+        else {
+          res.json(createResponse(null, "Some Error Occured In New Product Entry jjjjj", true));
+        }
+      }
       )
       res.json(createResponse(null, "Product Upload Succesfully"));
+    }
+    else {
+      res.json(createResponse(null, "Error", true));
     }
   }
   catch (err) {
@@ -122,5 +146,6 @@ module.exports = {
   checkProductDuplicate,
   getProductlistByCategoryId,
   categoryProductsQuantitiesById,
-  saveProductEntrilist
+  saveProductEntrilist,
+  getStoreProByCatId
 };

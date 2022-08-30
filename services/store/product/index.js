@@ -4,10 +4,13 @@ const { Execute } = require('../../../utils/dynamicController');
 /*------------- Get ------------*/
 
 const getProducts = () => Execute("SELECT * FROM STR_STOREPRODUCTS ORDER BY proid ASC");
-const totalQuantites = () => Execute("SELECT COUNT(proid) FROM STR_STOREPRODUCTS")
+const getTotalStoreProducts = () => Execute("SELECT COUNT(PROID) FROM STR_STOREPRODUCTS");
+const totalQuantites = () => Execute("SELECT COUNT(PROQTY) FROM STR_STOREPRODUCTS")
+const getTotalStoreProdQty = () => Execute("SELECT COUNT(PROID) AS Product, SUM(PROQTY) AS Quentity FROM STR_STOREPRODUCTS");
 const totalQuantitesByCategoryId = (CAT_ID) => Execute(`SELECT SUM(proqty) FROM STR_PRODUCTENTRILISTS WHERE procate=${CAT_ID}`)
 const getProducListById = (PROD_ID) => Execute(`SELECT * FROM STR_PRODUCTLISTS where prodid=${PROD_ID}`);
 const getStoreProductByProdListId = (PROD_ID) => Execute(`SELECT * FROM STR_STOREPRODUCTS where prodlistid=${PROD_ID}`);
+const getStoreProductByCategoryId = (CAT_ID) => Execute(`SELECT COUNT(PROID) FROM STR_STOREPRODUCTS where procate=${CAT_ID}`);
 const getProducListByCategoryId = (CAT_ID) => Execute(`SELECT * FROM STR_PRODUCTLISTS WHERE procate=${CAT_ID}`)
 
 
@@ -17,14 +20,15 @@ const getProducListByCategoryId = (CAT_ID) => Execute(`SELECT * FROM STR_PRODUCT
 const postProductEntries = ({ mrrnno, supplier, suppdate, workorder, workodate, cashmemono, cashmemodate, username }, entridate, entritime, entrimonth) => Execute(`INSERT INTO STR_PRODUCTENTRIES (mrrnno, supplier, suppdate, workorder, workodate, cashmemono, cashmemodate, entritime, entridate, entrimonth, entryby) VALUES (${Number(mrrnno)}, ${Number(supplier)}, '${suppdate}', '${workorder}', '${workodate}', '${cashmemono}', '${cashmemodate}', '${entritime}', '${entridate}', '${entrimonth}', '${username}') RETURN proinid INTO :id`, { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } })
 
 // Store Product
-const postStoreProduct = ({prod_list_id, qty, price, category, prod_unit, stock_alert }) => Execute(`INSERT INTO STR_STOREPRODUCTS (proqty, stockprice, procate, produnit, stockalert, prodlistid) VALUES (${Number(qty)}, ${Number(price)}, ${Number(category)}, ${Number(prod_unit)}, ${Number(stock_alert)}, ${Number(prod_list_id)}) RETURN proid INTO :id`, { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } });
+const postStoreProduct = ({proname, pro_name_two, prod_list_id, qty, price, category, prod_unit, stock_alert }) =>  Execute(`INSERT INTO STR_STOREPRODUCTS (proname, pronametwo, proqty, stockprice, procate, produnit, stockalert, prodlistid) VALUES ('${proname}', '${pro_name_two}', ${Number(qty)}, ${Number(price)}, ${Number(category)}, ${Number(prod_unit)}, ${Number(stock_alert)}, ${Number(prod_list_id)}) RETURN proid INTO :id`, { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } });
+
 
 // Product Entries Lists
-const postProductEntriesLists = ({ qty, price }, mrrnno, supplier, storeproid, entridate, entrimonth, username) => Execute(`INSERT INTO STR_PRODUCTENTRILISTS (mrrnumber, productfrom, productidno, quantities, proamount, prodate, promonth, prodentryby) VALUES (${Number(mrrnno)}, ${Number(supplier)}, ${Number(storeproid)}, ${Number(qty)}, ${Number(price)}, '${entridate}', '${entrimonth}', '${username}')`);
+const postProductEntriesLists = ({ qty, price }, mrrnno, supplier, storeproid, entridate, entrimonth, username) => Execute(`INSERT INTO STR_PRODUCTENTRILISTS (mrrnumber, productfrom, productidno, quantities, proamount, prodate, promonth, prodentryby) VALUES (${Number(mrrnno)}, ${Number(supplier)}, ${Number(storeproid)}, ${Number(qty)}, ${Number(price)}, '${entridate}', '${entrimonth}', '${username}') RETURN prolistid INTO :id`, { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } });
 
 
 // Product Summaries
-const postProductSummaries = ({ proname, pro_name_two, qty, price }, storeproid, entridate, summdate, entrimonth) => Execute(`INSERT INTO STR_PRODUCTSUMMARIES (productid, productname, prodnametwo, newaddqty, totalbalance, presentbalance, currentprice, addtodate, summdate, summmonth, summertype) VALUES (${Number(storeproid)}, '${proname}', '${pro_name_two}', ${Number(qty)}, ${Number(qty)}, ${Number(qty)}, ${Number(price)}, '${entridate}', '${summdate}', '${entrimonth}', 'In')`);
+const postProductSummaries = ({ proname, pro_name_two, qty, price }, storeproid, entridate, summdate, entrimonth) => Execute(`INSERT INTO STR_PRODUCTSUMMARIES (productid, productname, prodnametwo, newaddqty, totalbalance, presentbalance, currentprice, addtodate, summdate, summmonth, summertype) VALUES (${Number(storeproid)}, '${proname}', '${pro_name_two}', ${Number(qty)}, ${Number(qty)}, ${Number(qty)}, ${Number(price)}, '${entridate}', '${summdate}', '${entrimonth}', 'In') RETURN prosumid INTO :id`, { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } });
 
 
 const testProduct = () => {
@@ -44,10 +48,13 @@ module.exports = {
     totalQuantites,
     totalQuantitesByCategoryId,
     getProducListById,
+    getTotalStoreProducts,
     getStoreProductByProdListId,
+    getStoreProductByCategoryId,
     getProducListByCategoryId,
     postProductEntries,
     postStoreProduct,
     postProductEntriesLists,
-    postProductSummaries
+    postProductSummaries,
+    getTotalStoreProdQty
 }
