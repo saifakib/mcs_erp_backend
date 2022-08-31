@@ -170,10 +170,17 @@ module.exports.getSingleProduct = async (req, res, next) => {
 module.exports.getProductByCatId = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const { search } = req.headers;
+    const { page, limit } = req.query;
     if (!id) {
       res.json(createResponse(null, "Id required", true));
     } else {
-      const result = await getProductByCatId({ CAT_ID: id });
+      const result = await getProductByCatId({
+        CAT_ID: id,
+        search,
+        page,
+        limit,
+      });
       res.json(createResponse(result.rows));
     }
   } catch (err) {
@@ -185,7 +192,6 @@ module.exports.getProductByCatId = async (req, res, next) => {
 module.exports.getCategoryWithLength = async (req, res, next) => {
   try {
     const result = await getCategoryWithLength();
-    console.log(result);
     res.json(createResponse(result.rows));
   } catch (err) {
     next(err.message);
@@ -246,7 +252,6 @@ module.exports.postSupplier = async (req, res, next) => {
 module.exports.postProduct = async (req, res, next) => {
   try {
     const { proname, pronametwo, procate } = req.body;
-    console.log(req.body);
     if (!proname && !pronametwo && !procate) {
       res.json(createResponse(null, "Fields required", true));
     } else {

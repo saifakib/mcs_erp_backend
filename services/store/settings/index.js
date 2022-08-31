@@ -43,7 +43,7 @@ module.exports.getSingleSupplier = ({ SUP_ID }) =>
 module.exports.getProducts = (search = "%%", page = 0, limit = 1000) => {
   let offset = limit * page;
   return Execute(
-    `SELECT PL.PRODID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, C.CATEGORYBN, C.CATEGORYEN FROM  STR_PRODUCTLISTS PL LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = PL.PROCATE WHERE LOWER(PRONAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYEN) LIKE LOWER('${search}') OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+    `SELECT PL.PRODID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, C.CATEGORYBN, C.CATEGORYEN FROM  STR_PRODUCTLISTS PL LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = PL.PROCATE WHERE LOWER(PRONAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYEN) LIKE LOWER('${search}') ORDER BY PRODID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
   );
 };
 
@@ -52,10 +52,19 @@ module.exports.getSingleProduct = ({ PRODID }) =>
     `SELECT PL.PRODID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, C.CATEGORYBN, C.CATEGORYEN FROM  STR_PRODUCTLISTS PL LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = PL.PROCATE WHERE PRODID = ${PRODID}`
   );
 
-module.exports.getProductByCatId = ({ CAT_ID }) =>
-  Execute(
-    `SELECT * FROM STR_PRODUCTLISTS WHERE PROCATE = ${CAT_ID} ORDER BY PRODID DESC`
+module.exports.getProductByCatId = ({
+  CAT_ID,
+  search = "%%",
+  page = 0,
+  limit = 1000,
+}) => {
+  let offset = limit * page;
+  return Execute(
+    `SELECT * FROM STR_PRODUCTLISTS WHERE PROCATE = ${parseInt(
+      CAT_ID
+    )} AND LOWER(PRONAME || PRONAMETWO) LIKE LOWER('${search}') ORDER BY PRODID OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
   );
+};
 
 // product category with length
 module.exports.getCategoryWithLength = () =>
@@ -96,7 +105,7 @@ module.exports.updateSupplier = ({ SUPPLIER, SUP_ID }) =>
 
 module.exports.updateProducts = ({ PRONAME, PRONAMETWO, PROCATE, PRODID }) =>
   Execute(
-    `UPDATE STR_PRODUCTLISTS SET proname = '${PRONAME}', pronametwo = '${PRONAMETWO}', procate = '${PROCATE}' WHERE prodid = ${PRODID}`
+    `UPDATE STR_PRODUCTLISTS SET proname = '${PRONAME}', pronametwo = '${PRONAMETWO}', procate = ${PROCATE} WHERE prodid = ${PRODID}`
   );
 
 /*------------------ Delete ----------------*/
