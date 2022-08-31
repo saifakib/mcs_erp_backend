@@ -17,6 +17,7 @@ const {
   getExStoreProductByProdListId,
   updateStoreProduct,
   getLastMrrNumber,
+  getNewProductList,
   testProduct
 } = require("../../../services/store/product/index");
 const { getSingleCategory, getSingleUnit } = require("../../../services/store/settings/index");
@@ -204,6 +205,18 @@ const updateproductentrilist = async (req, res, next) => {
   }
 }
 
+
+const newProductList = async(req, res, next) => {
+  const { cat_id:CAT_ID } = req.params;
+
+  try {
+    const productListForNew = await getNewProductList(CAT_ID);
+    res.json(createResponse(productListForNew.rows));
+  } catch(err) {
+    next(err)
+  }
+}
+
 module.exports = {
   manageProducts,
   checkProductDuplicate,
@@ -213,5 +226,6 @@ module.exports = {
   updateproductentrilist,
   getStoreProByCatId,
   getStoreProductByListId,
-  lastMrrNum
+  lastMrrNum,
+  newProductList
 };

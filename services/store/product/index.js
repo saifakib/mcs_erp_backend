@@ -28,6 +28,8 @@ const getExStoreProductByProdListId = (PROD_ID) => Execute(`SELECT PROQTY, STOCK
 
 const getLastMrrNumber = () => Execute(`SELECT MAX(MRRNNO) AS MRRNO FROM STR_PRODUCTENTRIES`)
 
+const getNewProductList = (CAT_ID) => Execute(`SELECT * FROM STR_PRODUCTLISTS PL WHERE PL.PROCATE = ${CAT_ID} AND PL.PRODID NOT IN (SELECT SP.PRODLISTID FROM STR_STOREPRODUCTS SP)`)
+
 
 /*-------------- Post -------------------*/
 
@@ -81,4 +83,5 @@ module.exports = {
     updateStoreProduct,
     postProductEntriesLists,
     postProductSummaries,
+    getNewProductList,
 }
