@@ -13,19 +13,21 @@ const {
   getStoreProductByCategoryId,
   getTotalStoreProducts,
   getTotalStoreProdQty,
+  getCategoryWithStoreLength,
+  getExStoreProductByProdListId,
+  updateStoreProduct,
+  getLastMrrNumber,
   testProduct
 } = require("../../../services/store/product/index");
-const { getCategories, getSingleCategory } = require("../../../services/store/settings/index");
+const { getSingleCategory, getSingleUnit } = require("../../../services/store/settings/index");
 const { format } = require('date-fns')
 
 /*------------- All Get Routes ---------------*/
 
 const manageProducts = async (_, res, next) => {
   try {
-    const categorirs = await getCategories();
+    const categorirs = await getCategoryWithStoreLength();
     const { rows } = await getTotalStoreProdQty();
-    //const tt = await getCatWithStoreProdNum();
-    //console.log(tt)
 
     let result = {
       categories: categorirs.rows,
@@ -102,6 +104,15 @@ const categoryProductsQuantitiesById = async (req, res, next) => {
 };
 
 
+const lastMrrNum = async (req, res, next) => {
+  try {
+    let mrrNumber = await getLastMrrNumber();
+    res.json(createResponse(mrrNumber.rows[0].MRRNO + 1));
+  } catch (err) {
+    next(err)
+  }
+}
+
 const saveProductEntrilist = async (req, res, next) => {
   const { mrrnno, supplier, products, username } = req.body;
   let date = new Date();
@@ -118,22 +129,74 @@ const saveProductEntrilist = async (req, res, next) => {
         const postStorePro = await postStoreProduct(product);
 
         if (postStorePro.outBinds.id[0]) {
-          const dd = await postProductEntriesLists(product, mrrnno, supplier, postStorePro.outBinds.id[0], entridate, entrimonth, username);
-          const ee = await postProductSummaries(product, postStorePro.outBinds.id[0], entridate, summdate, entrimonth);
+          const postProEnList = await postProductEntriesLists(product, mrrnno, supplier, postStorePro.outBinds.id[0], entridate, entrimonth, username);
+          const postProSum = await postProductSummaries(product, postStorePro.outBinds.id[0], entridate, summdate, entrimonth);
 
-          if (!dd.outBinds.id[0] && !ee.outBinds.id) {
-            res.json(createResponse(null, "RRRR", true));
+          if (!postProEnList.outBinds.id[0] || !postProSum.outBinds.id[0]) {
+            res.json(createResponse(null, "Error Occured In New Product Entry", true));
           }
         }
         else {
-          res.json(createResponse(null, "Some Error Occured In New Product Entry jjjjj", true));
+          res.json(createResponse(null, "Some Error Occured In New Product Entry", true));
         }
       }
       )
       res.json(createResponse(null, "Product Upload Succesfully"));
     }
     else {
-      res.json(createResponse(null, "Error", true));
+      res.json(createResponse(null, "Error Occured In Product Entry !!", true));
+    }
+  }
+  catch (err) {
+    next(err);
+  }
+}
+
+const getStoreProductByListId = async (req, res, next) => {
+  const { list_id } = req.params;
+  try {
+    if (!list_id) {
+      res.json(createResponse(null, "Parameter required", true));
+    } else {
+      let storeProduct = await getExStoreProductByProdListId(list_id);
+      res.json(createResponse(storeProduct.rows[0]));
+    }
+  } catch (err) {
+    next(err)
+  }
+}
+
+const updateproductentrilist = async (req, res, next) => {
+  const { mrrnno, supplier, products, username } = req.body;
+  let date = new Date();
+  let entridate = date.toISOString().split('T')[0];
+  let entritime = format(date, 'hh:mm a');
+  let entrimonth = format(date, 'LLLL-yyyy');
+  let summdate = format(date, 'yyyy-MM-dd');
+  try {
+    const postProEntries = await postProductEntries(req.body, entridate, entritime, entrimonth);
+
+    if (postProEntries.outBinds.id[0]) {
+      // product should be an object
+      products.forEach(async (product) => {
+        if (product.proid) {
+          await updateStoreProduct(product);
+          const postProEnList = await postProductEntriesLists(product, mrrnno, supplier, postStorePro.outBinds.id[0], entridate, entrimonth, username);
+          const postProSum = await postProductSummaries(product, postStorePro.outBinds.id[0], entridate, summdate, entrimonth);
+
+          if (!postProEnList.outBinds.id[0] || !postProSum.outBinds.id[0]) {
+            res.json(createResponse(null, "Error Occured In New Product Entry", true));
+          }
+        }
+        else {
+          res.json(createResponse(null, "Some Error Occured In New Product Update", true));
+        }
+      }
+      )
+      res.json(createResponse(null, "Product Update Succesfully"));
+    }
+    else {
+      res.json(createResponse(null, "Error Occured In Product Entry !!", true));
     }
   }
   catch (err) {
@@ -147,5 +210,8 @@ module.exports = {
   getProductlistByCategoryId,
   categoryProductsQuantitiesById,
   saveProductEntrilist,
-  getStoreProByCatId
+  updateproductentrilist,
+  getStoreProByCatId,
+  getStoreProductByListId,
+  lastMrrNum
 };

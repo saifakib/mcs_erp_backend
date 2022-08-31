@@ -9,9 +9,24 @@ const totalQuantites = () => Execute("SELECT COUNT(PROQTY) FROM STR_STOREPRODUCT
 const getTotalStoreProdQty = () => Execute("SELECT COUNT(PROID) AS Product, SUM(PROQTY) AS Quentity FROM STR_STOREPRODUCTS");
 const totalQuantitesByCategoryId = (CAT_ID) => Execute(`SELECT SUM(proqty) FROM STR_PRODUCTENTRILISTS WHERE procate=${CAT_ID}`)
 const getProducListById = (PROD_ID) => Execute(`SELECT * FROM STR_PRODUCTLISTS where prodid=${PROD_ID}`);
-const getStoreProductByProdListId = (PROD_ID) => Execute(`SELECT * FROM STR_STOREPRODUCTS where prodlistid=${PROD_ID}`);
+
 const getStoreProductByCategoryId = (CAT_ID) => Execute(`SELECT COUNT(PROID) FROM STR_STOREPRODUCTS where procate=${CAT_ID}`);
 const getProducListByCategoryId = (CAT_ID) => Execute(`SELECT * FROM STR_PRODUCTLISTS WHERE procate=${CAT_ID}`)
+
+
+// product category with Store Product length
+const getCategoryWithStoreLength = () =>
+  Execute(
+    "SELECT distinct(C.CAT_ID), C.CATEGORYBN, C.CATEGORYEN, COUNT(P.PROID) OVER(PARTITION BY P.PROCATE) AS PRODUCTS FROM STR_CATEGORIES C LEFT OUTER JOIN STR_STOREPRODUCTS P ON C.CAT_ID = P.PROCATE ORDER BY CAT_ID DESC"
+  );
+
+
+//Get Product Info from StoreProduct by productlistId
+const getStoreProductByProdListId = (PROD_ID) => Execute(`SELECT * FROM STR_STOREPRODUCTS where prodlistid=${PROD_ID}`);
+
+const getExStoreProductByProdListId = (PROD_ID) => Execute(`SELECT PROQTY, STOCKPRICE, UNIT from STR_STOREPRODUCTS S left outer join STR_UNITS U on S.PRODUNIT = U.UNIT_ID`);
+
+const getLastMrrNumber = () => Execute(`SELECT MAX(MRRNNO) AS MRRNO FROM STR_PRODUCTENTRIES`)
 
 
 /*-------------- Post -------------------*/
@@ -29,6 +44,11 @@ const postProductEntriesLists = ({ qty, price }, mrrnno, supplier, storeproid, e
 
 // Product Summaries
 const postProductSummaries = ({ proname, pro_name_two, qty, price }, storeproid, entridate, summdate, entrimonth) => Execute(`INSERT INTO STR_PRODUCTSUMMARIES (productid, productname, prodnametwo, newaddqty, totalbalance, presentbalance, currentprice, addtodate, summdate, summmonth, summertype) VALUES (${Number(storeproid)}, '${proname}', '${pro_name_two}', ${Number(qty)}, ${Number(qty)}, ${Number(qty)}, ${Number(price)}, '${entridate}', '${summdate}', '${entrimonth}', 'In') RETURN prosumid INTO :id`, { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } });
+
+
+
+/*--------------UPDATE-------------*/
+const updateStoreProduct = ({ proid, qty, price }) => Execute(`UPDATE STR_STOREPRODUCTS SET proqty + ${Number(qty)}, stockprice = ${Number(price)} WHERE proid = ${proid}`);
 
 
 const testProduct = () => {
@@ -52,9 +72,13 @@ module.exports = {
     getStoreProductByProdListId,
     getStoreProductByCategoryId,
     getProducListByCategoryId,
+    getLastMrrNumber,
+    getCategoryWithStoreLength,
+    getTotalStoreProdQty,
+    getExStoreProductByProdListId,
     postProductEntries,
     postStoreProduct,
+    updateStoreProduct,
     postProductEntriesLists,
     postProductSummaries,
-    getTotalStoreProdQty
 }

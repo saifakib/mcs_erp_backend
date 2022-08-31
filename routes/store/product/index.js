@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { manageProducts, checkProductDuplicate, getProductlistByCategoryId, categoryProductsQuantitiesById, saveProductEntrilist, getStoreProByCatId } = require("../../../controllers/store/product");
+const { manageProducts, checkProductDuplicate, getProductlistByCategoryId, categoryProductsQuantitiesById, saveProductEntrilist, getStoreProByCatId, getStoreProductByListId, updateproductentrilist, lastMrrNum } = require("../../../controllers/store/product");
 
 
 router.get("/manageproducts", manageProducts);
@@ -8,6 +8,8 @@ router.get("/checkProductDuplicate/:prod_id", checkProductDuplicate);
 router.get("/getCategoryProductlist/:cat_id", getProductlistByCategoryId);
 router.get('categoryProductsQuantities/:cat_id', categoryProductsQuantitiesById)
 router.post("/saveproductentrilist", saveProductEntrilist);
-// router.post("/reupdateproductentrilist")
+router.get('/getStoreProductByListId/:list_id', getStoreProductByListId),
+router.get('/lastMrrNumber', lastMrrNum)
+router.post("/updateproductentrilist", updateproductentrilist)
 
 module.exports = router;
