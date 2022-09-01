@@ -262,13 +262,13 @@ const updateproductentrilist = async (req, res, next) => {
 }
 
 const updateProductList = async (req, res, next) => {
-  const { proid, prod_list_id, proname, pro_name_two, procate, prounit, status } = req.body;
+  const { proid, prod_list_id, proname, pro_name_two, procate, prounit, stockalert, status } = req.body;
   console.log(req.body)
   try {
     if (!proid || !prod_list_id || !proname || !pro_name_two || !procate || !prounit) {
       res.json(createResponse(null, "Missing Body Required!!", true));
     } else {
-      const updateStrProM = await updateStoreProductM(proid, proname, pro_name_two, procate, prounit, status);
+      const updateStrProM = await updateStoreProductM(proid, proname, pro_name_two, procate, prounit, stockalert, status);
       const updateListPro = await updateProducts({ PRONAME: proname, PRONAMETWO: pro_name_two, PROCATE: procate, PRODID: prod_list_id });
 
       if(updateStrProM.rowsAffected == 0 || updateListPro.rowsAffected == 0) {

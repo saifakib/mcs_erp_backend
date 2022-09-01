@@ -61,7 +61,7 @@ const postProductSummaries = ({ proname, pro_name_two, qty, price, category }, s
 
 const updateStoreProduct = ({ proid, qty, price }) => Execute(`UPDATE STR_STOREPRODUCTS SET proqty = proqty + ${Number(qty)}, stockprice = ${Number(price)} WHERE proid = ${proid}`);
 
-const updateStoreProductM = (proid, proname, pro_name_two, procate, prounit, status) => Execute(`UPDATE STR_STOREPRODUCTS SET proname = '${proname}', pronametwo='${pro_name_two}', procate = ${Number(procate)}, produnit = ${Number(prounit)}, protstatus = ${Number(status)} WHERE proid = ${Number(proid)}`);
+const updateStoreProductM = (proid, proname, pro_name_two, procate, prounit, stockalert, status) => Execute(`UPDATE STR_STOREPRODUCTS SET proname = '${proname}', pronametwo='${pro_name_two}', procate = ${Number(procate)}, produnit = ${Number(prounit)}, stockalert = ${Number(stockalert)}, protstatus = ${Number(status)} WHERE proid = ${Number(proid)}`);
 
 
 
