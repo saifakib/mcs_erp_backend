@@ -3,6 +3,7 @@ const { manageProducts, checkProductDuplicate, getProductlistByCategoryId, categ
 
 // Get Routes
 router.get("/manageproducts", manageProducts);
+router.get("manageSupplier");
 
 router.get('/getStoreProductByCategoryId/:cat_id', getStoreProByCatId);
 router.get("/checkProductDuplicate/:prod_id", checkProductDuplicate);

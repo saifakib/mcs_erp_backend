@@ -56,8 +56,10 @@ const lastMrrNum = async (req, res, next) => {
 
 const getStoreProByCatId = async (req, res, next) => {
   const { cat_id: CAT_ID } = req.params;
+  const {search} = req.headers;
+  const { page, limit } = req.query;
   try {
-    const result = await getStoreProductByCategoryId(CAT_ID);
+    const result = await getStoreProductByCategoryId(CAT_ID, search, page, limit);
     res.json(createResponse(result.rows));
   } catch (err) {
     next(err);
@@ -163,7 +165,6 @@ const saveProductEntrilist = async (req, res, next) => {
     }
     else {
       const postProEntries = await postProductEntries(req.body, entridate, entritime, entrimonth);
-
       if (postProEntries.outBinds.id[0]) {
         // product should be an object
         products.forEach(async (product) => {
@@ -228,8 +229,8 @@ const updateproductentrilist = async (req, res, next) => {
         // product should be an object
         products.forEach(async (product) => {
           if (product.proid) {
-            let {proname, pro_name_two, prod_list_id, qty, price, category, prod_unit, stock_alert} =  product;
-            if(!proname || !pro_name_two || !prod_list_id || !qty || !price || !category || !prod_unit || !stock_alert) {
+            let {proname, pro_name_two, qty, price, category, prod_unit} =  product;
+            if(!proname || !pro_name_two || !qty || !price || !category || !prod_unit) {
               res.json(createResponse(null, "Missing Product Body Required!!", true));
             }
             else {

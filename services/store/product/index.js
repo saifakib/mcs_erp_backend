@@ -11,13 +11,12 @@ const totalQuantitesByCategoryId = (CAT_ID) => Execute(`SELECT SUM(proqty) FROM 
 const getProducListById = (PROD_ID) => Execute(`SELECT * FROM STR_PRODUCTLISTS where prodid=${PROD_ID}`);
 
 
-// const getStoreProductByCategoryId = (CAT_ID, search = "%%", page = 0, limit = 1000) => {
-//   let offset = limit * page;
-//   return Execute(`SELECT * FROM STR_STOREPRODUCTS where procate=${CAT_ID} LIKE LOWER('${search}') ORDER BY PROID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
-// }
+const getStoreProductByCategoryId = (CAT_ID, search = '%%', page = 0, limit = 1000) => {
+  let offset = limit * page;
+  return Execute(`SELECT * FROM STR_STOREPRODUCTS where procate=${CAT_ID} AND LOWER(PRONAME || PRONAMETWO) LIKE LOWER('${search}') ORDER BY PROID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+}
 
 
-const getStoreProductByCategoryId = (CAT_ID) => Execute(`SELECT * FROM STR_STOREPRODUCTS where procate=${CAT_ID}`);
 const getProducListByCategoryId = (CAT_ID) => Execute(`SELECT * FROM STR_PRODUCTLISTS WHERE procate=${CAT_ID}`)
 
 
@@ -31,7 +30,7 @@ const getCategoryWithStoreLength = () =>
 //Get Product Info from StoreProduct by productlistId
 const getStoreProductByProdListId = (PROD_ID) => Execute(`SELECT * FROM STR_STOREPRODUCTS where prodlistid=${PROD_ID}`);
 
-const getExStoreProductByProdListId = (PROD_ID) => Execute(`SELECT PROQTY, STOCKPRICE, UNIT from STR_STOREPRODUCTS S left outer join STR_UNITS U on S.PRODUNIT = U.UNIT_ID`);
+const getExStoreProductByProdListId = (PROD_ID) => Execute(`SELECT PROID, PRONAME, PRONAMETWO, PROCATE, PRODUNIT, PROQTY, STOCKPRICE, UNIT from STR_STOREPRODUCTS S left outer join STR_UNITS U on S.PRODUNIT = U.UNIT_ID`);
 
 const getLastMrrNumber = () => Execute(`SELECT MAX(MRRNNO) AS MRRNO FROM STR_PRODUCTENTRIES`)
 
