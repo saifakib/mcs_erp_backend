@@ -24,8 +24,8 @@ router.get(
   "categoryProductsQuantities/:cat_id",
   categoryProductsQuantitiesById
 );
-router.get("/getStoreProductByListId/:list_id", getStoreProductByListId),
-  router.get("/newProductList/:cat_id", newProductList);
+router.get("/getStoreProductByListId/:list_id", getStoreProductByListId);
+router.get("/newProductList/:cat_id", newProductList);
 
 router.get("/lastMrrNumber", lastMrrNum);
 

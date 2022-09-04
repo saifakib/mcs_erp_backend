@@ -191,73 +191,79 @@ const saveProductEntrilist = async (req, res, next) => {
         entritime,
         entrimonth
       );
-    }
-    if (postProEntries.outBinds.id[0]) {
-      // product should be an object
-      products.forEach(async (product) => {
-        const {
-          proname,
-          pro_name_two,
-          prod_list_id,
-          qty,
-          price,
-          category,
-          prod_unit,
-          stock_alert,
-        } = product;
-        if (
-          !proname ||
-          !pro_name_two ||
-          !prod_list_id ||
-          !qty ||
-          !price ||
-          !category ||
-          !prod_unit ||
-          !stock_alert
-        ) {
-          res.json(
-            createResponse(null, "Missing Product Body Required!!", true)
-          );
-        } else {
-          const postStorePro = await postStoreProduct(product);
-
-          if (postStorePro.outBinds.id[0]) {
-            const postProEnList = await postProductEntriesLists(
-              product,
-              mrrnno,
-              supplier,
-              postStorePro.outBinds.id[0],
-              entridate,
-              entrimonth,
-              username
+      if (postProEntries.outBinds.id[0]) {
+        // product should be an object
+        products.forEach(async (product) => {
+          const {
+            proname,
+            pro_name_two,
+            prod_list_id,
+            qty,
+            price,
+            category,
+            prod_unit,
+            stock_alert,
+          } = product;
+          if (
+            !proname ||
+            !pro_name_two ||
+            !prod_list_id ||
+            !qty ||
+            !price ||
+            !category ||
+            !prod_unit ||
+            !stock_alert
+          ) {
+            res.json(
+              createResponse(null, "Missing Product Body Required!!", true)
             );
-            const postProSum = await postProductSummaries(
-              product,
-              postStorePro.outBinds.id[0],
-              entridate,
-              summdate,
-              entrimonth
-            );
+          } else {
+            const postStorePro = await postStoreProduct(product);
 
-            if (!postProEnList.outBinds.id[0] || !postProSum.outBinds.id[0]) {
+            if (postStorePro.outBinds.id[0]) {
+              const postProEnList = await postProductEntriesLists(
+                product,
+                mrrnno,
+                supplier,
+                postStorePro.outBinds.id[0],
+                entridate,
+                entrimonth,
+                username
+              );
+              const postProSum = await postProductSummaries(
+                product,
+                postStorePro.outBinds.id[0],
+                entridate,
+                summdate,
+                entrimonth
+              );
+
+              if (!postProEnList.outBinds.id[0] || !postProSum.outBinds.id[0]) {
+                res.json(
+                  createResponse(
+                    null,
+                    "Error Occured In New Product Entry",
+                    true
+                  )
+                );
+              }
+            } else {
               res.json(
-                createResponse(null, "Error Occured In New Product Entry", true)
+                createResponse(
+                  null,
+                  "Some Error Occured In New Product Entry",
+                  true
+                )
               );
             }
-          } else {
-            res.json(
-              createResponse(
-                null,
-                "Some Error Occured In New Product Entry",
-                true
-              )
-            );
           }
-        }
-      });
-      res.json(createResponse(null, "Product Upload Succesfully"));
-    } else {
-      res.json(createResponse(null, "Error Occured In Product Entry !!", true));
+        });
+        res.json(createResponse(null, "Product Upload Succesfully"));
+      } else {
+        res.json(
+          createResponse(null, "Error Occured In Product Entry !!", true)
+        );
+      }
     }
   } catch (err) {
     next(err);
