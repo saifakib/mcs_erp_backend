@@ -2,9 +2,24 @@ const { createResponse } = require("../../../utils/responseGenerator");
 const {
   postRequisitionInfo,
   postReqProduct,
+  getLastReqId,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
+/*------------- get ------------*/
+// getLastReqId
+module.exports.getLastReqId = async (req, res, next) => {
+  try {
+    let { rows } = await getLastReqId();
+    let { LAST_ID } = rows[0];
+    res.json(createResponse({ LAST_REQ_ID: LAST_ID + 1 }));
+  } catch (err) {
+    next(err.message);
+  }
+};
+
+/*------------- post ------------*/
+// post
 module.exports.postRequisition = async (req, res, next) => {
   try {
     const { products, user_id, lastReqNo } = req.body;
