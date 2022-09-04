@@ -59,10 +59,15 @@ const lastMrrNum = async (req, res, next) => {
 
 const getStoreProByCatId = async (req, res, next) => {
   const { cat_id: CAT_ID } = req.params;
-  const {search} = req.headers;
+  const { search } = req.headers;
   const { page, limit } = req.query;
   try {
-    const result = await getStoreProductByCategoryId(CAT_ID, search, page, limit);
+    const result = await getStoreProductByCategoryId(
+      CAT_ID,
+      search,
+      page,
+      limit
+    );
     res.json(createResponse(result.rows));
   } catch (err) {
     next(err);
@@ -179,11 +184,6 @@ const saveProductEntrilist = async (req, res, next) => {
       !cashmemodate
     ) {
       res.json(createResponse(null, "Missing Body Required!!", true));
-<<<<<<< Updated upstream
-    }
-    else {
-      const postProEntries = await postProductEntries(req.body, entridate, entritime, entrimonth);
-=======
     } else {
       const postProEntries = await postProductEntries(
         req.body,
@@ -191,81 +191,73 @@ const saveProductEntrilist = async (req, res, next) => {
         entritime,
         entrimonth
       );
+    }
+    if (postProEntries.outBinds.id[0]) {
+      // product should be an object
+      products.forEach(async (product) => {
+        const {
+          proname,
+          pro_name_two,
+          prod_list_id,
+          qty,
+          price,
+          category,
+          prod_unit,
+          stock_alert,
+        } = product;
+        if (
+          !proname ||
+          !pro_name_two ||
+          !prod_list_id ||
+          !qty ||
+          !price ||
+          !category ||
+          !prod_unit ||
+          !stock_alert
+        ) {
+          res.json(
+            createResponse(null, "Missing Product Body Required!!", true)
+          );
+        } else {
+          const postStorePro = await postStoreProduct(product);
 
->>>>>>> Stashed changes
-      if (postProEntries.outBinds.id[0]) {
-        // product should be an object
-        products.forEach(async (product) => {
-          const {
-            proname,
-            pro_name_two,
-            prod_list_id,
-            qty,
-            price,
-            category,
-            prod_unit,
-            stock_alert,
-          } = product;
-          if (
-            !proname ||
-            !pro_name_two ||
-            !prod_list_id ||
-            !qty ||
-            !price ||
-            !category ||
-            !prod_unit ||
-            !stock_alert
-          ) {
-            res.json(
-              createResponse(null, "Missing Product Body Required!!", true)
+          if (postStorePro.outBinds.id[0]) {
+            const postProEnList = await postProductEntriesLists(
+              product,
+              mrrnno,
+              supplier,
+              postStorePro.outBinds.id[0],
+              entridate,
+              entrimonth,
+              username
             );
-          } else {
-            const postStorePro = await postStoreProduct(product);
+            const postProSum = await postProductSummaries(
+              product,
+              postStorePro.outBinds.id[0],
+              entridate,
+              summdate,
+              entrimonth
+            );
 
-            if (postStorePro.outBinds.id[0]) {
-              const postProEnList = await postProductEntriesLists(
-                product,
-                mrrnno,
-                supplier,
-                postStorePro.outBinds.id[0],
-                entridate,
-                entrimonth,
-                username
-              );
-              const postProSum = await postProductSummaries(
-                product,
-                postStorePro.outBinds.id[0],
-                entridate,
-                summdate,
-                entrimonth
-              );
-
-              if (!postProEnList.outBinds.id[0] || !postProSum.outBinds.id[0]) {
-                res.json(
-                  createResponse(
-                    null,
-                    "Error Occured In New Product Entry",
-                    true
-                  )
-                );
-              }
-            } else {
+            if (!postProEnList.outBinds.id[0] || !postProSum.outBinds.id[0]) {
               res.json(
-                createResponse(
-                  null,
-                  "Some Error Occured In New Product Entry",
-                  true
-                )
+                createResponse(null, "Error Occured In New Product Entry", true)
               );
             }
+          } else {
+            res.json(
+              createResponse(
+                null,
+                "Some Error Occured In New Product Entry",
+                true
+              )
+            );
           }
-        });
-        res.json(createResponse(null, "Product Upload Succesfully"));
-      } else {
-        res.json(
-          createResponse(null, "Error Occured In Product Entry !!", true)
-        );
-      }
+        }
+      });
+      res.json(createResponse(null, "Product Upload Succesfully"));
+    } else {
+      res.json(createResponse(null, "Error Occured In Product Entry !!", true));
     }
   } catch (err) {
     next(err);
@@ -318,13 +310,6 @@ const updateproductentrilist = async (req, res, next) => {
         // product should be an object
         products.forEach(async (product) => {
           if (product.proid) {
-<<<<<<< Updated upstream
-            let {proname, pro_name_two, qty, price, category, prod_unit} =  product;
-            if(!proname || !pro_name_two || !qty || !price || !category || !prod_unit) {
-              res.json(createResponse(null, "Missing Product Body Required!!", true));
-            }
-            else {
-=======
             let {
               proname,
               pro_name_two,
@@ -349,7 +334,6 @@ const updateproductentrilist = async (req, res, next) => {
                 createResponse(null, "Missing Product Body Required!!", true)
               );
             } else {
->>>>>>> Stashed changes
               await updateStoreProduct(product);
               const postProEnList = await postProductEntriesLists(
                 product,
@@ -367,7 +351,6 @@ const updateproductentrilist = async (req, res, next) => {
                 summdate,
                 entrimonth
               );
-
               if (!postProEnList.outBinds.id[0] || !postProSum.outBinds.id[0]) {
                 res.json(
                   createResponse(
