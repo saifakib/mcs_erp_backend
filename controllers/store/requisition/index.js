@@ -3,17 +3,14 @@ const { postRequisitionInfo } = require("../../../services/store/requisitions");
 
 module.exports.postRequisition = async (req, res, next) => {
   try {
-    const { user_id } = req.headers;
-    const { products, status } = req.body;
+    const { products, user_id } = req.body;
 
-    const reqInfo = {
-      user_id,
-    };
-
-    if (!user_id && !products) {
-      res.json(createResponse(null, "Data Missing", true));
+    if (!user_id) {
+      res.json(createResponse(null, "Requisitionar Id is missing", true));
+    } else if (!products.length) {
+      res.json(createResponse(null, "Product is missing", true));
     } else {
-      const data = await postRequisitionInfo(user_id);
+      const productId = await postRequisitionInfo(user_id);
       // res.json(createResponse(rows));
     }
   } catch (err) {
