@@ -23,7 +23,43 @@ module.exports.postRequisitionInfo = ({
   );
 
 // post requisition details
-module.exports.postReqProduct = async (array) => {
+module.exports.postReqProduct = (array) => {
   const statement = `INSERT INTO STR_PROREQUISITIONS (HRIDNO, REQUIID, PROID, PROREQUQTY, PREMARKS, APROQTY, PRODATE, PROMONTH) VALUES (:HRIDNO, :REQUIID, :PROID, :PROREQUQTY, :PREMARKS, :APROQTY, :PRODATE, :PROMONTH)`;
   return ExecuteMany(statement, array);
+};
+
+// update requisition by admin
+module.exports.updateRequisitionInfo = (updatedInfo) => {
+  const {
+    REQUISTATUS,
+    APPROVED,
+    APPROVEDBY,
+    APROVEDTIME,
+    APPROVEDDATE,
+    REQID,
+  } = updatedInfo;
+
+  return Execute(
+    `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
+      REQUISTATUS
+    )}, APPROVED = ${Number(
+      APPROVED
+    )}, APPROVEDBY = '${APPROVEDBY}', APROVEDTIME = '${APROVEDTIME}', APPROVEDDATE = '${APPROVEDDATE}' WHERE REQID = ${REQID}`
+  );
+};
+
+module.exports.updateReqProducts = (products) => {
+  const newArray = products.map((item) => {
+    const obj = {
+      APPROVEQTY: item.APPROVEQTY,
+      ADMINAPPRO: item.APPROVEQTY,
+      APPROVEREMARKS: item.REMARKS,
+      PROREQID: item.PROREQID,
+    };
+    return obj;
+  });
+
+  const statement = `UPDATE STR_PROREQUISITIONS SET APROQTY = :APPROVEQTY, ADMINAPPRO = :ADMINAPPRO, APPROVEREMARKS = :APPROVEREMARKS WHERE PROREQID = :PROREQID`;
+
+  return ExecuteMany(statement, newArray);
 };

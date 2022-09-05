@@ -3,6 +3,8 @@ const {
   postRequisitionInfo,
   postReqProduct,
   getLastReqId,
+  updateRequisitionInfo,
+  updateReqProducts,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -65,5 +67,36 @@ module.exports.postRequisition = async (req, res, next) => {
     }
   } catch (err) {
     next(err.message);
+  }
+};
+
+// update requisition by admin
+module.exports.updateRequisitionByAdmin = async (req, res, next) => {
+  try {
+    const { approvedProducts, approvedBy } = req.body;
+    const { reqid } = req.headers;
+
+    if (!reqid) {
+      res.json(createResponse(null, "Requisition id missing", true));
+    }
+    if (!approvedBy || !approvedProducts.length) {
+      res.json(createResponse(null, "Body data missing", true));
+    }
+    const updatedInfo = {
+      REQUISTATUS: 1,
+      APPROVED: 1,
+      APPROVEDBY: approvedBy,
+      APROVEDTIME: format(new Date(), "hh:mm a"),
+      APPROVEDDATE: format(new Date(), "yyyy-MM-dd"),
+      REQID: reqid,
+    };
+    // update requisition table
+    await updateRequisitionInfo(updatedInfo);
+
+    // update pro_requisition table
+    const result = await updateReqProducts(approvedProducts);
+    res.json(createResponse(result));
+  } catch (error) {
+    next(error.message);
   }
 };
