@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { format } = require('date-fns');
-const { getSupplierWithProductEntriesInfo, getRecentMonthSupply, getMrrProListBySupplierId, getProductEntiresFirst, getProductEntriLists, getProductEntriListsFirst, updateProductEntriListById, updateStoreProductById, insertMrrLogs, deleteProductEntriListById, tt } = require("../../../services/store/mrr");
+const { getSupplierWithProductEntriesInfo, getRecentMonthSupply, getMrrProListBySupplierId, getProductEntiresFirst, getProductEntriLists, getProductEntriListsFirst, updateProductEntriListById, updateStoreProductById, insertMrrLogs, deleteProductEntriListById, insertMrrLogsWithRemarks, getSingleProEntriesByMrrno, updateSingleProEntriesByMrrno, updateProductEntriListsSupplier } = require("../../../services/store/mrr");
 const { getSingleSupplier } = require("../../../services/store/settings");
 
 
@@ -99,6 +99,24 @@ const lastEntryListByProListId = async (req, res, next) => {
     }
 }
 
+/**
+ * Get Product Entries Info By Mrr Number
+ * @param {Number} mrrno 
+ */
+const singleProductEntriesBymrrno = async(req, res, next) => {
+    const { mrrno } = req.params;
+    try {
+        if(!mrrno) {
+            res.json(createResponse(null, "Required Parameter Missing", true))
+        } else {
+            const productEntriesInfo = await getSingleProEntriesByMrrno(mrrno)
+            res.json(createResponse(productEntriesInfo.rows));
+        }
+    } catch(err) {
+        next(err)
+    }
+}
+
 
 /**
  * 
@@ -122,13 +140,13 @@ const lastEntryListByProListId = async (req, res, next) => {
 */
 const updateSingleProductEntriList = async (req, res, next) => {
 
-    const { prolistid, proid, proqty, oldquantity, oldamount, change_status, newquantity, newamount} = req.body;
+    const { prolistid, proid, proqty, oldquantity, oldamount, change_status, newquantity, newamount, username} = req.body;
     let date = new Date();
     let entritime = format(date, "hh:mm a");
     let entridate = format(date, "yyyy-MM-dd");
 
     try {
-        if(!prolistid || !proid || !proqty || !oldquantity || !oldamount || !change_status) {
+        if(!prolistid || !proid || !proqty || !oldquantity || !oldamount || !change_status || !username) {
             res.json(createResponse(null, "Required Body Missing", true));
 
         } else {
@@ -163,7 +181,7 @@ const updateSingleProductEntriList = async (req, res, next) => {
         
             const updateProEntListById = await updateProductEntriListById(prolistid, changequantity, changeamount);
             const updateStoreProdById = await updateStoreProductById(proid, changproqty);
-            const newMrrLog = await insertMrrLogs(proid, 'Edit', oldquantity, oldamount, changequantity, changeamount, `${entridate, entritime}`, username);
+            const newMrrLog = await insertMrrLogs(proid, 'Edit', oldquantity, oldamount, changequantity, changeamount, `'${entridate}, ${entritime}'`, username);
 
             if (updateProEntListById.rowsAffected == 0 || updateStoreProdById.rowsAffected == 0 || newMrrLog.rowsAffected == 0) {
                 res.json(
@@ -183,6 +201,37 @@ const updateSingleProductEntriList = async (req, res, next) => {
     }
 }
 
+/**
+ * Update Single Product Entries and Entrilist
+*/
+const updateProductEntriesBymrrno = async(req, res, next) => {
+    const { mrrno, supplier, suppdate, workorder, workodate, cashmemono, cashmemodate } = req.body;
+
+    try {
+        if(!mrrno || !supplier || !suppdate || !workorder || !workodate || !cashmemono || !cashmemodate) {
+            res.json(createResponse(null, "Required Parameter Missing", true))
+        } else {
+            const productEntriesInfo = await updateSingleProEntriesByMrrno( mrrno, supplier, suppdate, workorder, workodate, cashmemono, cashmemodate);
+            const changeSupplierEntriLists = await updateProductEntriListsSupplier(mrrno, supplier);
+
+            if (productEntriesInfo.rowsAffected == 0 || changeSupplierEntriLists.rowsAffected == 0) {
+                res.json(
+                createResponse(
+                    null,
+                    "Something Error Occured in Updateing Product",
+                    true
+                )
+                );
+            } else {
+                res.json(createResponse(null, "Product Update Succesfully"));
+            }
+            
+        }
+    } catch(err) {
+        next(err)
+    }
+}
+
 /*------------------------------------- End PUT Controller ----------------------------------------*/
 
 
@@ -196,7 +245,7 @@ const updateSingleProductEntriList = async (req, res, next) => {
 /*------------------------------------- All DELETE Controller ----------------------------------------*/
 
 const deleteSingleProductEntriList = async(req, res, next) => {
-    const { prolistid, proid, proqty, quantity, proamount } = req.body;
+    const { prolistid, proid, proqty, quantity, proamount, username } = req.body;
     let date = new Date();
     let entritime = format(date, "hh:mm a");
     let entridate = format(date, "yyyy-MM-dd");
@@ -206,7 +255,8 @@ const deleteSingleProductEntriList = async(req, res, next) => {
         } else {
             const deleteProdEntList = await deleteProductEntriListById(prolistid);
             const updateStoreProdById = await updateStoreProductById(proid, quantity);
-            const newMrrLog = await insertMrrLogs(proid, 'Delete', `Previous Stock was ${Number(proqty)} and MRR Stock was ${Number(quantity)}`, proqty, proamount, quantity, proamount, `${entridate, entritime}`, username);
+            `'${entridate}, ${entritime}'`
+            const newMrrLog = await insertMrrLogsWithRemarks(proid, 'Delete', `'Previous Stock was ${Number(proqty)} and MRR Stock was ${Number(quantity)}'`, proqty, proamount, quantity, proamount, `'${entridate}, ${entritime}'`, username);
 
             if (deleteProdEntList.rowsAffected == 0 || updateStoreProdById.rowsAffected == 0 || newMrrLog.rowsAffected == 0) {
                 res.json(
@@ -238,5 +288,7 @@ module.exports = {
     viewProductReceptBySupIdDate,
     lastEntryListByProListId,
     updateSingleProductEntriList,
-    deleteSingleProductEntriList
+    deleteSingleProductEntriList,
+    singleProductEntriesBymrrno,
+    updateProductEntriesBymrrno
 }

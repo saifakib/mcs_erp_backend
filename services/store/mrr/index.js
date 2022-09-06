@@ -21,6 +21,8 @@ const getProductEntriLists = (SUP_ID, date) => Execute(`SELECT * FROM STR_PRODUC
 
 const getProductEntriListsFirst = (LIST_ID) => Execute(`SELECT PROLISTID, PROID, PROQTY, QUANTITIES, PROAMOUNT FROM STR_PRODUCTENTRILISTS LT LEFT OUTER JOIN STR_STOREPRODUCTS S ON LT.PRODUCTIDNO = S.PROID WHERE PROLISTID = ${LIST_ID} FETCH NEXT 1 ROWS ONLY`);
 
+const getSingleProEntriesByMrrno = (mrrno) => Execute(`SELECT * FROM STR_PRODUCTENTRIES WHERE MRRNNO = ${mrrno}`);
+
 /*--------------------------------END SELECT --------------------------------*/
 
 
@@ -29,7 +31,10 @@ const getProductEntriListsFirst = (LIST_ID) => Execute(`SELECT PROLISTID, PROID,
 
 /*----------------------------------INSERT ----------------------------------*/
 
-const insertMrrLogs = (proid, action, oldquantity, oldamount, changequantity, changeamount, logdatetime, username) => Execute(`INSERT INTO STR_MRRLOGS (PRODUCT_ID, ACTION, OLDQTY, OLDPRICE, CHANGEQTY, CHANGEPRICE, LOGDATETIME, LOGEDBY) VALUES (${Number(proid)}, '${action}', ${Number(oldquantity)}, ${Number(oldamount)}, ${Number(changequantity)}, ${Number(changeamount)}, '${logdatetime}', '${username}'`);
+const insertMrrLogs = (proid, action, oldquantity, oldamount, changequantity, changeamount, logdatetime, username) => Execute(`INSERT INTO STR_MRRLOGS (PRODUCT_ID, ACTION, OLDQTY, OLDPRICE, CHANGEQTY, CHANGEPRICE, LOGDATETIME, LOGEDBY) VALUES (${Number(proid)}, '${action}', ${Number(oldquantity)}, ${Number(oldamount)}, ${Number(changequantity)}, ${Number(changeamount)}, ${logdatetime}, '${username}')`);
+
+
+const insertMrrLogsWithRemarks = (proid, action, remarks, oldquantity, oldamount, changequantity, changeamount, logdatetime, username) => Execute(`INSERT INTO STR_MRRLOGS (PRODUCT_ID, ACTION, REMARKS, OLDQTY, OLDPRICE, CHANGEQTY, CHANGEPRICE, LOGDATETIME, LOGEDBY) VALUES (${Number(proid)}, '${action}', ${remarks}, ${Number(oldquantity)}, ${Number(oldamount)}, ${Number(changequantity)}, ${Number(changeamount)}, ${logdatetime}, '${username}')`);
 
 /*---------------------------------END INSERT -------------------------------*/ 
 
@@ -44,10 +49,15 @@ const insertMrrLogs = (proid, action, oldquantity, oldamount, changequantity, ch
 
 const updateProductEntriListById = (prolistid, changequantity, changeamount) => Execute(`UPDATE STR_PRODUCTENTRILISTS SET QUANTITIES = ${Number(changequantity)}, PROAMOUNT = ${Number(changeamount)} WHERE PROLISTID = ${Number(prolistid)}`);
 
-const updateStoreProductById = ({ proid, changproqty }) =>
+const updateStoreProductById = (proid, changproqty) =>
   Execute(
-    `UPDATE STR_STOREPRODUCTS SET proqty = ${Number(changproqty)} WHERE proid = ${proid}`
+    `UPDATE STR_STOREPRODUCTS SET proqty = ${Number(changproqty)} WHERE proid = ${Number(proid)}`
   );
+
+
+const updateSingleProEntriesByMrrno = (mrrno, supplier, suppdate, workorder, workodate, cashmemono, cashmemodate) => Execute(`UPDATE STR_PRODUCTENTRIES SET SUPPLIER = ${Number(supplier)}, SUPPDATE = '${suppdate}', WORKORDER = ${Number(workorder)}, WORKODATE = '${workodate}', CASHMEMONO = ${Number(supplier)}, CASHMEMODATE = '${cashmemodate}' WHERE MRRNNO = ${Number(mrrno)}`);
+
+const updateProductEntriListsSupplier = (mrrno, supplier) => Execute(`UPDATE STR_PRODUCTENTRILISTS SET PRODUCTFROM = ${Number(supplier)} WHERE MRRNUMBER = ${Number(mrrno)}`);
 
 /*---------------------------------- END UPDATE -----------------------------------*/
 
@@ -74,5 +84,9 @@ module.exports = {
     updateProductEntriListById,
     updateStoreProductById,
     insertMrrLogs,
-    deleteProductEntriListById
+    insertMrrLogsWithRemarks,
+    deleteProductEntriListById,
+    getSingleProEntriesByMrrno,
+    updateSingleProEntriesByMrrno,
+    updateProductEntriListsSupplier
 }
