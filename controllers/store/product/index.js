@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const {
-  getProducts,
+  getStoreProducts,
   totalQuantites,
   totalQuantitesByCategoryId,
   getProducListById,
@@ -145,6 +145,21 @@ const getStoreProductByListId = async (req, res, next) => {
     }
   } catch (err) {
     next(err);
+  }
+};
+
+const getStockProducts = async (req, res, next) => {
+  try {
+    const { search } = req.headers;
+    const { page, limit } = req.query;
+    if (!search) {
+      res.json(createResponse(null, "Parameter required", true));
+    } else {
+      const result = await getStoreProducts(search, page, limit);
+      res.json(createResponse(result.rows));
+    }
+  } catch (err) {
+    next(err.message);
   }
 };
 

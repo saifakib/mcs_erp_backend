@@ -3,8 +3,14 @@ const { Execute } = require("../../../utils/dynamicController");
 
 /*------------- Get ------------*/
 
-const getProducts = () =>
-  Execute("SELECT * FROM STR_STOREPRODUCTS ORDER BY proid ASC");
+// const getProducts = () =>
+//   Execute("SELECT * FROM STR_STOREPRODUCTS ORDER BY proid ASC");
+const getStoreProducts = (search = "%%", page = 0, limit = 1000) => {
+    let offset = limit * page;
+    return Execute(
+      `SELECT PL.PROID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, C.CATEGORYBN, C.CATEGORYEN FROM  STR_STOREPRODUCTS PL LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = PL.PROCATE WHERE LOWER(PRONAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYEN) LIKE LOWER('${search}') ORDER BY PRODID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+    );
+};
 const getTotalStoreProducts = () =>
   Execute("SELECT COUNT(PROID) FROM STR_STOREPRODUCTS");
 const totalQuantites = () =>
@@ -57,6 +63,8 @@ const getNewProductList = (CAT_ID) =>
   Execute(
     `SELECT * FROM STR_PRODUCTLISTS PL WHERE PL.PROCATE = ${CAT_ID} AND PL.PRODID NOT IN (SELECT SP.PRODLISTID FROM STR_STOREPRODUCTS SP)`
   );
+
+
 
 /*-------------- Post -------------------*/
 
@@ -178,7 +186,7 @@ const testProduct = () => {
 };
 
 module.exports = {
-  getProducts,
+  getStoreProducts,
   totalQuantites,
   totalQuantitesByCategoryId,
   getProducListById,
