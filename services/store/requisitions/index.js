@@ -1,11 +1,11 @@
 const { oracledb } = require("../../../db/db");
 const { Execute, ExecuteMany } = require("../../../utils/dynamicController");
 
-/*------------- get ------------*/
+/*------------- Get ------------*/
 module.exports.getLastReqId = () =>
   Execute(`SELECT MAX(REQID) AS LAST_ID FROM STR_REQUISITIONS`);
 
-/*------------- post ------------*/
+/*------------- Post ------------*/
 // post requisition information
 module.exports.postRequisitionInfo = ({
   profilehrId,
@@ -28,6 +28,7 @@ module.exports.postReqProduct = (array) => {
   return ExecuteMany(statement, array);
 };
 
+/*------------- Put ------------*/
 // update requisition by admin
 module.exports.updateRequisitionInfo = (updatedInfo) => {
   const {
