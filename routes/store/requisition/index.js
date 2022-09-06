@@ -9,5 +9,9 @@ router.post("/new", requisitionController.postRequisition);
 
 // update route
 router.put("/admin_approve", requisitionController.updateRequisitionByAdmin);
+router.put(
+  "/storeOfficer_approve",
+  requisitionController.updateReqByStoreOfficer
+);
 
 module.exports = router;

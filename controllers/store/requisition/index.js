@@ -100,3 +100,12 @@ module.exports.updateRequisitionByAdmin = async (req, res, next) => {
     next(error.message);
   }
 };
+
+// update requisition by store_officer
+module.exports.updateReqByStoreOfficer = async (req, res, next) => {
+  try {
+    res.json(createResponse(null, "Success"));
+  } catch (error) {
+    next(error.message);
+  }
+};

@@ -16,11 +16,11 @@ module.exports.Execute = (QuertyString, object = {}) => {
 };
 
 // execute many query
-module.exports.ExecuteMany = (QuertyString, binds, options = {}) => {
+module.exports.ExecuteMany = (QuertyString, data, options = {}) => {
   return new Promise(async function (resolve, reject) {
     try {
       let connection = await getConnection();
-      const result = await connection.executeMany(QuertyString, binds, options);
+      const result = await connection.executeMany(QuertyString, data, options);
       await connection.close();
       resolve(result);
     } catch (err) {
