@@ -319,22 +319,18 @@ const updateproductentrilist = async (req, res, next) => {
             let {
               proname,
               pro_name_two,
-              prod_list_id,
               qty,
               price,
               category,
               prod_unit,
-              stock_alert,
             } = product;
             if (
               !proname ||
               !pro_name_two ||
-              !prod_list_id ||
               !qty ||
               !price ||
               !category ||
-              !prod_unit ||
-              !stock_alert
+              !prod_unit
             ) {
               res.json(
                 createResponse(null, "Missing Product Body Required!!", true)

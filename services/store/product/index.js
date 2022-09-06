@@ -45,11 +45,10 @@ const getCategoryWithStoreLength = () =>
 const getStoreProductByProdListId = (PROD_ID) =>
   Execute(`SELECT * FROM STR_STOREPRODUCTS where prodlistid=${PROD_ID}`);
 
-const getExStoreProductByProdListId = (PROID) => {
-  return Execute(
-    `SELECT PROID, PRONAME, PRONAMETWO, PROCATE, PRODUNIT, PROQTY, STOCKPRICE, UNIT from STR_STOREPRODUCTS S LEFT OUTER JOIN STR_UNITS U on S.PRODUNIT = U.UNIT_ID WHERE PROID = ${PROID}`
+const getExStoreProductByProdListId = (PROID) =>
+  Execute(
+    `SELECT PROID, PRONAME, PRONAMETWO, PROCATE, PRODUNIT, PROQTY, STOCKPRICE, UNIT from STR_STOREPRODUCTS S left outer join STR_UNITS U on S.PRODUNIT = U.UNIT_ID where proid = ${PROID}`
   );
-};
 
 const getLastMrrNumber = () =>
   Execute(`SELECT MAX(MRRNNO) AS MRRNO FROM STR_PRODUCTENTRIES`);
@@ -161,25 +160,22 @@ const updateStoreProductM = (
   pro_name_two,
   procate,
   prounit,
-  stockalert,
   status
 ) =>
   Execute(
     `UPDATE STR_STOREPRODUCTS SET proname = '${proname}', pronametwo='${pro_name_two}', procate = ${Number(
       procate
-    )}, produnit = ${Number(prounit)}, stockalert = ${Number(
-      stockalert
-    )}, protstatus = ${Number(status)} WHERE proid = ${Number(proid)}`
+    )}, produnit = ${Number(prounit)}, protstatus = ${Number(status)} WHERE proid = ${Number(proid)}`
   );
 
-// const testProduct = () => {
-//   let date = new Date();
-//   let creatdate = date.toISOString().split("T")[0];
-//   let entritime = format(date, "hh:mm a");
-//   let entrimonth = format(date, "LLLL-yyyy");
+const testProduct = () => {
+  let date = new Date();
+  let creatdate = date.toISOString().split("T")[0];
+  let entritime = format(date, "hh:mm a");
+  let entrimonth = format(date, "LLLL-yyyy");
 
-//   return console.log(entrimonth);
-// };
+  return console.log(entrimonth);
+};
 
 module.exports = {
   getProducts,
