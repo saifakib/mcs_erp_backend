@@ -11,11 +11,13 @@ const {
   lastMrrNum,
   newProductList,
   updateProductList,
+  getStockProducts
 } = require("../../../controllers/store/product");
 
 // Get Routes
 router.get("/manageproducts", manageProducts);
-router.get("manageSupplier");
+router.get("/manageSupplier");
+router.get('/storeProducts', getStockProducts);
 
 router.get("/getStoreProductByCategoryId/:cat_id", getStoreProByCatId);
 router.get("/checkProductDuplicate/:prod_id", checkProductDuplicate);

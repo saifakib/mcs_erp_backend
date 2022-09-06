@@ -469,4 +469,5 @@ module.exports = {
   lastMrrNum,
   newProductList,
   updateProductList,
+  getStockProducts
 };
