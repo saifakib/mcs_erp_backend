@@ -2,7 +2,7 @@ const router = require("express").Router();
 const requisitionController = require("../../../controllers/store/requisition");
 
 // get route
-router.get("/last_id", requisitionController.getLastReqId);
+router.get("/last_id", requisitionController.getLastReqNo);
 
 // post route
 router.post("/new", requisitionController.postRequisition);

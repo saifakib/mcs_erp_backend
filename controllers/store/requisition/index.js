@@ -2,7 +2,7 @@ const { createResponse } = require("../../../utils/responseGenerator");
 const {
   postRequisitionInfo,
   postReqProduct,
-  getLastReqId,
+  getLastReqNo,
   updateRequisitionInfo,
   updateReqProducts,
 } = require("../../../services/store/requisitions");
@@ -10,7 +10,7 @@ const { format } = require("date-fns");
 
 /*------------- get ------------*/
 // getLastReqId
-module.exports.getLastReqId = async (req, res, next) => {
+module.exports.getLastReqNo = async (req, res, next) => {
   try {
     let { rows } = await getLastReqId();
     let { LAST_ID } = rows[0];
