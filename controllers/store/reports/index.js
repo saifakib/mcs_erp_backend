@@ -1,6 +1,10 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { getAllEntriesReports, getSingleEntriesReports } = require("../../../services/store/reports");
+const { getAllEntriesReports, getSingleEntriesReports, stockStatus } = require("../../../services/store/reports");
 
+
+/**
+ * Report - Product Entries All & Single 
+ */
 const entriesProductReport = async (req, res, next) => {
     const { queryFor ,productidno, fdate, tdate } = req.query;
     try {
@@ -53,6 +57,19 @@ const entriesProductReport = async (req, res, next) => {
     }
 }
 
+/**
+ * Report - Stock Status 
+ */
+const productStockStatus = async (req, res, next) => {
+    try {
+        const response = await stockStatus();
+        res.json(createResponse(response.rows));
+    } catch(err) {
+        next(err)
+    }
+}
+
 module.exports = {
-    entriesProductReport
+    entriesProductReport,
+    productStockStatus
 }

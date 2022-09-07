@@ -1,8 +1,9 @@
 const router = require("express").Router();
-const {  entriesProductReport } = require("../../../controllers/store/reports")
+const {  entriesProductReport, productStockStatus } = require("../../../controllers/store/reports")
 
 // get route
 router.get('/entries', entriesProductReport);
+router.get('/stockStatus', productStockStatus)
 
 
 
