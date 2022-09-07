@@ -119,8 +119,33 @@ const singleProductEntriesBymrrno = async(req, res, next) => {
 
 
 /**
- * 
+ * Add More Mrr
+ * All Product Lists With Supplier Info for Add Product In MRR
+ * @param {Number} sup_id 
+ * @param {String} date 
  */
+const addMoreMrr = async (req, res, next) => {
+    const { sup_id: SUP_ID, date: date} = req.params;
+
+    try {
+        if(!SUP_ID || !date) {
+            res.json(createResponse(null, "Required Parameter Missing", true))
+        } else {
+            const suppliers = await getSingleSupplier({ SUP_ID });
+            const entriesInfo = await getProductEntiresFirst(SUP_ID, date);
+
+            let response = {
+                suppliers: suppliers.rows,
+                entriesInfo: entriesInfo.rows,
+            }
+
+            res.json(createResponse(response));
+        }
+    } catch(err) {
+        next(err)
+    }
+}
+
 
 /*-------------------------------------- End Get Controller ----------------------------------------*/
 
@@ -290,5 +315,6 @@ module.exports = {
     updateSingleProductEntriList,
     deleteSingleProductEntriList,
     singleProductEntriesBymrrno,
-    updateProductEntriesBymrrno
+    updateProductEntriesBymrrno,
+    addMoreMrr,
 }
