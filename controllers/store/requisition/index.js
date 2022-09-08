@@ -8,6 +8,7 @@ const {
   getRequisitionById,
   lastProRequiId,
   getRequisitionDetailsById,
+  getReqInfo,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -37,7 +38,8 @@ module.exports.getRequisitionDetailsById = async (req, res, next) => {
       res.json(createResponse(null, "Employee id missing", true));
     }
     const { rows: data } = await getRequisitionDetailsById(id);
-    res.json(createResponse(data));
+    const { rows: info } = await getReqInfo(id);
+    res.json(createResponse({ info: info[0], products: data }));
   } catch (error) {
     next(err.message);
   }
