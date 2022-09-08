@@ -2,13 +2,12 @@ const { getConnection } = require("../db/db");
 
 // execute single query
 module.exports.Execute = (QuertyString, object = {}) => {
-  console.log(QuertyString)
   return new Promise(async function (resolve, reject) {
     try {
       let connection = await getConnection();
       const result = await connection.execute(QuertyString, object);
-      await connection.close();
       resolve(result);
+      await connection.close();
     } catch (err) {
       console.log("error", err);
       reject(err);
@@ -22,8 +21,8 @@ module.exports.ExecuteMany = (QuertyString, binds, options = {}) => {
     try {
       let connection = await getConnection();
       const result = await connection.executeMany(QuertyString, binds, options);
-      await connection.close();
       resolve(result);
+      await connection.close();
     } catch (err) {
       console.log("error on executeMany", err);
       reject(err);
