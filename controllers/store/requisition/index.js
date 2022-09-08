@@ -5,17 +5,40 @@ const {
   getLastReqNo,
   updateRequisitionInfo,
   updateReqProducts,
+  getRequisitionById,
+  lastProRequiId,
+  getRequisitionDetailsById,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
 /*------------- get ------------*/
-// getLastReqId
-module.exports.getLastReqNo = async (req, res, next) => {
+module.exports.getRequisitionById = async (req, res, next) => {
   try {
-    let { rows } = await getLastReqId();
-    let { LAST_ID } = rows[0];
-    res.json(createResponse({ LAST_REQ_ID: LAST_ID + 1 }));
-  } catch (err) {
+    const { search } = req.headers;
+    const { page, limit } = req.query;
+    const { id } = req.params;
+    if (!id) {
+      res.json(createResponse(null, "User id missing", true));
+    }
+    if (!search || !page || !limit) {
+      res.json(createResponse(null, "Parameter missing", true));
+    }
+    const { rows } = await getRequisitionById(id, search, page, limit);
+    res.json(createResponse(rows));
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+module.exports.getRequisitionDetailsById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.json(createResponse(null, "Employee id missing", true));
+    }
+    const { rows: data } = await getRequisitionDetailsById(id);
+    res.json(createResponse(data));
+  } catch (error) {
     next(err.message);
   }
 };
@@ -24,19 +47,24 @@ module.exports.getLastReqNo = async (req, res, next) => {
 // post
 module.exports.postRequisition = async (req, res, next) => {
   try {
-    const { products, user_id, lastReqNo } = req.body;
+    const { products, user_id } = req.body;
+    console.log(user_id);
 
     if (!user_id) {
-      res.json(createResponse(null, "Requisitionar Id is missing", true));
-    } else if (!products.length) {
+      res.json(createResponse(null, "Requisitionar Id missing", true));
+    }
+    if (!products.length) {
       res.json(createResponse(null, "Product is missing", true));
     } else {
+      let { rows } = await getLastReqNo();
+      let { LAST_ID } = rows[0];
+
       const reqTableInfo = {
-        profilehrId: user_id,
+        profilehrId: Number(user_id),
         requiTime: format(new Date(), "hh:mm a"),
         requiMonth: format(new Date(), "LLLL-yyyy"),
         requiDate: format(new Date(), "yyyy-MM-dd"),
-        lastReqNo,
+        lastReqNo: LAST_ID + 1,
         status: 0,
       };
 
@@ -44,9 +72,13 @@ module.exports.postRequisition = async (req, res, next) => {
       // get last inserted_id
       const insertedId = outBinds.id[0];
       if (insertedId) {
+        let { rows } = await lastProRequiId();
+        let { LAST_ID } = rows[0];
+        let count = LAST_ID === null ? 1 : LAST_ID + 1;
         const detailsInfo = products.map((item) => {
           const object = {
-            HRIDNO: user_id,
+            PROREQID: count++,
+            HRIDNO: Number(user_id),
             REQUIID: insertedId,
             PROID: item.proid,
             PROREQUQTY: item.prorequqty,

@@ -2,15 +2,17 @@ const router = require("express").Router();
 const requisitionController = require("../../../controllers/store/requisition");
 
 // get route
-router.get("/last_id", requisitionController.getLastReqNo);
+// router.get("/last_id", requisitionController.getLastReqNo);
+router.get("/:id", requisitionController.getRequisitionById);
+router.get("/details/:id", requisitionController.getRequisitionDetailsById);
 
 // post route
-router.post("/new", requisitionController.postRequisition);
+router.post("/", requisitionController.postRequisition);
 
 // update route
-router.put("/admin_approve", requisitionController.updateRequisitionByAdmin);
+router.put("/admin/approve", requisitionController.updateRequisitionByAdmin);
 router.put(
-  "/storeOfficer_approve",
+  "/approve/store_officer",
   requisitionController.updateReqByStoreOfficer
 );
 

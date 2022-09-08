@@ -6,10 +6,13 @@ const { Execute } = require("../../../utils/dynamicController");
 // const getProducts = () =>
 //   Execute("SELECT * FROM STR_STOREPRODUCTS ORDER BY proid ASC");
 const getStoreProducts = (search = "%%", page = 0, limit = 1000) => {
-    let offset = limit * page;
-    return Execute(
-      `SELECT PL.PROID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, C.CATEGORYBN, C.CATEGORYEN FROM  STR_STOREPRODUCTS PL LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = PL.PROCATE WHERE LOWER(PRONAME) LIKE LOWER(${search}) OR LOWER(C.CATEGORYEN) LIKE LOWER(${search}) ORDER BY PROID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
-    );
+  let offset = limit * page;
+  return Execute(
+    `SELECT PL.PROID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, PL.PRODUNIT, C.CATEGORYBN, C.CATEGORYEN, U.UNIT
+    FROM STR_STOREPRODUCTS PL 
+    LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = PL.PROCATE 
+    LEFT OUTER JOIN STR_UNITS U ON U.UNIT_ID = PL.PRODUNIT WHERE LOWER(PRONAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYEN) LIKE LOWER('${search}') ORDER BY PROID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+  );
 };
 const getTotalStoreProducts = () =>
   Execute("SELECT COUNT(PROID) FROM STR_STOREPRODUCTS");
@@ -63,8 +66,6 @@ const getNewProductList = (CAT_ID) =>
   Execute(
     `SELECT * FROM STR_PRODUCTLISTS PL WHERE PL.PROCATE = ${CAT_ID} AND PL.PRODID NOT IN (SELECT SP.PRODLISTID FROM STR_STOREPRODUCTS SP)`
   );
-
-
 
 /*-------------- Post -------------------*/
 
@@ -173,7 +174,9 @@ const updateStoreProductM = (
   Execute(
     `UPDATE STR_STOREPRODUCTS SET proname = '${proname}', pronametwo='${pro_name_two}', procate = ${Number(
       procate
-    )}, produnit = ${Number(prounit)}, protstatus = ${Number(status)} WHERE proid = ${Number(proid)}`
+    )}, produnit = ${Number(prounit)}, protstatus = ${Number(
+      status
+    )} WHERE proid = ${Number(proid)}`
   );
 
 const testProduct = () => {
