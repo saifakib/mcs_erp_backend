@@ -8,6 +8,16 @@ module.exports.getLastReqNo = () =>
 module.exports.lastProRequiId = () =>
   Execute(`SELECT MAX(PROREQID) AS LAST_ID FROM STR_PROREQUISITIONS`);
 
+module.exports.getReqInfo = (id) =>
+  Execute(`SELECT REQUITIME || ', ' || REQUIDATE AS DATE_TIME, 
+  case
+  when REQUISTATUS = 0 then 'Pending'
+  when REQUISTATUS = 1 then 'Pending'
+  when REQUISTATUS = 2 then 'Pending To Accept'
+  when REQUISTATUS = 3 then 'Done' end Status FROM STR_REQUISITIONS WHERE REQID = ${Number(
+    id
+  )}`);
+
 // get requisition by id
 module.exports.getRequisitionById = (
   id,
@@ -16,36 +26,28 @@ module.exports.getRequisitionById = (
   limit = 1000
 ) => {
   let offset = limit * page;
-  return Execute(`SELECT REQUITIME || ', ' || REQUIDATE AS DATE_TIME, REQUISITIONNO, TOTALREQUIQTY, TOTALAPPROVED, case
+  return Execute(`SELECT R.REQID, R.REQUITIME || ', ' || R.REQUIDATE AS DATE_TIME, R.REQUISITIONNO, case
   when REQUISTATUS = 0 then 'Pending'
   when REQUISTATUS = 1 then 'Pending'
   when REQUISTATUS = 2 then 'Approved'
-  when REQUISTATUS = 3 then 'Done' end Status FROM STR_REQUISITIONS WHERE PROFILEHRID = ${Number(
+  when REQUISTATUS = 3 then 'Done' end Status, PR.PROREQUQTY, PR.APROQTY 
+  FROM STR_REQUISITIONS R LEFT OUTER JOIN STR_PROREQUISITIONS PR ON PR.HRIDNO = R.PROFILEHRID WHERE PROFILEHRID = ${Number(
     id
-  )}
-  AND LOWER(REQUISITIONNO) LIKE LOWER('${search}') ORDER BY REQID OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND LOWER(REQUISITIONNO) LIKE LOWER('${search}') ORDER BY REQID OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.getRequisitionDetailsById = (id) => {
   return Execute(`SELECT PR.REQUIID, PR.PROREQUQTY,
   PR.APROQTY,
   SP.PRONAME || ',' || SP.PRONAMETWO AS PRODUCT_NAME,
-  U.UNIT,
-  R.REQUITIME || ',' || R.REQUIDATE AS DATE_TIME,
-  case
-    when R.REQUISTATUS = 0 then 'Pending'
-    when R.REQUISTATUS = 1 then 'Pending'
-    when R.REQUISTATUS = 2 then 'Pending To Accept'
-    when R.REQUISTATUS = 3 then 'Done'
-  end STATUS
+  PR.PREMARKS,
+  U.UNIT
   FROM STR_PROREQUISITIONS PR
   LEFT OUTER JOIN STR_STOREPRODUCTS SP
   ON SP.PROID = PR.PROID
   LEFT OUTER JOIN STR_UNITS U
   ON U.UNIT_ID = SP.PRODUNIT
-  LEFT OUTER JOIN STR_REQUISITIONS R
-  ON PR.REQUIID = R.REQID
-  WHERE REQUIID = ${Number(id)}`);
+  WHERE REQUIID = ${Number(id)} ORDER BY PR.PROREQID`);
 };
 
 /*------------- Post ------------*/
