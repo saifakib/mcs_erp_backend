@@ -18,6 +18,10 @@ const {
   updateStoreProduct,
   getLastMrrNumber,
   getNewProductList,
+<<<<<<< Updated upstream
+=======
+  testProduct,
+>>>>>>> Stashed changes
   updateStoreProductM,
 } = require("../../../services/store/product/index");
 const {
@@ -42,6 +46,10 @@ const manageProducts = async (_, res, next) => {
 
     res.json(createResponse(result));
   } catch (err) {
+<<<<<<< Updated upstream
+=======
+    console.log("Err", err);
+>>>>>>> Stashed changes
     next(err);
   }
 };
@@ -75,6 +83,7 @@ const getStoreProByCatId = async (req, res, next) => {
 const checkProductDuplicate = async (req, res, next) => {
   const { prod_id: PROD_ID } = req.params;
   try {
+<<<<<<< Updated upstream
 
     if (!PROD_ID) {
       res.json(createResponse(null, "Required Parameter Missing", true));
@@ -89,6 +98,13 @@ const checkProductDuplicate = async (req, res, next) => {
         } else {
           res.json(createResponse(false));
         }
+=======
+    const result1 = await getProducListById(PROD_ID);
+    if (result1.rows.length > 0) {
+      const result2 = await getStoreProductByProdListId(result1.rows[0].PRODID);
+      if (result2.rows.length > 0) {
+        res.json(createResponse(true));
+>>>>>>> Stashed changes
       } else {
         res.json(createResponse(null, "Product Id does not exits"));
       }
@@ -124,6 +140,7 @@ const categoryProductsQuantitiesById = async (req, res, next) => {
   const { cat_id: CAT_ID } = req.params;
 
   try {
+<<<<<<< Updated upstream
     if(!CAT_ID) {
       res.json(createResponse(null, "Required Parameter Missing", true));
     } 
@@ -133,6 +150,16 @@ const categoryProductsQuantitiesById = async (req, res, next) => {
       res.json(createResponse(response.rows));
     }
    
+=======
+    const category = await getSingleCategory({ CAT_ID });
+    const totalProductQuantites = await totalQuantitesByCategoryId(CAT_ID);
+
+    let result = {
+      category: category.rows,
+      totalProductQuantites,
+    };
+    res.json(createResponse(result));
+>>>>>>> Stashed changes
   } catch (err) {
     next(err);
   }
@@ -168,6 +195,7 @@ const getStoreProductByListId = async (req, res, next) => {
     next(err);
   }
 };
+<<<<<<< Updated upstream
 
 const getStockProducts = async (req, res, next) => {
   try {
@@ -185,6 +213,8 @@ const getStockProducts = async (req, res, next) => {
     next(err.message);
   }
 };
+=======
+>>>>>>> Stashed changes
 
 /*------------- End Get Controller ---------------*/
 
@@ -229,6 +259,10 @@ const saveProductEntrilist = async (req, res, next) => {
         entritime,
         entrimonth
       );
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
       if (postProEntries.outBinds.id[0]) {
         // product should be an object
         products.forEach(async (product) => {
@@ -357,18 +391,35 @@ const updateproductentrilist = async (req, res, next) => {
             let {
               proname,
               pro_name_two,
+<<<<<<< Updated upstream
+=======
+              prod_list_id,
+>>>>>>> Stashed changes
               qty,
               price,
               category,
               prod_unit,
+<<<<<<< Updated upstream
+=======
+              stock_alert,
+>>>>>>> Stashed changes
             } = product;
             if (
               !proname ||
               !pro_name_two ||
+<<<<<<< Updated upstream
               !qty ||
               !price ||
               !category ||
               !prod_unit
+=======
+              !prod_list_id ||
+              !qty ||
+              !price ||
+              !category ||
+              !prod_unit ||
+              !stock_alert
+>>>>>>> Stashed changes
             ) {
               res.json(
                 createResponse(null, "Missing Product Body Required!!", true)
@@ -391,6 +442,10 @@ const updateproductentrilist = async (req, res, next) => {
                 summdate,
                 entrimonth
               );
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
               if (!postProEnList.outBinds.id[0] || !postProSum.outBinds.id[0]) {
                 res.json(
                   createResponse(
@@ -492,5 +547,8 @@ module.exports = {
   lastMrrNum,
   newProductList,
   updateProductList,
+<<<<<<< Updated upstream
   getStockProducts
+=======
+>>>>>>> Stashed changes
 };

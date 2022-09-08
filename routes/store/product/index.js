@@ -11,7 +11,10 @@ const {
   lastMrrNum,
   newProductList,
   updateProductList,
+<<<<<<< Updated upstream
   getStockProducts
+=======
+>>>>>>> Stashed changes
 } = require("../../../controllers/store/product");
 
 // Get Routes
@@ -21,9 +24,18 @@ router.get('/storeProducts', getStockProducts);
 router.get("/getStoreProductByCategoryId/:cat_id", getStoreProByCatId);
 router.get("/checkProductDuplicate/:prod_id", checkProductDuplicate);
 router.get("/getCategoryProductlist/:cat_id", getProductlistByCategoryId);
+<<<<<<< Updated upstream
 router.get("/categoryProductsQuantities/:cat_id",categoryProductsQuantitiesById);
 router.get("/getStoreProductByListId/:list_id", getStoreProductByListId);
 router.get("/newProductList/:cat_id", newProductList);
+=======
+router.get(
+  "categoryProductsQuantities/:cat_id",
+  categoryProductsQuantitiesById
+);
+router.get("/getStoreProductByListId/:list_id", getStoreProductByListId),
+  router.get("/newProductList/:cat_id", newProductList);
+>>>>>>> Stashed changes
 
 router.get("/lastMrrNumber", lastMrrNum);
 

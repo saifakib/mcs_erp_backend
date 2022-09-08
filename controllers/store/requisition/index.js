@@ -50,6 +50,7 @@ module.exports.getRequisitionDetailsById = async (req, res, next) => {
 module.exports.postRequisition = async (req, res, next) => {
   try {
     const { products, user_id } = req.body;
+<<<<<<< Updated upstream
     console.log(user_id);
 
     if (!user_id) {
@@ -98,6 +99,16 @@ module.exports.postRequisition = async (req, res, next) => {
           createResponse(null, "Error occured on requisition post", true)
         );
       }
+=======
+
+    if (!user_id) {
+      res.json(createResponse(null, "Requisitionar Id is missing", true));
+    } else if (!products.length) {
+      res.json(createResponse(null, "Product is missing", true));
+    } else {
+      const productId = await postRequisitionInfo(user_id);
+      // res.json(createResponse(rows));
+>>>>>>> Stashed changes
     }
   } catch (err) {
     next(err.message);
