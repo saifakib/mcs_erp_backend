@@ -16,7 +16,6 @@ const {
 
 // Get Routes
 router.get("/manageproducts", manageProducts);
-router.get("/manageSupplier");
 router.get('/storeProducts', getStockProducts);
 
 router.get("/getStoreProductByCategoryId/:cat_id", getStoreProByCatId);

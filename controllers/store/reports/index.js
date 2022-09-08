@@ -6,7 +6,7 @@ const { getAllEntriesReports, getSingleEntriesReports, stockStatus } = require("
  * Report - Product Entries All & Single 
  */
 const entriesProductReport = async (req, res, next) => {
-    const { queryFor ,productidno, fdate, tdate } = req.query;
+    const { queryFor, productidno, fdate, tdate } = req.query;
     try {
         if(queryFor == 'all') {
             if(!fdate || !tdate) {
@@ -69,7 +69,31 @@ const productStockStatus = async (_, res, next) => {
     }
 }
 
+
+const singleProductLogs = async (req, res, next) => {
+    const { queryFor, proid } = req.query;
+    try{
+        if(queryFor == 'product') {
+            if(!proid) {
+                res.json(createResponse(null, "Required query missing", true));
+            }
+            else {
+                
+
+                const productSummaries = 0;
+        
+            }
+        }
+        else {
+            res.json(createResponse(null, "Invalid Query For", true));
+        }
+    } catch(err) {
+        next(err)
+    }
+}
+
 module.exports = {
     entriesProductReport,
-    productStockStatus
+    productStockStatus,
+    singleProductLogs
 }
