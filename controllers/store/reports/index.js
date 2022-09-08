@@ -60,7 +60,7 @@ const entriesProductReport = async (req, res, next) => {
 /**
  * Report - Stock Status 
  */
-const productStockStatus = async (req, res, next) => {
+const productStockStatus = async (_, res, next) => {
     try {
         const response = await stockStatus();
         res.json(createResponse(response.rows));

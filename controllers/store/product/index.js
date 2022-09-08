@@ -18,7 +18,6 @@ const {
   updateStoreProduct,
   getLastMrrNumber,
   getNewProductList,
-  testProduct,
   updateStoreProductM,
 } = require("../../../services/store/product/index");
 const {
@@ -43,12 +42,11 @@ const manageProducts = async (_, res, next) => {
 
     res.json(createResponse(result));
   } catch (err) {
-    console.log("Err", err);
     next(err);
   }
 };
 
-const lastMrrNum = async (req, res, next) => {
+const lastMrrNum = async (_, res, next) => {
   try {
     let mrrNumber = await getLastMrrNumber();
     res.json(createResponse(mrrNumber.rows[0].MRRNO + 1));
@@ -77,16 +75,24 @@ const getStoreProByCatId = async (req, res, next) => {
 const checkProductDuplicate = async (req, res, next) => {
   const { prod_id: PROD_ID } = req.params;
   try {
-    const result1 = await getProducListById(PROD_ID);
-    if (result1.rows.length > 0) {
-      const result2 = await getStoreProductByProdListId(result1.rows[0].PRODID);
-      if (result2.rows.length > 0) {
-        res.json(createResponse(true));
+
+    if (!PROD_ID) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    } 
+    else {
+
+      const result1 = await getProducListById(PROD_ID);
+      if (result1.rows.length > 0) {
+        const result2 = await getStoreProductByProdListId(result1.rows[0].PRODID);
+        if (result2.rows.length > 0) {
+          res.json(createResponse(true));
+        } else {
+          res.json(createResponse(false));
+        }
       } else {
-        res.json(createResponse(false));
+        res.json(createResponse(null, "Product Id does not exits"));
       }
-    } else {
-      res.json(createResponse(null, "Product Id does not exits"));
+
     }
   } catch (err) {
     next(err);
@@ -95,13 +101,20 @@ const checkProductDuplicate = async (req, res, next) => {
 
 const getProductlistByCategoryId = async (req, res, next) => {
   const { cat_id: CAT_ID } = req.params;
+
   try {
-    const result = await getProducListByCategoryId(CAT_ID);
-    if (result.rows.length > 0) {
-      res.json(createResponse(result.rows));
-    } else {
-      res.json(createResponse(null, "Category Id does not exits"));
+    if(!CAT_ID) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
     }
+    else {
+      const result = await getProducListByCategoryId(CAT_ID);
+      if (result.rows.length > 0) {
+        res.json(createResponse(result.rows));
+      } else {
+        res.json(createResponse(null, "Category Id does not exits"));
+      }
+    }
+    
   } catch (err) {
     next(err);
   }
@@ -109,15 +122,17 @@ const getProductlistByCategoryId = async (req, res, next) => {
 
 const categoryProductsQuantitiesById = async (req, res, next) => {
   const { cat_id: CAT_ID } = req.params;
-  try {
-    const category = await getSingleCategory({ CAT_ID });
-    const totalProductQuantites = await totalQuantitesByCategoryId(CAT_ID);
 
-    let result = {
-      category: category.rows,
-      totalProductQuantites,
-    };
-    res.json(createResponse(result));
+  try {
+    if(!CAT_ID) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    } 
+    else {
+      const response = await totalQuantitesByCategoryId(CAT_ID);
+
+      res.json(createResponse(response.rows));
+    }
+   
   } catch (err) {
     next(err);
   }
@@ -127,8 +142,14 @@ const newProductList = async (req, res, next) => {
   const { cat_id: CAT_ID } = req.params;
 
   try {
-    const productListForNew = await getNewProductList(CAT_ID);
-    res.json(createResponse(productListForNew.rows));
+    if(!CAT_ID) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    } 
+    else {
+      const productListForNew = await getNewProductList(CAT_ID);
+      res.json(createResponse(productListForNew.rows));
+    }
+   
   } catch (err) {
     next(err);
   }
@@ -152,9 +173,11 @@ const getStockProducts = async (req, res, next) => {
   try {
     const { search } = req.headers;
     const { page, limit } = req.query;
+
     if (!search) {
-      res.json(createResponse(null, "Parameter required", true));
-    } else {
+      res.json(createResponse(null, "Required headers needed", true));
+    } 
+    else {
       const result = await getStoreProducts(search, page, limit);
       res.json(createResponse(result.rows));
     }

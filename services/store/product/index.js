@@ -16,16 +16,25 @@ const getStoreProducts = (search = "%%", page = 0, limit = 1000) => {
 };
 const getTotalStoreProducts = () =>
   Execute("SELECT COUNT(PROID) FROM STR_STOREPRODUCTS");
+
 const totalQuantites = () =>
   Execute("SELECT COUNT(PROQTY) FROM STR_STOREPRODUCTS");
+
 const getTotalStoreProdQty = () =>
   Execute(
     "SELECT COUNT(PROID) AS Product, SUM(PROQTY) AS Quentity FROM STR_STOREPRODUCTS"
   );
+
 const totalQuantitesByCategoryId = (CAT_ID) =>
   Execute(
-    `SELECT SUM(proqty) FROM STR_PRODUCTENTRILISTS WHERE procate=${CAT_ID}`
+    `SELECT SUM(SP.PROQTY), C.CATEGORYEN, C.CATEGORYBN 
+    FROM STR_STOREPRODUCTS SP 
+    LEFT OUTER JOIN STR_CATEGORIES C 
+    ON SP.PROCATE = C.CAT_ID
+    WHERE SP.PROCATE=${CAT_ID}
+    GROUP BY C.CATEGORYEN, C.CATEGORYBN`
   );
+
 const getProducListById = (PROD_ID) =>
   Execute(`SELECT * FROM STR_PRODUCTLISTS where prodid=${PROD_ID}`);
 
@@ -56,7 +65,7 @@ const getStoreProductByProdListId = (PROD_ID) =>
 
 const getExStoreProductByProdListId = (PROID) =>
   Execute(
-    `SELECT PROID, PRONAME, PRONAMETWO, PROCATE, PRODUNIT, PROQTY, STOCKPRICE, UNIT from STR_STOREPRODUCTS S left outer join STR_UNITS U on S.PRODUNIT = U.UNIT_ID where proid = ${PROID}`
+    `SELECT PROID, PRONAME, PRONAMETWO, PROCATE, PRODUNIT, PROQTY, STOCKALERT, UNIT, PRODLISTID AS PROD_LIST_ID from STR_STOREPRODUCTS S left outer join STR_UNITS U on S.PRODUNIT = U.UNIT_ID where proid = ${PROID}`
   );
 
 const getLastMrrNumber = () =>
@@ -179,14 +188,6 @@ const updateStoreProductM = (
     )} WHERE proid = ${Number(proid)}`
   );
 
-const testProduct = () => {
-  let date = new Date();
-  let creatdate = date.toISOString().split("T")[0];
-  let entritime = format(date, "hh:mm a");
-  let entrimonth = format(date, "LLLL-yyyy");
-
-  return console.log(entrimonth);
-};
 
 module.exports = {
   getStoreProducts,

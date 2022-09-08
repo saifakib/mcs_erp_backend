@@ -22,10 +22,7 @@ router.get('/storeProducts', getStockProducts);
 router.get("/getStoreProductByCategoryId/:cat_id", getStoreProByCatId);
 router.get("/checkProductDuplicate/:prod_id", checkProductDuplicate);
 router.get("/getCategoryProductlist/:cat_id", getProductlistByCategoryId);
-router.get(
-  "categoryProductsQuantities/:cat_id",
-  categoryProductsQuantitiesById
-);
+router.get("/categoryProductsQuantities/:cat_id",categoryProductsQuantitiesById);
 router.get("/getStoreProductByListId/:list_id", getStoreProductByListId);
 router.get("/newProductList/:cat_id", newProductList);
 
