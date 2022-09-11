@@ -50,56 +50,6 @@ module.exports.getRequisitionDetailsById = async (req, res, next) => {
 module.exports.postRequisition = async (req, res, next) => {
   try {
     const { products, user_id } = req.body;
-<<<<<<< Updated upstream
-    console.log(user_id);
-
-    if (!user_id) {
-      res.json(createResponse(null, "Requisitionar Id missing", true));
-    }
-    if (!products.length) {
-      res.json(createResponse(null, "Product is missing", true));
-    } else {
-      let { rows } = await getLastReqNo();
-      let { LAST_ID } = rows[0];
-
-      const reqTableInfo = {
-        profilehrId: Number(user_id),
-        requiTime: format(new Date(), "hh:mm a"),
-        requiMonth: format(new Date(), "LLLL-yyyy"),
-        requiDate: format(new Date(), "yyyy-MM-dd"),
-        lastReqNo: LAST_ID + 1,
-        status: 0,
-      };
-
-      const { outBinds } = await postRequisitionInfo(reqTableInfo);
-      // get last inserted_id
-      const insertedId = outBinds.id[0];
-      if (insertedId) {
-        let { rows } = await lastProRequiId();
-        let { LAST_ID } = rows[0];
-        let count = LAST_ID === null ? 1 : LAST_ID + 1;
-        const detailsInfo = products.map((item) => {
-          const object = {
-            PROREQID: count++,
-            HRIDNO: Number(user_id),
-            REQUIID: insertedId,
-            PROID: item.proid,
-            PROREQUQTY: item.prorequqty,
-            PREMARKS: item.remarks,
-            APROQTY: 0,
-            PRODATE: format(new Date(), "yyyy-MM-dd"),
-            PROMONTH: format(new Date(), "LLLL-yyyy"),
-          };
-          return object;
-        });
-        const result = await postReqProduct(detailsInfo);
-        res.json(createResponse(result));
-      } else {
-        res.json(
-          createResponse(null, "Error occured on requisition post", true)
-        );
-      }
-=======
 
     if (!user_id) {
       res.json(createResponse(null, "Requisitionar Id is missing", true));
@@ -108,7 +58,6 @@ module.exports.postRequisition = async (req, res, next) => {
     } else {
       const productId = await postRequisitionInfo(user_id);
       // res.json(createResponse(rows));
->>>>>>> Stashed changes
     }
   } catch (err) {
     next(err.message);
