@@ -56,8 +56,42 @@ module.exports.postRequisition = async (req, res, next) => {
     } else if (!products.length) {
       res.json(createResponse(null, "Product is missing", true));
     } else {
-      const productId = await postRequisitionInfo(user_id);
-      // res.json(createResponse(rows));
+      const { rows: lastReqNo } = await getLastReqNo();
+      const lastReqId = lastReqNo[0].LAST_ID ? lastReqNo[0].LAST_ID : 1;
+
+      const requisitionInfo = {
+        profilehrId: user_id,
+        requiTime: format(new Date(), "hh:mm a"),
+        requiMonth: format(new Date(), "LLLL-yyyy"),
+        requiDate: format(new Date(), "yyyy-MM-dd"),
+        lastReqNo: lastReqId,
+        status: 0,
+      };
+
+      let insertedId = await postRequisitionInfo(requisitionInfo);
+      const { outBinds } = insertedId;
+      insertedId = outBinds.id[0];
+
+      const { rows: lastId } = await lastProRequiId();
+      let count = lastId[0].LAST_ID ? lastId[0].LAST_ID : 1;
+
+      const newProducts = products.map((item) => {
+        const obj = {
+          PROREQID: count++,
+          HRIDNO: user_id,
+          REQUIID: insertedId,
+          PROID: item.proid,
+          PROREQUQTY: item.prorequqty,
+          PREMARKS: item.remarks,
+          APROQTY: 0,
+          PRODATE: format(new Date(), "yyyy-MM-dd"),
+          PROMONTH: format(new Date(), "LLLL-yyyy"),
+        };
+        return obj;
+      });
+
+      const result = await postReqProduct(newProducts);
+      res.json(createResponse(result));
     }
   } catch (err) {
     next(err.message);

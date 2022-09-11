@@ -69,6 +69,31 @@ module.exports.postRequisitionInfo = ({
 
 // post requisition details
 module.exports.postReqProduct = (array) => {
+  console.log(array);
+
+  // [
+  //   {
+  //     PROREQID: 1,
+  //     HRIDNO: 751,
+  //     REQUIID: 2,
+  //     PROID: 1,
+  //     PROREQUQTY: 12,
+  //     PREMARKS: 'I need it',
+  //     PRODATE: '2022-09-11',
+  //     PROMONTH: 'September-2022'
+  //   },
+  //   {
+  //     PROREQID: 2,
+  //     HRIDNO: 751,
+  //     REQUIID: 2,
+  //     PROID: 3,
+  //     PROREQUQTY: 5,
+  //     PREMARKS: 'it',
+  //     PRODATE: '2022-09-11',
+  //     PROMONTH: 'September-2022'
+  //   }
+  // ]
+
   const newArray = array;
   const statement = `INSERT INTO STR_PROREQUISITIONS (PROREQID, HRIDNO, REQUIID, PROID, PROREQUQTY, PREMARKS, APROQTY, PRODATE, PROMONTH) VALUES (:PROREQID, :HRIDNO, :REQUIID, :PROID, :PROREQUQTY, :PREMARKS, :APROQTY, :PRODATE, :PROMONTH)`;
   return ExecuteMany(statement, newArray);
