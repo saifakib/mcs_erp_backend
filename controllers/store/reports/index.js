@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { getAllEntriesReports, getSingleEntriesReports, stockStatus, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId } = require("../../../services/store/reports");
+const { getAllEntriesReports, getSingleEntriesReports, stockStatus, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId, getProductSummariesByCatId } = require("../../../services/store/reports");
 
 
 /**
@@ -114,17 +114,24 @@ const productLogs = async (req, res, next) => {
                 res.json(createResponse({
                     productSummaries: productSummaries.rows,
                     totalIn: total[0],
-                    totalOut: total[1]
+                    totalOut: total[1],
+                    summMonth: summMonth
                 }));
             }
         }
         else if(queryFor == 'category') {
-            if(!categoryid || !month || !year) {
+            if(!categoryid) {
                 res.json(createResponse(null, "Required query missing", true));
             } 
             else {
-                const summMonth = `'${month}-${year}'`;
-                const productSummaries = await getProductSummariesBySummMonthAndCatId(summMonth, categoryid);
+                let productSummaries = {};
+                if(month && year) {
+                    const summMonth = `'${month}-${year}'`;
+                    productSummaries = await getProductSummariesBySummMonthAndCatId(summMonth, categoryid);
+                }
+                else {
+                    productSummaries = await getProductSummariesByCatId(categoryid);
+                }
 
                 let total = productSummaries.rows.reduce((acc, obj) => {
                     acc[0] += obj.NEWADDQTY;
