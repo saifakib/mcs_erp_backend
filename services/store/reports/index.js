@@ -12,8 +12,7 @@ const getSingleEntriesReports = (productidno, fdate, tdate) => Execute(`SELECT  
 const stockStatus = () => Execute(`SELECT SP.PROID, SP.PRONAME, SP.PRONAMETWO, SP.PROQTY, C.CATEGORYEN FROM STR_STOREPRODUCTS SP LEFT OUTER JOIN STR_CATEGORIES C ON SP.PROCATE = C.CAT_ID ORDER BY PROID ASC`);
 
 
-// $productsummaries = DB::table('productsummaries')->leftJoin('profiles', 'productsummaries.requisitionfor', '=', 'profiles.profid')->orderBy('prosumid', 'asc')->where('productid', $product)->get();
-const getProductSummariesByProductid = 0;
+const getProductSummariesByProductid = (PROID) => Execute(`SELECT PS.SUMMDATE, PS.INTIALQTY, PS.NEWADDQTY, PS.TOTALBALANCE, PS.TOTALOUT, PS.PRESENTBALANCE, P.NAME, P.DESIGNATION, P.DEPARTMENT, C.CATEGORYEN FROM STR_PRODUCTSUMMARIES PS LEFT OUTER JOIN STR_PROFILES P ON PS.REQUISITIONFOR = P.PROFID LEFT OUTER JOIN STR_CATEGORIES C ON PS.PROCAT = C.CAT_ID  WHERE PS.PRODUCTID = ${PROID} ORDER BY PROSUMID ASC`);
 
 
 
@@ -28,5 +27,6 @@ const getProductSummariesByProductid = 0;
 module.exports = {
     getAllEntriesReports,
     getSingleEntriesReports,
-    stockStatus
+    stockStatus,
+    getProductSummariesByProductid
 }
