@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { getAllEntriesReports, getSingleEntriesReports, stockStatus, getProductSummariesByProductid } = require("../../../services/store/reports");
+const { getAllEntriesReports, getSingleEntriesReports, stockStatus, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId } = require("../../../services/store/reports");
 
 
 /**
@@ -73,10 +73,8 @@ const productStockStatus = async (_, res, next) => {
 /**
  * Report - Logs
  */
-
-
-const singleProductLogs = async (req, res, next) => {
-    const { queryFor, proid, month, year } = req.query;
+const productLogs = async (req, res, next) => {
+    const { queryFor, proid, month, year, categoryid } = req.query;
     try{
         if(queryFor == 'product') {
             if(!proid) {
@@ -104,7 +102,41 @@ const singleProductLogs = async (req, res, next) => {
                 res.json(createResponse(null, "Required query missing", true));
             } 
             else {
-                const summonth = `'${month}-${year}'`;
+                const summMonth = `'${month}-${year}'`;
+                const productSummaries = await getProductSummariesBySummMonth(summMonth);
+
+                let total = productSummaries.rows.reduce((acc, obj) => {
+                    acc[0] += obj.NEWADDQTY;
+                    acc[1] += obj.TOTALOUT;
+                    return acc;
+                }, [0,0]);
+
+                res.json(createResponse({
+                    productSummaries: productSummaries.rows,
+                    totalIn: total[0],
+                    totalOut: total[1]
+                }));
+            }
+        }
+        else if(queryFor == 'category') {
+            if(!categoryid || !month || !year) {
+                res.json(createResponse(null, "Required query missing", true));
+            } 
+            else {
+                const summMonth = `'${month}-${year}'`;
+                const productSummaries = await getProductSummariesBySummMonthAndCatId(summMonth, categoryid);
+
+                let total = productSummaries.rows.reduce((acc, obj) => {
+                    acc[0] += obj.NEWADDQTY;
+                    acc[1] += obj.TOTALOUT;
+                    return acc;
+                }, [0,0]);
+
+                res.json(createResponse({
+                    productSummaries: productSummaries.rows,
+                    totalIn: total[0],
+                    totalOut: total[1]
+                }));
             }
         }
         else {
@@ -118,5 +150,5 @@ const singleProductLogs = async (req, res, next) => {
 module.exports = {
     entriesProductReport,
     productStockStatus,
-    singleProductLogs
+    productLogs
 }

@@ -178,6 +178,7 @@ const updateStoreProductM = (
   pro_name_two,
   procate,
   prounit,
+  stockalert,
   status
 ) =>
   Execute(
@@ -185,7 +186,7 @@ const updateStoreProductM = (
       procate
     )}, produnit = ${Number(prounit)}, protstatus = ${Number(
       status
-    )} WHERE proid = ${Number(proid)}`
+    )}, STOCKALERT = ${Number(stockalert)} WHERE proid = ${Number(proid)}`
   );
 
 
