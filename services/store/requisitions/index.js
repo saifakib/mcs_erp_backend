@@ -53,9 +53,6 @@ module.exports.getRequisitionDetailsById = (id) => {
   WHERE REQUIID = ${Number(id)} ORDER BY PR.PROREQID`);
 };
 
-//get last requisition number 
-// module.exports.getLastRequiNumber = () => Execute(`SELECT MAX(REQUISITIONNO) AS REQUISITIONNO FROM STR_REQUISITIONS`);
-
 /*------------- Post ------------*/
 // post requisition information
 module.exports.postRequisitionInfo = ({
@@ -73,12 +70,25 @@ module.exports.postRequisitionInfo = ({
     { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
-
-//manual post requisition 
-module.exports.manualPostRequisitionInfo = (lastReqN, hrid, requitime, requidate, requimonth, approvedby) => Execute(`INSERT INTO STR_REQUISITIONS (REQUISITIONNO, PROFILEHRID, REQUITIME, REQUIDATE, REQUIMONTH, REQUISTATUS, APPROVED, APPROVEDBY, APROVEDTIME, APPROVEDDATE, STOREACCEPT, PROACCEPT, PROACCEPTTIME, PROACCEPTDATE) VALUES ('${lastReqN}', ${Number(hrid)}, '${requitime}', '${requidate}', '${requimonth}', ${Number(3)}, ${Number(1)}, '${approvedby}', '${requitime}', '${requidate}', ${Number(1)}, ${Number(1)}, '${requitime}', '${requidate}') RETURN REQID INTO :id`, { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } });
-
-
-
+//manual post requisition
+module.exports.manualPostRequisitionInfo = (
+  lastReqN,
+  hrid,
+  requitime,
+  requidate,
+  requimonth,
+  approvedby
+) =>
+  Execute(
+    `INSERT INTO STR_REQUISITIONS (REQUISITIONNO, PROFILEHRID, REQUITIME, REQUIDATE, REQUIMONTH, REQUISTATUS, APPROVED, APPROVEDBY, APROVEDTIME, APPROVEDDATE, STOREACCEPT, PROACCEPT, PROACCEPTTIME, PROACCEPTDATE) VALUES ('${lastReqN}', ${Number(
+      hrid
+    )}, '${requitime}', '${requidate}', '${requimonth}', ${Number(3)}, ${Number(
+      1
+    )}, '${approvedby}', '${requitime}', '${requidate}', ${Number(1)}, ${Number(
+      1
+    )}, '${requitime}', '${requidate}') RETURN REQID INTO :id`,
+    { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+  );
 
 // post requisition details
 module.exports.postReqProduct = (array) => {
