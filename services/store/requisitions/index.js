@@ -8,6 +8,9 @@ module.exports.getLastReqNo = () =>
 module.exports.lastProRequiId = () =>
   Execute(`SELECT MAX(PROREQID) AS LAST_ID FROM STR_PROREQUISITIONS`);
 
+module.exports.getProductBalance = (id) =>
+  Execute(`SELECT PROQTY FROM STR_STOREPRODUCTS WHERE PROID = ${Number(id)}`);
+
 module.exports.getReqInfo = (id) =>
   Execute(`SELECT REQUITIME || ', ' || REQUIDATE AS DATE_TIME, 
   case
@@ -79,31 +82,6 @@ module.exports.manualPostRequisitionInfo = (lastReqN, hrid, requitime, requidate
 
 // post requisition details
 module.exports.postReqProduct = (array) => {
-  console.log(array);
-
-  // [
-  //   {
-  //     PROREQID: 1,
-  //     HRIDNO: 751,
-  //     REQUIID: 2,
-  //     PROID: 1,
-  //     PROREQUQTY: 12,
-  //     PREMARKS: 'I need it',
-  //     PRODATE: '2022-09-11',
-  //     PROMONTH: 'September-2022'
-  //   },
-  //   {
-  //     PROREQID: 2,
-  //     HRIDNO: 751,
-  //     REQUIID: 2,
-  //     PROID: 3,
-  //     PROREQUQTY: 5,
-  //     PREMARKS: 'it',
-  //     PRODATE: '2022-09-11',
-  //     PROMONTH: 'September-2022'
-  //   }
-  // ]
-
   const newArray = array;
   const statement = `INSERT INTO STR_PROREQUISITIONS (PROREQID, HRIDNO, REQUIID, PROID, PROREQUQTY, PREMARKS, APROQTY, PRODATE, PROMONTH) VALUES (:PROREQID, :HRIDNO, :REQUIID, :PROID, :PROREQUQTY, :PREMARKS, :APROQTY, :PRODATE, :PROMONTH)`;
   return ExecuteMany(statement, newArray);
@@ -144,4 +122,58 @@ module.exports.updateReqProducts = (products) => {
   const statement = `UPDATE STR_PROREQUISITIONS SET APROQTY = :APPROVEQTY, ADMINAPPRO = :ADMINAPPRO, APPROVEREMARKS = :APPROVEREMARKS WHERE PROREQID = :PROREQID`;
 
   return ExecuteMany(statement, newArray);
+};
+
+// update requisition for store_officer
+module.exports.updateBalance = ({ PROID, PROQTY }) =>
+  Execute(
+    `UPDATE STR_STOREPRODUCTS SET PROQTY = ${Number(
+      PROQTY
+    )} WHERE PROID = ${Number(PROID)}`
+  );
+
+module.exports.updateStoreProducts = ({
+  APPROQTY,
+  REQUPRODSTATUS,
+  STOREREMARKS,
+  PROREQID,
+}) => {
+  return Execute(
+    `UPDATE STR_PROREQUISITIONS SET APROQTY = ${Number(
+      APPROQTY
+    )}, REQUPRODSTATUS = ${Number(
+      REQUPRODSTATUS
+    )}, STOREREMARKS = '${STOREREMARKS}' WHERE PROREQID = ${Number(PROREQID)}`
+  );
+};
+
+module.exports.insertSummeries = (data) => {
+  const {
+    PRODUCTID,
+    PRODUCTNAME,
+    PRODNAMETWO,
+    PROCAT,
+    INTIALQTY,
+    TOTALBALANCE,
+    TOTALOUT,
+    PRESENTBALANCE,
+    SUMMDATE,
+    SUMMMONTH,
+    REQUISITIONFOR,
+    SUMMERTYPE,
+  } = data;
+
+  console.log(data);
+
+  return Execute(
+    `INSERT INTO STR_PRODUCTSUMMARIES (PRODUCTID, PRODUCTNAME, PRODNAMETWO, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH, REQUISITIONFOR, SUMMERTYPE, PROCAT) VALUES (${Number(
+      PRODUCTID
+    )}, '${PRODUCTNAME}', '${PRODNAMETWO}', ${Number(INTIALQTY)}, ${Number(
+      TOTALBALANCE
+    )}, ${Number(TOTALOUT)}, ${Number(
+      PRESENTBALANCE
+    )}, '${SUMMDATE}', '${SUMMMONTH}', ${Number(
+      REQUISITIONFOR
+    )}, '${SUMMERTYPE}', ${Number(PROCAT)})`
+  );
 };

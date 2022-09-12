@@ -1,75 +1,94 @@
 const { createResponse } = require("../../../utils/responseGenerator");
+<<<<<<< Updated upstream
 const { getAllEntriesReports, getSingleEntriesReports, stockStatus, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId, getProductSummariesByCatId } = require("../../../services/store/reports");
 
+=======
+const {
+  getAllEntriesReports,
+  getSingleEntriesReports,
+  stockStatus,
+} = require("../../../services/store/reports");
+>>>>>>> Stashed changes
 
 /**
- * Report - Product Entries All & Single 
+ * Report - Product Entries All & Single
  */
 const entriesProductReport = async (req, res, next) => {
-    const { queryFor, productidno, fdate, tdate } = req.query;
-    try {
-        if(queryFor == 'all') {
-            if(!fdate || !tdate) {
-                res.json(createResponse(null, "Required query missing", true));
-            } 
-            else {
-                const response = await getAllEntriesReports(fdate, tdate);
+  const { queryFor, productidno, fdate, tdate } = req.query;
+  try {
+    if (queryFor == "all") {
+      if (!fdate || !tdate) {
+        res.json(createResponse(null, "Required query missing", true));
+      } else {
+        const response = await getAllEntriesReports(fdate, tdate);
 
-                const Total = response.rows.reduce((acc, obj) => {
-                    acc[0] += obj.QUANTITIES
-                    acc[1] += obj.TOTALAMOUNT;
-                    return acc;
-                }, [0,0])
-    
-                res.json(createResponse({
-                    products: response.rows,
-                    totalProduct: response.rows.length,
-                    TotalListQuantities: Total[0],
-                    TotalListAmount: Total[1]
-                }));
-            }
-        } 
-        else if(queryFor == 'single') {
-            if(!productidno || !fdate || !tdate) {
-                res.json(createResponse(null, "Required query missing", true));
-            } 
-            else {
-                const response = await getSingleEntriesReports(productidno, fdate, tdate);
+        const Total = response.rows.reduce(
+          (acc, obj) => {
+            acc[0] += obj.QUANTITIES;
+            acc[1] += obj.TOTALAMOUNT;
+            return acc;
+          },
+          [0, 0]
+        );
 
-                const Total = response.rows.reduce((acc, obj) => {
-                    acc[0] += obj.QUANTITIES
-                    acc[1] += obj.TOTALAMOUNT;
-                    return acc;
-                }, [0,0])
+        res.json(
+          createResponse({
+            products: response.rows,
+            totalProduct: response.rows.length,
+            TotalListQuantities: Total[0],
+            TotalListAmount: Total[1],
+          })
+        );
+      }
+    } else if (queryFor == "single") {
+      if (!productidno || !fdate || !tdate) {
+        res.json(createResponse(null, "Required query missing", true));
+      } else {
+        const response = await getSingleEntriesReports(
+          productidno,
+          fdate,
+          tdate
+        );
 
-                res.json(createResponse({
-                    products: response.rows,
-                    totalProduct: response.rows.length,
-                    TotalListQuantities: Total[0],
-                    TotalListAmount: Total[1]
-                }));
-            }
-        } else {
-            res.json(createResponse(null, "Invalid Query For", true));
-        }
-    } catch(err) {
-        next(err)
+        const Total = response.rows.reduce(
+          (acc, obj) => {
+            acc[0] += obj.QUANTITIES;
+            acc[1] += obj.TOTALAMOUNT;
+            return acc;
+          },
+          [0, 0]
+        );
+
+        res.json(
+          createResponse({
+            products: response.rows,
+            totalProduct: response.rows.length,
+            TotalListQuantities: Total[0],
+            TotalListAmount: Total[1],
+          })
+        );
+      }
+    } else {
+      res.json(createResponse(null, "Invalid Query For", true));
     }
-}
+  } catch (err) {
+    next(err);
+  }
+};
 
 /**
- * Report - Stock Status 
+ * Report - Stock Status
  */
 const productStockStatus = async (_, res, next) => {
-    try {
-        const response = await stockStatus();
-        res.json(createResponse(response.rows));
-    } catch(err) {
-        next(err)
-    }
-}
+  try {
+    const response = await stockStatus();
+    res.json(createResponse(response.rows));
+  } catch (err) {
+    next(err);
+  }
+};
 
-
+<<<<<<< Updated upstream
 /**
  * Report - Logs
  */
@@ -151,11 +170,34 @@ const productLogs = async (req, res, next) => {
         }
     } catch(err) {
         next(err)
+=======
+const singleProductLogs = async (req, res, next) => {
+  const { queryFor, proid } = req.query;
+  try {
+    if (queryFor == "product") {
+      if (!proid) {
+        res.json(createResponse(null, "Required query missing", true));
+      } else {
+        const productSummaries = 0;
+      }
+    } else {
+      res.json(createResponse(null, "Invalid Query For", true));
+>>>>>>> Stashed changes
     }
-}
+  } catch (err) {
+    next(err);
+  }
+};
 
 module.exports = {
+<<<<<<< Updated upstream
     entriesProductReport,
     productStockStatus,
     productLogs
 }
+=======
+  entriesProductReport,
+  productStockStatus,
+  singleProductLogs,
+};
+>>>>>>> Stashed changes

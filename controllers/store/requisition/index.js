@@ -9,7 +9,14 @@ const {
   lastProRequiId,
   getRequisitionDetailsById,
   getReqInfo,
+<<<<<<< Updated upstream
   manualPostRequisitionInfo
+=======
+  getProductBalance,
+  updateStoreProducts,
+  updateBalance,
+  insertSummeries,
+>>>>>>> Stashed changes
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -67,14 +74,22 @@ module.exports.postRequisition = async (req, res, next) => {
       res.json(createResponse(null, "Product is missing", true));
     } else {
       const { rows: lastReqNo } = await getLastReqNo();
+<<<<<<< Updated upstream
       const lastReqId = lastReqNo[0].LAST_ID ? lastReqNo[0].LAST_ID : 0;
+=======
+      const reqNo = lastReqNo[0].LAST_ID ? lastReqNo[0].LAST_ID : 1;
+>>>>>>> Stashed changes
 
       const requisitionInfo = {
         profilehrId: user_id,
         requiTime: format(new Date(), "hh:mm a"),
         requiMonth: format(new Date(), "LLLL-yyyy"),
         requiDate: format(new Date(), "yyyy-MM-dd"),
+<<<<<<< Updated upstream
         lastReqNo: parseInt(lastReqId) + 1,
+=======
+        lastReqNo: reqNo + 1,
+>>>>>>> Stashed changes
         status: 0,
       };
 
@@ -135,10 +150,9 @@ module.exports.createmanualrequisition = async(req, res, next) => {
 // update requisition by admin
 module.exports.updateRequisitionByAdmin = async (req, res, next) => {
   try {
-    const { approvedProducts, approvedBy } = req.body;
-    const { reqid } = req.headers;
+    const { req_id, approvedProducts, approvedBy } = req.body;
 
-    if (!reqid) {
+    if (!req_id) {
       res.json(createResponse(null, "Requisition id missing", true));
     }
     if (!approvedBy || !approvedProducts.length) {
@@ -150,7 +164,7 @@ module.exports.updateRequisitionByAdmin = async (req, res, next) => {
       APPROVEDBY: approvedBy,
       APROVEDTIME: format(new Date(), "hh:mm a"),
       APPROVEDDATE: format(new Date(), "yyyy-MM-dd"),
-      REQID: reqid,
+      REQID: req_id,
     };
     // update requisition table
     await updateRequisitionInfo(updatedInfo);
@@ -166,7 +180,56 @@ module.exports.updateRequisitionByAdmin = async (req, res, next) => {
 // update requisition by store_officer
 module.exports.updateReqByStoreOfficer = async (req, res, next) => {
   try {
-    res.json(createResponse(null, "Success"));
+    const { req_id, products } = req.body;
+    if (!req_id) {
+      res.json(createResponse(null, "Requisition id missing", true));
+    }
+    if (!products.length) {
+      res.json(
+        createResponse(null, "You might not select product to approve", true)
+      );
+    }
+
+    products.forEach(async (item) => {
+      let { rows } = await getProductBalance(item.proid);
+      const balance = rows[0].PROQTY;
+      const newBalance = balance - item.qty;
+      // update product balance
+      const data = {
+        PROID: item.proid,
+        PROQTY: newBalance,
+      };
+
+      await updateBalance(data);
+
+      // update store products
+      const p_info = {
+        APPROQTY: item.qty,
+        REQUPRODSTATUS: 1,
+        STOREREMARKS: item.remarks,
+        PROREQID: item.proreqid,
+      };
+      await updateStoreProducts(p_info);
+
+      const dataToInsert = {
+        PRODUCTID: item.proid,
+        PRODUCTNAME: item.productname,
+        PRODNAMETWO: item.productnametwo,
+        PROCAT: item.procat,
+        INTIALQTY: balance,
+        TOTALBALANCE: balance,
+        TOTALOUT: item.qty,
+        PRESENTBALANCE: newBalance,
+        SUMMDATE: format(new Date(), "yyyy-MM-dd"),
+        SUMMMONTH: format(new Date(), "LLLL-yyyy"),
+        REQUISITIONFOR: item.employe_id,
+        SUMMERTYPE: "Out",
+      };
+
+      await insertSummeries(dataToInsert);
+    });
+
+    res.json(createResponse(null, "Requisition Approved"));
   } catch (error) {
     next(error.message);
   }
