@@ -9,6 +9,7 @@ const {
   lastProRequiId,
   getRequisitionDetailsById,
   getReqInfo,
+  manualPostRequisitionInfo
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -45,6 +46,15 @@ module.exports.getRequisitionDetailsById = async (req, res, next) => {
   }
 };
 
+// module.exports.lastRequisitionNum = async (_, res, next) => {
+//   try {
+//     let requisitionNumber = await getLastRequiNumber();
+//     res.json(createResponse(parseInt(requisitionNumber.rows[0].REQUISITIONNO) + 1));
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+
 /*------------- post ------------*/
 // post
 module.exports.postRequisition = async (req, res, next) => {
@@ -57,14 +67,14 @@ module.exports.postRequisition = async (req, res, next) => {
       res.json(createResponse(null, "Product is missing", true));
     } else {
       const { rows: lastReqNo } = await getLastReqNo();
-      const lastReqId = lastReqNo[0].LAST_ID ? lastReqNo[0].LAST_ID : 1;
+      const lastReqId = lastReqNo[0].LAST_ID ? lastReqNo[0].LAST_ID : 0;
 
       const requisitionInfo = {
         profilehrId: user_id,
         requiTime: format(new Date(), "hh:mm a"),
         requiMonth: format(new Date(), "LLLL-yyyy"),
         requiDate: format(new Date(), "yyyy-MM-dd"),
-        lastReqNo: lastReqId,
+        lastReqNo: parseInt(lastReqId) + 1,
         status: 0,
       };
 
@@ -97,6 +107,30 @@ module.exports.postRequisition = async (req, res, next) => {
     next(err.message);
   }
 };
+
+
+module.exports.createmanualrequisition = async(req, res, next) => {
+  const { hrid, approvedby, products } = req.body;
+  let date = new Date();
+  let requitime = format(date, "hh:mm a");
+  let requidate = format(date, "yyyy-MM-dd");
+  let requimonth = format(date, "LLLL-yyyy");
+  try {
+    if(!hrid || !approvedby) {
+      res.json(createResponse(null, "Required Body Missing", true));
+    }
+    else {
+      const { rows: lastReqNo } = await getLastReqNo();
+      const lastReqN = lastReqNo[0].LAST_ID ? parseInt(lastReqNo[0].LAST_ID) + 1 : 0;
+      let insertedId = await manualPostRequisitionInfo(lastReqN, hrid, requitime, requidate, requimonth, approvedby);
+      const { outBinds } = insertedId;
+      insertedId = outBinds.id[0];
+    }
+  } catch(err) {
+    next(err)
+  }
+}
+
 
 // update requisition by admin
 module.exports.updateRequisitionByAdmin = async (req, res, next) => {
