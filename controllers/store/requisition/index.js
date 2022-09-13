@@ -103,6 +103,7 @@ module.exports.postRequisition = async (req, res, next) => {
   }
 };
 
+
 module.exports.createManualRequisition = async (req, res, next) => {
   const { hrid, approvedby, products } = req.body;
   let date = new Date();
