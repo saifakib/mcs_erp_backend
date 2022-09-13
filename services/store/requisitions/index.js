@@ -71,14 +71,8 @@ module.exports.postRequisitionInfo = ({
   );
 
 //manual post requisition
-module.exports.manualPostRequisitionInfo = (
-  lastReqN,
-  hrid,
-  requitime,
-  requidate,
-  requimonth,
-  approvedby
-) =>
+
+module.exports.manualPostRequisitionInfo = (lastReqN, hrid, requitime, requidate,requimonth,approvedby) =>
   Execute(
     `INSERT INTO STR_REQUISITIONS (REQUISITIONNO, PROFILEHRID, REQUITIME, REQUIDATE, REQUIMONTH, REQUISTATUS, APPROVED, APPROVEDBY, APROVEDTIME, APPROVEDDATE, STOREACCEPT, PROACCEPT, PROACCEPTTIME, PROACCEPTDATE) VALUES ('${lastReqN}', ${Number(
       hrid
@@ -90,12 +84,28 @@ module.exports.manualPostRequisitionInfo = (
     { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
+//manual post prorequisition
+module.exports.postProRequisition = (array) => {
+  const newArray = array;
+  const statement = `INSERT INTO STR_PROREQUISITIONS (HRIDNO, REQUIID, PROID, PROREQUQTY, PROREQUUNIT, PREMARKS, APROQTY, REQUPRODSTATUS, PRODATE, PROMONTH) VALUES (:HRIDNO, :REQUIID, :PROID, :PROREQUQTY, :PROREQUUNIT, :PREMARKS, :APROQTY, :REQUPRODSTATUS, :PRODATE, :PROMONTH)`;
+  return ExecuteMany(statement, newArray);
+}
+
+// manual post product summaries
+module.exports.postProductSummaries = (array) => {
+  let newArray = array;
+  const statement = `INSERT INTO STR_PRODUCTSUMMARIES (PRODUCTID, PRODUCTNAME, PRODUCTCATE, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH) VALUES (:PRODUCTID, :PRODUCTNAME, :PRODUCTCATE, :INTIALQTY, :TOTALBALANCE, :TOTALOUT, :PRESENTBALANCE, :SUMMDATE, :SUMMMONTH)`;
+  return ExecuteMany(statement, newArray);
+}
+
 // post requisition details
 module.exports.postReqProduct = (array) => {
   const newArray = array;
   const statement = `INSERT INTO STR_PROREQUISITIONS (PROREQID, HRIDNO, REQUIID, PROID, PROREQUQTY, PREMARKS, APROQTY, PRODATE, PROMONTH) VALUES (:PROREQID, :HRIDNO, :REQUIID, :PROID, :PROREQUQTY, :PREMARKS, :APROQTY, :PRODATE, :PROMONTH)`;
   return ExecuteMany(statement, newArray);
 };
+
+
 
 /*------------- Put ------------*/
 // update requisition by admin
@@ -187,3 +197,10 @@ module.exports.insertSummeries = (data) => {
     )}, '${SUMMERTYPE}', ${Number(PROCAT)})`
   );
 };
+
+// manual Update Store Product
+module.exports.updateStoreProduct = (array) => {
+  let newArray = array;
+  const statement = `UPDATE STR_STOREPRODUCTS SET PROQTY = :PROQTY WHERE PROID = :PROID`;
+  return ExecuteMany(statement, newArray);
+}

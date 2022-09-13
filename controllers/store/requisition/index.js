@@ -14,6 +14,9 @@ const {
   updateBalance,
   insertSummeries,
   manualPostRequisitionInfo,
+  postProRequisition,
+  postProductSummaries,
+  updateStoreProduct
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -103,31 +106,79 @@ module.exports.postRequisition = async (req, res, next) => {
   }
 };
 
-
 module.exports.createManualRequisition = async (req, res, next) => {
+
   const { hrid, approvedby, products } = req.body;
+
   let date = new Date();
   let requitime = format(date, "hh:mm a");
   let requidate = format(date, "yyyy-MM-dd");
   let requimonth = format(date, "LLLL-yyyy");
+
   try {
     if (!hrid || !approvedby) {
       res.json(createResponse(null, "Required Body Missing", true));
-    } else {
+    } 
+    else {
       const { rows: lastReqNo } = await getLastReqNo();
-      const lastReqN = lastReqNo[0].LAST_ID
-        ? parseInt(lastReqNo[0].LAST_ID) + 1
-        : 0;
-      let insertedId = await manualPostRequisitionInfo(
-        lastReqN,
-        hrid,
-        requitime,
-        requidate,
-        requimonth,
-        approvedby
-      );
+      const lastReqN = lastReqNo[0].LAST_ID ? parseInt(lastReqNo[0].LAST_ID) + 1 : 0;
+      let insertedId = await manualPostRequisitionInfo(lastReqN, hrid, requitime, requidate, requimonth, approvedby);
       const { outBinds } = insertedId;
       insertedId = outBinds.id[0];
+
+      let [preRequisitionEntry, stockProductUpdate, productSummariesEntry] = [[], [], []];
+
+      if(insertedId) {
+       products.forEach( async (product) => {
+        // product should be an object
+        const { prodid, productname, stockqty, prodqty, prounit, appqty, procate, remarks} = product;
+        if(!prodid || !productname || !stockqty || !prodqty || !prounit || !procate || !appqty) {
+            res.json(createResponse(null, "Required Body Missing", true));
+        }
+        else {
+            preRequisitionEntry.push({
+                HRIDNO: hrid,
+                REQUIID: insertedId,
+                PROID: prodid,
+                PROREQUQTY: prodqty,
+                PROREQUUNIT: prounit,
+                PREMARKS: remarks,
+                APROQTY: appqty,
+                REQUPRODSTATUS: 1,
+                PRODATE: requidate,
+                PROMONTH: requimonth
+            })
+
+            let currentbalance = stockqty - appqty;
+
+            stockProductUpdate.push({
+                PROQTY: currentbalance,
+                PROID: prodid,
+            })
+
+            productSummariesEntry.push({
+                PRODUCTID: prodid,
+                PRODUCTNAME: productname,
+                PRODUCTCATE: procate,
+                INTIALQTY: stockqty,
+                TOTALBALANCE: stockqty,
+                TOTALOUT: appqty,
+                PRESENTBALANCE: currentbalance,
+                SUMMDATE: requidate,
+                SUMMMONTH: requimonth
+            })
+
+        }
+
+       })
+       const PostPR = await postProRequisition(preRequisitionEntry);
+       const UpdateSP = await updateStoreProduct(stockProductUpdate);
+       const PostPS = await postProductSummaries(productSummariesEntry);
+
+       res.json(createResponse({
+        PostPR, UpdateSP, PostPS
+       }));
+      }
     }
   } catch (err) {
     next(err);
