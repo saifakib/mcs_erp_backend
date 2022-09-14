@@ -6,7 +6,7 @@ const {  getEmployeeByDeptId  } = require("../../../services/hr/employee");
 /*------------- All Get Controller ---------------*/
 
 /**
- * Department - All 
+ * Get Employee By Department Id  
  */
 const getEmpByDeptId = async (req, res, next) => {
     const { deptid } = req.params;

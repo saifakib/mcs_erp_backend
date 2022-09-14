@@ -156,96 +156,66 @@ module.exports.createManualRequisition = async (req, res, next) => {
   try {
     if (!hrid || !approvedby) {
       res.json(createResponse(null, "Required Body Missing", true));
-    } else {
+    } 
+    else {
       const { rows: lastReqNo } = await getLastReqNo();
-      const lastReqN = lastReqNo[0].LAST_ID
-        ? parseInt(lastReqNo[0].LAST_ID) + 1
-        : 0;
-      let insertedId = await manualPostRequisitionInfo(
-        lastReqN,
-        hrid,
-        requitime,
-        requidate,
-        requimonth,
-        approvedby
-      );
+      const lastReqN = lastReqNo[0].LAST_ID ? parseInt(lastReqNo[0].LAST_ID) + 1 : 0;
+
+      let insertedId = await manualPostRequisitionInfo(lastReqN, hrid, requitime, requidate, requimonth, approvedby);
       const { outBinds } = insertedId;
       insertedId = outBinds.id[0];
 
-      let [preRequisitionEntry, stockProductUpdate, productSummariesEntry] = [
-        [],
-        [],
-        [],
-      ];
-
-      if (insertedId) {
-        products.forEach(async (product) => {
-          // product should be an object
-          const {
-            prodid,
-            productname,
-            stockqty,
-            prodqty,
-            prounit,
-            appqty,
-            procate,
-            remarks,
-          } = product;
-          if (
-            !prodid ||
-            !productname ||
-            !stockqty ||
-            !prodqty ||
-            !prounit ||
-            !procate ||
-            !appqty
-          ) {
+      // making array for the process of ExecuteMany()
+      let [preRequisitionEntry, stockProductUpdate, productSummariesEntry] = [[],[],[]];
+      if(insertedId) {
+       products.forEach( async (product) => {
+        // product should be an object
+        const { proid, stockqty, prodqty, appqty, procate, remarks} = product;
+        if(!proid || !stockqty || !prodqty || !procate || !appqty) {
             res.json(createResponse(null, "Required Body Missing", true));
-          } else {
+          } 
+          else {
             preRequisitionEntry.push({
-              HRIDNO: hrid,
-              REQUIID: insertedId,
-              PROID: prodid,
-              PROREQUQTY: prodqty,
-              PROREQUUNIT: prounit,
-              PREMARKS: remarks,
-              APROQTY: appqty,
-              REQUPRODSTATUS: 1,
-              PRODATE: requidate,
-              PROMONTH: requimonth,
-            });
+                HRIDNO: hrid,
+                REQUIID: insertedId,
+                PROID: proid,
+                PROREQUQTY: prodqty,
+                PREMARKS: remarks,
+                APROQTY: appqty,
+                REQUPRODSTATUS: 1,
+                PRODATE: requidate,
+                PROMONTH: requimonth
+            })
 
             let currentbalance = stockqty - appqty;
-
             stockProductUpdate.push({
-              PROQTY: currentbalance,
-              PROID: prodid,
-            });
+                PROQTY: currentbalance,
+                PROID: proid,
+            })
 
             productSummariesEntry.push({
-              PRODUCTID: prodid,
-              PRODUCTNAME: productname,
-              PRODUCTCATE: procate,
-              INTIALQTY: stockqty,
-              TOTALBALANCE: stockqty,
-              TOTALOUT: appqty,
-              PRESENTBALANCE: currentbalance,
-              SUMMDATE: requidate,
-              SUMMMONTH: requimonth,
-            });
-          }
-        });
-        const PostPR = await postProRequisition(preRequisitionEntry);
-        const UpdateSP = await updateStoreProduct(stockProductUpdate);
-        const PostPS = await postProductSummaries(productSummariesEntry);
+                PRODUCTID: proid,
+                PROCAT: procate,
+                INTIALQTY: stockqty,
+                TOTALBALANCE: stockqty,
+                TOTALOUT: appqty,
+                PRESENTBALANCE: currentbalance,
+                SUMMDATE: requidate,
+                SUMMMONTH: requimonth
+            })
+        }
+       })
 
-        res.json(
-          createResponse({
-            PostPR,
-            UpdateSP,
-            PostPS,
-          })
-        );
+       const PostPR = await postProRequisition(preRequisitionEntry);
+       const UpdateSP = await updateStoreProduct(stockProductUpdate);
+       const PostPS = await postProductSummaries(productSummariesEntry);
+
+       if(PostPR.rowsAffected === 1 && UpdateSP.rowsAffected === 1 && PostPS.rowsAffected === 1) {
+        res.json(createResponse(null, false, "Manual Requisition Process Complete Successfully!!"));
+       } 
+       else {
+        res.json(createResponse(null, true, "Something is wrong in Manual Requisition Process!!"));
+       }
       }
     }
   } catch (err) {

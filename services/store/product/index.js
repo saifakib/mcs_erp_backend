@@ -144,16 +144,16 @@ const postProductEntriesLists = (
 
 // Product Summaries
 const postProductSummaries = (
-  { proname, pro_name_two, qty, price, category },
+  { qty, price, category },
   storeproid,
   entridate,
   summdate,
   entrimonth
 ) =>
   Execute(
-    `INSERT INTO STR_PRODUCTSUMMARIES (productid, productname, prodnametwo, newaddqty, totalbalance, presentbalance, currentprice, addtodate, summdate, summmonth, summertype, procat) VALUES (${Number(
+    `INSERT INTO STR_PRODUCTSUMMARIES (productid, newaddqty, totalbalance, presentbalance, currentprice, addtodate, summdate, summmonth, summertype, procat) VALUES (${Number(
       storeproid
-    )}, '${proname}', '${pro_name_two}', ${Number(qty)}, ${Number(
+    )}, ${Number(qty)}, ${Number(
       qty
     )}, ${Number(qty)}, ${Number(
       price
