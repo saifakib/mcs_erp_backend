@@ -158,6 +158,12 @@ module.exports.createManualRequisition = async (req, res, next) => {
       res.json(createResponse(null, "Required Body Missing", true));
     } 
     else {
+      products.forEach((product) => {
+        if(product.stockqty < product.appqty) {
+          res.json(createResponse(null, "Approved Quantities Product Are Bigger than Stock Quantities", true));
+        }
+      })
+
       const { rows: lastReqNo } = await getLastReqNo();
       const lastReqN = lastReqNo[0].LAST_ID ? parseInt(lastReqNo[0].LAST_ID) + 1 : 0;
 
@@ -211,10 +217,10 @@ module.exports.createManualRequisition = async (req, res, next) => {
        const PostPS = await postProductSummaries(productSummariesEntry);
 
        if(PostPR.rowsAffected === 1 && UpdateSP.rowsAffected === 1 && PostPS.rowsAffected === 1) {
-        res.json(createResponse(null, false, "Manual Requisition Process Complete Successfully!!"));
+        res.json(createResponse(null, "Manual Requisition Process Complete Successfully!!", false));
        } 
        else {
-        res.json(createResponse(null, true, "Something is wrong in Manual Requisition Process!!"));
+        res.json(createResponse(null, "Something is wrong in Manual Requisition Process!!", true));
        }
       }
     }
