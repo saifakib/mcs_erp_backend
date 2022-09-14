@@ -16,7 +16,8 @@ const {
   manualPostRequisitionInfo,
   postProRequisition,
   postProductSummaries,
-  updateStoreProduct
+  updateStoreProduct,
+  pendingRequisitions,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -53,6 +54,42 @@ module.exports.getRequisitionDetailsById = async (req, res, next) => {
   }
 };
 
+// pending requisition
+module.exports.pendingRequisitions = async (req, res, next) => {
+  try {
+    const { search } = req.headers;
+    const { page, limit } = req.query;
+
+    if (!search) {
+      res.json(createResponse(null, "Search parameter missing", true));
+    }
+    if (!page || !limit) {
+      res.json(createResponse(null, "Parameter missing", true));
+    }
+    const { rows } = await pendingRequisitions(search, page, limit);
+    res.json(createResponse(rows));
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+// pending requisition
+module.exports.pendingRequisitionDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      res.json(createResponse(null, "Requisition id missing", true));
+    }
+
+    const { rows: details } = await pendingRequisitionDetails(id);
+
+    res.json(createResponse(details));
+  } catch (error) {
+    next(error.message);
+  }
+};
+
 /*------------- post ------------*/
 // post
 module.exports.postRequisition = async (req, res, next) => {
@@ -65,14 +102,16 @@ module.exports.postRequisition = async (req, res, next) => {
       res.json(createResponse(null, "Product is missing", true));
     } else {
       const { rows: lastReqNo } = await getLastReqNo();
-      const reqNo = lastReqNo[0].LAST_ID ? lastReqNo[0].LAST_ID : 1;
+      const reqNo = lastReqNo[0].LAST_ID
+        ? parseInt(lastReqNo[0].LAST_ID) + 1
+        : 1;
 
       const requisitionInfo = {
         profilehrId: user_id,
         requiTime: format(new Date(), "hh:mm a"),
         requiMonth: format(new Date(), "LLLL-yyyy"),
         requiDate: format(new Date(), "yyyy-MM-dd"),
-        lastReqNo: reqNo + 1,
+        lastReqNo: reqNo,
         status: 0,
       };
 
@@ -81,7 +120,7 @@ module.exports.postRequisition = async (req, res, next) => {
       insertedId = outBinds.id[0];
 
       const { rows: lastId } = await lastProRequiId();
-      let count = lastId[0].LAST_ID ? lastId[0].LAST_ID : 1;
+      let count = lastId[0].LAST_ID ? lastId[0].LAST_ID + 1 : 1;
 
       const newProducts = products.map((item) => {
         const obj = {
@@ -107,7 +146,6 @@ module.exports.postRequisition = async (req, res, next) => {
 };
 
 module.exports.createManualRequisition = async (req, res, next) => {
-
   const { hrid, approvedby, products } = req.body;
 
   let date = new Date();
@@ -118,66 +156,96 @@ module.exports.createManualRequisition = async (req, res, next) => {
   try {
     if (!hrid || !approvedby) {
       res.json(createResponse(null, "Required Body Missing", true));
-    } 
-    else {
+    } else {
       const { rows: lastReqNo } = await getLastReqNo();
-      const lastReqN = lastReqNo[0].LAST_ID ? parseInt(lastReqNo[0].LAST_ID) + 1 : 0;
-      let insertedId = await manualPostRequisitionInfo(lastReqN, hrid, requitime, requidate, requimonth, approvedby);
+      const lastReqN = lastReqNo[0].LAST_ID
+        ? parseInt(lastReqNo[0].LAST_ID) + 1
+        : 0;
+      let insertedId = await manualPostRequisitionInfo(
+        lastReqN,
+        hrid,
+        requitime,
+        requidate,
+        requimonth,
+        approvedby
+      );
       const { outBinds } = insertedId;
       insertedId = outBinds.id[0];
 
-      let [preRequisitionEntry, stockProductUpdate, productSummariesEntry] = [[], [], []];
+      let [preRequisitionEntry, stockProductUpdate, productSummariesEntry] = [
+        [],
+        [],
+        [],
+      ];
 
-      if(insertedId) {
-       products.forEach( async (product) => {
-        // product should be an object
-        const { prodid, productname, stockqty, prodqty, prounit, appqty, procate, remarks} = product;
-        if(!prodid || !productname || !stockqty || !prodqty || !prounit || !procate || !appqty) {
+      if (insertedId) {
+        products.forEach(async (product) => {
+          // product should be an object
+          const {
+            prodid,
+            productname,
+            stockqty,
+            prodqty,
+            prounit,
+            appqty,
+            procate,
+            remarks,
+          } = product;
+          if (
+            !prodid ||
+            !productname ||
+            !stockqty ||
+            !prodqty ||
+            !prounit ||
+            !procate ||
+            !appqty
+          ) {
             res.json(createResponse(null, "Required Body Missing", true));
-        }
-        else {
+          } else {
             preRequisitionEntry.push({
-                HRIDNO: hrid,
-                REQUIID: insertedId,
-                PROID: prodid,
-                PROREQUQTY: prodqty,
-                PROREQUUNIT: prounit,
-                PREMARKS: remarks,
-                APROQTY: appqty,
-                REQUPRODSTATUS: 1,
-                PRODATE: requidate,
-                PROMONTH: requimonth
-            })
+              HRIDNO: hrid,
+              REQUIID: insertedId,
+              PROID: prodid,
+              PROREQUQTY: prodqty,
+              PROREQUUNIT: prounit,
+              PREMARKS: remarks,
+              APROQTY: appqty,
+              REQUPRODSTATUS: 1,
+              PRODATE: requidate,
+              PROMONTH: requimonth,
+            });
 
             let currentbalance = stockqty - appqty;
 
             stockProductUpdate.push({
-                PROQTY: currentbalance,
-                PROID: prodid,
-            })
+              PROQTY: currentbalance,
+              PROID: prodid,
+            });
 
             productSummariesEntry.push({
-                PRODUCTID: prodid,
-                PRODUCTNAME: productname,
-                PRODUCTCATE: procate,
-                INTIALQTY: stockqty,
-                TOTALBALANCE: stockqty,
-                TOTALOUT: appqty,
-                PRESENTBALANCE: currentbalance,
-                SUMMDATE: requidate,
-                SUMMMONTH: requimonth
-            })
+              PRODUCTID: prodid,
+              PRODUCTNAME: productname,
+              PRODUCTCATE: procate,
+              INTIALQTY: stockqty,
+              TOTALBALANCE: stockqty,
+              TOTALOUT: appqty,
+              PRESENTBALANCE: currentbalance,
+              SUMMDATE: requidate,
+              SUMMMONTH: requimonth,
+            });
+          }
+        });
+        const PostPR = await postProRequisition(preRequisitionEntry);
+        const UpdateSP = await updateStoreProduct(stockProductUpdate);
+        const PostPS = await postProductSummaries(productSummariesEntry);
 
-        }
-
-       })
-       const PostPR = await postProRequisition(preRequisitionEntry);
-       const UpdateSP = await updateStoreProduct(stockProductUpdate);
-       const PostPS = await postProductSummaries(productSummariesEntry);
-
-       res.json(createResponse({
-        PostPR, UpdateSP, PostPS
-       }));
+        res.json(
+          createResponse({
+            PostPR,
+            UpdateSP,
+            PostPS,
+          })
+        );
       }
     }
   } catch (err) {
@@ -188,12 +256,12 @@ module.exports.createManualRequisition = async (req, res, next) => {
 // update requisition by admin
 module.exports.updateRequisitionByAdmin = async (req, res, next) => {
   try {
-    const { req_id, approvedProducts, approvedBy } = req.body;
+    const { req_id, products, approvedBy } = req.body;
 
     if (!req_id) {
       res.json(createResponse(null, "Requisition id missing", true));
     }
-    if (!approvedBy || !approvedProducts.length) {
+    if (!approvedBy || !products.length) {
       res.json(createResponse(null, "Body data missing", true));
     }
     const updatedInfo = {
@@ -208,7 +276,7 @@ module.exports.updateRequisitionByAdmin = async (req, res, next) => {
     await updateRequisitionInfo(updatedInfo);
 
     // update pro_requisition table
-    const result = await updateReqProducts(approvedProducts);
+    const result = await updateReqProducts(products);
     res.json(createResponse(result));
   } catch (error) {
     next(error.message);

@@ -5,6 +5,9 @@ const requisitionController = require("../../../controllers/store/requisition");
 router.get("/:id", requisitionController.getRequisitionById);
 router.get("/details/:id", requisitionController.getRequisitionDetailsById);
 
+router.get("/pending/all", requisitionController.pendingRequisitions);
+router.get("/pending/:id", requisitionController.pendingRequisitionDetails);
+
 // post route
 router.post("/", requisitionController.postRequisition);
 router.post("/manual", requisitionController.createManualRequisition);

@@ -1,7 +1,7 @@
 const { oracledb } = require("../../../db/db");
 const { Execute, ExecuteMany } = require("../../../utils/dynamicController");
 
-/*------------- Get ------------*/
+// use of work
 module.exports.getLastReqNo = () =>
   Execute(`SELECT MAX(REQUISITIONNO) AS LAST_ID FROM STR_REQUISITIONS`);
 
@@ -20,6 +20,8 @@ module.exports.getReqInfo = (id) =>
   when REQUISTATUS = 3 then 'Done' end Status FROM STR_REQUISITIONS WHERE REQID = ${Number(
     id
   )}`);
+
+/*------------- Get ------------*/
 
 // get requisition by id
 module.exports.getRequisitionById = (
@@ -53,6 +55,23 @@ module.exports.getRequisitionDetailsById = (id) => {
   WHERE REQUIID = ${Number(id)} ORDER BY PR.PROREQID`);
 };
 
+// get pending requisitions
+module.exports.pendingRequisitions = (
+  search = "%%",
+  page = 0,
+  limit = 1000
+) => {
+  let offset = limit * page;
+  return Execute(`SELECT R.REQUITIME, R.REQUIDATE, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION,
+  SUM(P.PROREQUQTY) OVER () AS QUANTITY FROM STR_REQUISITIONS R LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.PROFILEHRID LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID	= E.DEPARTEMENT_ID LEFT OUTER JOIN  HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID WHERE R.REQUISTATUS = ${Number(
+    0
+  )} AND LOWER(E.NAME_ENGLISH || D.DEPARTEMENT || DG.DESIGNATION) LIKE LOWER('${search}') ORDER BY REQID OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+};
+
+module.exports.pendingRequisitionDetails = (id) => {
+  return Execute();
+};
+
 /*------------- Post ------------*/
 // post requisition information
 module.exports.postRequisitionInfo = ({
@@ -72,7 +91,14 @@ module.exports.postRequisitionInfo = ({
 
 //manual post requisition
 
-module.exports.manualPostRequisitionInfo = (lastReqN, hrid, requitime, requidate,requimonth,approvedby) =>
+module.exports.manualPostRequisitionInfo = (
+  lastReqN,
+  hrid,
+  requitime,
+  requidate,
+  requimonth,
+  approvedby
+) =>
   Execute(
     `INSERT INTO STR_REQUISITIONS (REQUISITIONNO, PROFILEHRID, REQUITIME, REQUIDATE, REQUIMONTH, REQUISTATUS, APPROVED, APPROVEDBY, APROVEDTIME, APPROVEDDATE, STOREACCEPT, PROACCEPT, PROACCEPTTIME, PROACCEPTDATE) VALUES ('${lastReqN}', ${Number(
       hrid
@@ -89,14 +115,14 @@ module.exports.postProRequisition = (array) => {
   const newArray = array;
   const statement = `INSERT INTO STR_PROREQUISITIONS (HRIDNO, REQUIID, PROID, PROREQUQTY, PROREQUUNIT, PREMARKS, APROQTY, REQUPRODSTATUS, PRODATE, PROMONTH) VALUES (:HRIDNO, :REQUIID, :PROID, :PROREQUQTY, :PROREQUUNIT, :PREMARKS, :APROQTY, :REQUPRODSTATUS, :PRODATE, :PROMONTH)`;
   return ExecuteMany(statement, newArray);
-}
+};
 
 // manual post product summaries
 module.exports.postProductSummaries = (array) => {
   let newArray = array;
   const statement = `INSERT INTO STR_PRODUCTSUMMARIES (PRODUCTID, PRODUCTNAME, PRODUCTCATE, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH) VALUES (:PRODUCTID, :PRODUCTNAME, :PRODUCTCATE, :INTIALQTY, :TOTALBALANCE, :TOTALOUT, :PRESENTBALANCE, :SUMMDATE, :SUMMMONTH)`;
   return ExecuteMany(statement, newArray);
-}
+};
 
 // post requisition details
 module.exports.postReqProduct = (array) => {
@@ -104,8 +130,6 @@ module.exports.postReqProduct = (array) => {
   const statement = `INSERT INTO STR_PROREQUISITIONS (PROREQID, HRIDNO, REQUIID, PROID, PROREQUQTY, PREMARKS, APROQTY, PRODATE, PROMONTH) VALUES (:PROREQID, :HRIDNO, :REQUIID, :PROID, :PROREQUQTY, :PREMARKS, :APROQTY, :PRODATE, :PROMONTH)`;
   return ExecuteMany(statement, newArray);
 };
-
-
 
 /*------------- Put ------------*/
 // update requisition by admin
@@ -131,10 +155,10 @@ module.exports.updateRequisitionInfo = (updatedInfo) => {
 module.exports.updateReqProducts = (products) => {
   const newArray = products.map((item) => {
     const obj = {
-      APPROVEQTY: item.APPROVEQTY,
-      ADMINAPPRO: item.APPROVEQTY,
-      APPROVEREMARKS: item.REMARKS,
-      PROREQID: item.PROREQID,
+      APPROVEQTY: item.qty,
+      ADMINAPPRO: item.qty,
+      APPROVEREMARKS: item.remarks,
+      PROREQID: item.proreqid,
     };
     return obj;
   });
@@ -183,8 +207,6 @@ module.exports.insertSummeries = (data) => {
     SUMMERTYPE,
   } = data;
 
-  console.log(data);
-
   return Execute(
     `INSERT INTO STR_PRODUCTSUMMARIES (PRODUCTID, PRODUCTNAME, PRODNAMETWO, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH, REQUISITIONFOR, SUMMERTYPE, PROCAT) VALUES (${Number(
       PRODUCTID
@@ -203,4 +225,4 @@ module.exports.updateStoreProduct = (array) => {
   let newArray = array;
   const statement = `UPDATE STR_STOREPRODUCTS SET PROQTY = :PROQTY WHERE PROID = :PROID`;
   return ExecuteMany(statement, newArray);
-}
+};
