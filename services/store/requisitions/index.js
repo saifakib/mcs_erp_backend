@@ -62,14 +62,23 @@ module.exports.pendingRequisitions = (
   limit = 1000
 ) => {
   let offset = limit * page;
-  return Execute(`SELECT R.REQUITIME, R.REQUIDATE, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION,
+  return Execute(`SELECT R.REQID, R.REQUITIME, R.REQUIDATE, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION,
   SUM(P.PROREQUQTY) OVER () AS QUANTITY FROM STR_REQUISITIONS R LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.PROFILEHRID LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID	= E.DEPARTEMENT_ID LEFT OUTER JOIN  HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID WHERE R.REQUISTATUS = ${Number(
     0
   )} AND LOWER(E.NAME_ENGLISH || D.DEPARTEMENT || DG.DESIGNATION) LIKE LOWER('${search}') ORDER BY REQID OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.pendingRequisitionDetails = (id) => {
-  return Execute();
+  return Execute(`select pr.hridno, pr.requiid, pr.proid, sp.proname || ' -' || sp.pronametwo as product_name, pr.prorequqty, pr.prodate from str_prorequisitions pr
+  left outer join str_storeproducts sp on pr.proid = sp.proid
+  where pr.requiid = ${Number(id)}`);
+};
+
+module.exports.getLastReqInfo = (hrid, proid) => {
+  return Execute(`select pr.requiid, pr.proid, prodate, PROREQUQTY from str_prorequisitions pr
+  where pr.hridno = ${Number(hrid)} and pr.proid = ${Number(
+    proid
+  )} and pr.requiid = (select max(requiid)-1 from str_prorequisitions) order by pr.prodate desc`);
 };
 
 /*------------- Post ------------*/

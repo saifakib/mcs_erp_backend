@@ -18,6 +18,8 @@ const {
   postProductSummaries,
   updateStoreProduct,
   pendingRequisitions,
+  pendingRequisitionDetails,
+  getLastReqInfo,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -81,8 +83,12 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
     if (!id) {
       res.json(createResponse(null, "Requisition id missing", true));
     }
-
     const { rows: details } = await pendingRequisitionDetails(id);
+
+    const newArray = details.map(async (item) => {
+      const { rows: data } = await getLastReqInfo(item.HRIDNO, item.REQUIID);
+      console.log("ff", data);
+    });
 
     res.json(createResponse(details));
   } catch (error) {
