@@ -11,6 +11,7 @@ const errorHandler = (error, req, res, next) => {
   if(error.data == 404) {
     res.json(createResponse(error.data,  error.message, true))
   } else {
+    console.log("Error for Server Error:", error)
     res.json(createResponse(500,"Server Error", true))
   }
 }

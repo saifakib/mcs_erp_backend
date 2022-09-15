@@ -153,7 +153,8 @@ const productLogs = async (req, res, next) => {
                     })
                 );
             }
-        } else if (queryFor == "category") {
+        } 
+        else if (queryFor == "category") {
             if (!categoryid) {
                 res.json(createResponse(null, "Required query missing", true));
             } else {
