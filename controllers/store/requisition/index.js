@@ -125,7 +125,7 @@ module.exports.doneRequisitionsDetails = async (req, res, next) => {
       res.json(createResponse(null, "Requisition id missing", true));
     }
     const { rows: data } = await doneRequisitionsDetails(id);
-    res.json(createResponse(data[0]));
+    res.json(createResponse(data));
   } catch (error) {
     next(err.message);
   }
