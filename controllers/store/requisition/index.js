@@ -195,7 +195,7 @@ module.exports.createManualRequisition = async (req, res, next) => {
   let requimonth = format(date, "LLLL-yyyy");
 
   try {
-    if (!hrid || !approvedby) {
+    if (!hrid || !approvedby || !requisitionBy) {
       res.json(createResponse(null, "Required Body Missing", true));
     } else {
       products.forEach((product) => {
@@ -235,9 +235,9 @@ module.exports.createManualRequisition = async (req, res, next) => {
       if (insertedId) {
         products.forEach(async (product) => {
           // product should be an object
-          const { proid, stockqty, prodqty, appqty, procate, remarks } =
+          const { proid, stockqty, prodqty, unit, appqty, procate, remarks } =
             product;
-          if (!proid || !stockqty || !prodqty || !procate || !appqty) {
+          if (!proid || !stockqty || !prodqty || !unit || !procate || !appqty) {
             res.json(createResponse(null, "Required Body Missing", true));
           } else {
             preRequisitionEntry.push({
@@ -245,6 +245,7 @@ module.exports.createManualRequisition = async (req, res, next) => {
               REQUIBY: requisitionBy,
               REQUIID: insertedId,
               PROID: proid,
+              PROREQUUNIT: unit,
               PROREQUQTY: prodqty,
               PREMARKS: remarks,
               APROQTY: appqty,
@@ -277,9 +278,9 @@ module.exports.createManualRequisition = async (req, res, next) => {
         const PostPS = await postProductSummaries(productSummariesEntry);
 
         if (
-          PostPR.rowsAffected === 1 &&
-          UpdateSP.rowsAffected === 1 &&
-          PostPS.rowsAffected === 1
+          PostPR.rowsAffected  >= 1 &&
+          UpdateSP.rowsAffected >= 1 &&
+          PostPS.rowsAffected >= 1
         ) {
           res.json(
             createResponse(

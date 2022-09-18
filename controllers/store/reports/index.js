@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { getAllEntriesReports, getSingleEntriesReports, stockStatus, stockStatusByCatId, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId, getProductSummariesByCatId } = require("../../../services/store/reports");
+const { getAllEntriesReports, getSingleEntriesReports, stockStatus, stockStatusByCatId, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId, getProductSummariesByCatId, getRequisitionsByDate } = require("../../../services/store/reports");
 
 
 /**
@@ -195,31 +195,44 @@ const productLogs = async (req, res, next) => {
 
 
 
+
 /**
  * Requisition Logs
  */
-
-//  $prorequisitions = DB::table('prorequisitions')
-//                 ->leftJoin('profiles', 'prorequisitions.requiby', '=', 'profiles.profid')
-//                 ->join('storeproducts', 'prorequisitions.proid', '=', 'storeproducts.proid')
-//                 ->where('prodate', '>=', $fromtarik)
-//                 ->where('prodate', '<=', $totarik)
-//                 ->where('aproqty', '!=', 0)
-//                 ->get();
-
-
 const requisitionLogs = async (req, res, next) => {
     const { queryFor, proid, fdate, tdate, hrid } = req.query;
     try {
-        if (queryFor == "date") {
+        if (queryFor === "date") {
             if(!fdate || !tdate) {
                 res.json(createResponse(null, "Required query missing", true));
             } 
             else {
-                productSummaries = await getProductSummariesBySummMonthAndCatId(
-                    summMonth,
-                    categoryid
-                );
+                const response = await getRequisitionsByDate(fdate, tdate);
+                res.json(createResponse(response.rows));
+            }
+        }
+        else if(queryFor === "product") {
+            if(!proid) {
+                res.json(createResponse(null, "Required query missing", true));
+            } 
+            else {
+                if(fdate && tdate) {
+
+                } else {
+                    
+                }
+            }
+        }
+        else if(queryFor === "person") {
+            if(!hrid) {
+                res.json(createResponse(null, "Required query missing", true));
+            } 
+            else {
+                if(fdate && tdate) {
+
+                } else {
+                    
+                }
             }
         }
         else {

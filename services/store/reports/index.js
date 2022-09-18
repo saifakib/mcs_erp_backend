@@ -38,6 +38,21 @@ const getProductSummariesByCatId = (CATID) => Execute(`SELECT PS.SUMMDATE, SP.PR
 
 
 /*--------------------- Requisition Logs Report ----------------- */
+const getRequisitionsByDate = (fdate, tdate) => Execute(`SELECT PR.PRODATE, SP.PRONAME, SP.PRONAMETWO, PR.PROREQUQTY, PR.APROQTY, 
+PR.PREMARKS, E.NAME_BANGLA, E.NAME_ENGLISH, DL.DEPARTEMENT, DG.DESIGNATION FROM STR_PROREQUISITIONS PR
+LEFT OUTER JOIN HRM.EMPLOYEE E 
+ON PR.HRIDNO = E.EMPLOYE_ID 
+LEFT OUTER JOIN STR_STOREPRODUCTS SP 
+ON PR.PROID = SP.PROID 
+LEFT OUTER JOIN HRM.DEPARTMENT_LIST DL 
+ON E.DEPARTEMENT_ID = DL.DEPARTEMENT_ID 
+LEFT OUTER JOIN HRM.DESIGNATION DG 
+ON E.DESIGNATION_ID = DG.DESIGNATION_ID 
+WHERE PR.PRODATE >= '${fdate}' AND PR.PRODATE <= '${tdate}' AND PR.APROQTY != 0`)
+
+/*--------------------- End Requisition Logs Report ----------------- */
+
+
 /*--------------------------------END SELECT --------------------------------*/
 
 
@@ -49,5 +64,6 @@ module.exports = {
     getProductSummariesByProductid,
     getProductSummariesBySummMonth,
     getProductSummariesByCatId,
-    getProductSummariesBySummMonthAndCatId
+    getProductSummariesBySummMonthAndCatId,
+    getRequisitionsByDate
 }
