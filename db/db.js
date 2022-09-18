@@ -27,4 +27,3 @@ function getConnection() {
 }
 
 module.exports = { getConnection, oracledb };
-

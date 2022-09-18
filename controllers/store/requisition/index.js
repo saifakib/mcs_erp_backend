@@ -20,6 +20,8 @@ const {
   pendingRequisitions,
   pendingRequisitionDetails,
   getLastReqInfo,
+  doneRequisitions,
+  doneRequisitionsDetails,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -75,7 +77,7 @@ module.exports.pendingRequisitions = async (req, res, next) => {
   }
 };
 
-// pending requisition
+// pending requisition details
 module.exports.pendingRequisitionDetails = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -93,6 +95,39 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
     res.json(createResponse(details));
   } catch (error) {
     next(error.message);
+  }
+};
+
+// done requisition
+module.exports.doneRequisitions = async (req, res, next) => {
+  try {
+    const { search } = req.headers;
+    const { page, limit } = req.query;
+
+    if (!search) {
+      res.json(createResponse(null, "Search parameter missing", true));
+    }
+    if (!page || !limit) {
+      res.json(createResponse(null, "Parameter missing", true));
+    }
+    const { rows } = await doneRequisitions(search, page, limit);
+    res.json(createResponse(rows));
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+// done requisition details
+module.exports.doneRequisitionsDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.json(createResponse(null, "Requisition id missing", true));
+    }
+    const { rows: data } = await doneRequisitionsDetails(id);
+    res.json(createResponse(data[0]));
+  } catch (error) {
+    next(err.message);
   }
 };
 
@@ -162,72 +197,105 @@ module.exports.createManualRequisition = async (req, res, next) => {
   try {
     if (!hrid || !approvedby) {
       res.json(createResponse(null, "Required Body Missing", true));
-    } 
-    else {
+    } else {
       products.forEach((product) => {
-        if(product.stockqty < product.appqty) {
-          res.json(createResponse(null, "Approved Quantities Product Are Bigger than Stock Quantities", true));
+        if (product.stockqty < product.appqty) {
+          res.json(
+            createResponse(
+              null,
+              "Approved Quantities Product Are Bigger than Stock Quantities",
+              true
+            )
+          );
         }
-      })
+      });
 
       const { rows: lastReqNo } = await getLastReqNo();
-      const lastReqN = lastReqNo[0].LAST_ID ? parseInt(lastReqNo[0].LAST_ID) + 1 : 0;
+      const lastReqN = lastReqNo[0].LAST_ID
+        ? parseInt(lastReqNo[0].LAST_ID) + 1
+        : 0;
 
-      let insertedId = await manualPostRequisitionInfo(lastReqN, hrid, requitime, requidate, requimonth, approvedby);
+      let insertedId = await manualPostRequisitionInfo(
+        lastReqN,
+        hrid,
+        requitime,
+        requidate,
+        requimonth,
+        approvedby
+      );
       const { outBinds } = insertedId;
       insertedId = outBinds.id[0];
 
       // making array for the process of ExecuteMany()
-      let [preRequisitionEntry, stockProductUpdate, productSummariesEntry] = [[],[],[]];
-      if(insertedId) {
-       products.forEach( async (product) => {
-        // product should be an object
-        const { proid, stockqty, prodqty, appqty, procate, remarks} = product;
-        if(!proid || !stockqty || !prodqty || !procate || !appqty) {
+      let [preRequisitionEntry, stockProductUpdate, productSummariesEntry] = [
+        [],
+        [],
+        [],
+      ];
+      if (insertedId) {
+        products.forEach(async (product) => {
+          // product should be an object
+          const { proid, stockqty, prodqty, appqty, procate, remarks } =
+            product;
+          if (!proid || !stockqty || !prodqty || !procate || !appqty) {
             res.json(createResponse(null, "Required Body Missing", true));
-          } 
-          else {
+          } else {
             preRequisitionEntry.push({
-                HRIDNO: hrid,
-                REQUIID: insertedId,
-                PROID: proid,
-                PROREQUQTY: prodqty,
-                PREMARKS: remarks,
-                APROQTY: appqty,
-                REQUPRODSTATUS: 1,
-                PRODATE: requidate,
-                PROMONTH: requimonth
-            })
+              HRIDNO: hrid,
+              REQUIID: insertedId,
+              PROID: proid,
+              PROREQUQTY: prodqty,
+              PREMARKS: remarks,
+              APROQTY: appqty,
+              REQUPRODSTATUS: 1,
+              PRODATE: requidate,
+              PROMONTH: requimonth,
+            });
 
             let currentbalance = stockqty - appqty;
             stockProductUpdate.push({
-                PROQTY: currentbalance,
-                PROID: proid,
-            })
+              PROQTY: currentbalance,
+              PROID: proid,
+            });
 
             productSummariesEntry.push({
-                PRODUCTID: proid,
-                PROCAT: procate,
-                INTIALQTY: stockqty,
-                TOTALBALANCE: stockqty,
-                TOTALOUT: appqty,
-                PRESENTBALANCE: currentbalance,
-                SUMMDATE: requidate,
-                SUMMMONTH: requimonth
-            })
+              PRODUCTID: proid,
+              PROCAT: procate,
+              INTIALQTY: stockqty,
+              TOTALBALANCE: stockqty,
+              TOTALOUT: appqty,
+              PRESENTBALANCE: currentbalance,
+              SUMMDATE: requidate,
+              SUMMMONTH: requimonth,
+            });
+          }
+        });
+
+        const PostPR = await postProRequisition(preRequisitionEntry);
+        const UpdateSP = await updateStoreProduct(stockProductUpdate);
+        const PostPS = await postProductSummaries(productSummariesEntry);
+
+        if (
+          PostPR.rowsAffected === 1 &&
+          UpdateSP.rowsAffected === 1 &&
+          PostPS.rowsAffected === 1
+        ) {
+          res.json(
+            createResponse(
+              null,
+              "Manual Requisition Process Complete Successfully!!",
+              false
+            )
+          );
+        } else {
+          res.json(
+            createResponse(
+              null,
+              "Something is wrong in Manual Requisition Process!!",
+              true
+            )
+          );
         }
-       })
-
-       const PostPR = await postProRequisition(preRequisitionEntry);
-       const UpdateSP = await updateStoreProduct(stockProductUpdate);
-       const PostPS = await postProductSummaries(productSummariesEntry);
-
-       if(PostPR.rowsAffected === 1 && UpdateSP.rowsAffected === 1 && PostPS.rowsAffected === 1) {
-        res.json(createResponse(null, "Manual Requisition Process Complete Successfully!!", false));
-       } 
-       else {
-        res.json(createResponse(null, "Something is wrong in Manual Requisition Process!!", true));
-       }
       }
     }
   } catch (err) {
