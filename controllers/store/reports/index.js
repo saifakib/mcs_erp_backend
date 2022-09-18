@@ -181,7 +181,7 @@ const productLogs = async (req, res, next) => {
                     productSummaries: productSummaries.rows,
                     totalIn: total[0],
                     totalOut: total[1],
-                    category: productSummaries.rows[0].CATEGORYEN
+                    category: productSummaries.rows[0].CATEGORYBN
                 }));
             }
         }
@@ -193,8 +193,47 @@ const productLogs = async (req, res, next) => {
     }
 };
 
+
+
+/**
+ * Requisition Logs
+ */
+
+//  $prorequisitions = DB::table('prorequisitions')
+//                 ->leftJoin('profiles', 'prorequisitions.requiby', '=', 'profiles.profid')
+//                 ->join('storeproducts', 'prorequisitions.proid', '=', 'storeproducts.proid')
+//                 ->where('prodate', '>=', $fromtarik)
+//                 ->where('prodate', '<=', $totarik)
+//                 ->where('aproqty', '!=', 0)
+//                 ->get();
+
+
+const requisitionLogs = async (req, res, next) => {
+    const { queryFor, proid, fdate, tdate, hrid } = req.query;
+    try {
+        if (queryFor == "date") {
+            if(!fdate || !tdate) {
+                res.json(createResponse(null, "Required query missing", true));
+            } 
+            else {
+                productSummaries = await getProductSummariesBySummMonthAndCatId(
+                    summMonth,
+                    categoryid
+                );
+            }
+        }
+        else {
+            res.json(createResponse(null, "Invalid Query For", true));
+        }
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
 module.exports = {
     entriesProductReport,
     productStockStatus,
     productLogs,
+    requisitionLogs
 };

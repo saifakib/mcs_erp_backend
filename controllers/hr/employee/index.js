@@ -1,9 +1,22 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const {  getEmployeeByDeptId  } = require("../../../services/hr/employee");
+const { getAllEmployee, getEmployeeByDeptId  } = require("../../../services/hr/employee");
 
 
 
 /*------------- All Get Controller ---------------*/
+
+/**
+ * Get Employee - All  
+ */
+ const getEmployees = async (req, res, next) => {
+    try {
+        const employees = await getAllEmployee();
+        res.json(createResponse(employees.rows));
+
+    } catch(err) {
+        next(err)
+    }
+};
 
 /**
  * Get Employee By Department Id  
@@ -28,5 +41,6 @@ const getEmpByDeptId = async (req, res, next) => {
 /*------------- End Get Controller ---------------*/
 
 module.exports = {
+    getEmployees,
     getEmpByDeptId
 };

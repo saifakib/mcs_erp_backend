@@ -187,7 +187,7 @@ module.exports.postRequisition = async (req, res, next) => {
 };
 
 module.exports.createManualRequisition = async (req, res, next) => {
-  const { hrid, approvedby, products } = req.body;
+  const { hrid, approvedby, requisitionBy, products } = req.body;
 
   let date = new Date();
   let requitime = format(date, "hh:mm a");
@@ -242,6 +242,7 @@ module.exports.createManualRequisition = async (req, res, next) => {
           } else {
             preRequisitionEntry.push({
               HRIDNO: hrid,
+              REQUIBY: requisitionBy,
               REQUIID: insertedId,
               PROID: proid,
               PROREQUQTY: prodqty,
