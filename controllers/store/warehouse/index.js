@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { getRequisitionStatusCount } = require("../../../services/store/warehouse");
+const { getRequisitionStatusCount, getStockAlert } = require("../../../services/store/warehouse");
 
 
 /**
@@ -8,6 +8,7 @@ const { getRequisitionStatusCount } = require("../../../services/store/warehouse
 const requisitionInfoWithStatusCount = async (_, res, next) => {
     try {
         const response = await getRequisitionStatusCount();
+        const stockAlert = await getStockAlert();
 
         const { PENDINGCOUNT, APPROVEDCOUNT, STOREAPPRUVALCOUNT, DONECOUNT} = response.rows[0];
         res.json(
@@ -16,7 +17,8 @@ const requisitionInfoWithStatusCount = async (_, res, next) => {
                 PENDINGCOUNT, 
                 APPROVEDCOUNT, 
                 STOREAPPRUVALCOUNT,
-                DONECOUNT
+                DONECOUNT,
+                STOCKALERT: stockAlert.rows.length
             })
         );
     } catch (err) {
@@ -24,7 +26,20 @@ const requisitionInfoWithStatusCount = async (_, res, next) => {
     }
 };
 
+const stockAlertList = async (_, res, next) => {
+    try {
+        const response = await getStockAlert();
+
+        res.json(
+            createResponse(response.rows)
+        )
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 module.exports = { 
-    requisitionInfoWithStatusCount 
+    requisitionInfoWithStatusCount,
+    stockAlertList
 }

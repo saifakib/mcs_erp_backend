@@ -1,7 +1,8 @@
 const router = require("express").Router();
-const { requisitionInfoWithStatusCount } = require("../../../controllers/store/warehouse");
+const { requisitionInfoWithStatusCount, stockAlertList } = require("../../../controllers/store/warehouse");
 
 // get route
 router.get("/", requisitionInfoWithStatusCount);
+router.get("/stockAlert", stockAlertList);
 
 module.exports = router;

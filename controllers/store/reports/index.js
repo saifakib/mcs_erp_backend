@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { getAllEntriesReports, getSingleEntriesReports, stockStatus, stockStatusByCatId, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId, getProductSummariesByCatId, getRequisitionsByDate } = require("../../../services/store/reports");
+const { getAllEntriesReports, getSingleEntriesReports, stockStatus, stockStatusByCatId, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId, getProductSummariesByCatId, getRequisitionsByDate, getRequisitionsByProduct, getRequisitionsByProductAndDate,getRequisitionsByPerson, getRequisitionsByPersonAndDate } = require("../../../services/store/reports");
 
 
 /**
@@ -202,13 +202,15 @@ const productLogs = async (req, res, next) => {
 const requisitionLogs = async (req, res, next) => {
     const { queryFor, proid, fdate, tdate, hrid } = req.query;
     try {
+
+        let response = {};
+
         if (queryFor === "date") {
             if(!fdate || !tdate) {
                 res.json(createResponse(null, "Required query missing", true));
             } 
             else {
-                const response = await getRequisitionsByDate(fdate, tdate);
-                res.json(createResponse(response.rows));
+                response = await getRequisitionsByDate(fdate, tdate);
             }
         }
         else if(queryFor === "product") {
@@ -217,9 +219,10 @@ const requisitionLogs = async (req, res, next) => {
             } 
             else {
                 if(fdate && tdate) {
-
-                } else {
-                    
+                    response = await getRequisitionsByProductAndDate(proid, fdate, tdate);
+                } 
+                else {
+                    response = await getRequisitionsByProduct(proid);
                 }
             }
         }
@@ -229,14 +232,28 @@ const requisitionLogs = async (req, res, next) => {
             } 
             else {
                 if(fdate && tdate) {
-
-                } else {
-                    
+                    response = await getRequisitionsByPersonAndDate(hrid, fdate, tdate);
+                } 
+                else {
+                    response = await getRequisitionsByPerson(hrid);
                 }
             }
         }
         else {
             res.json(createResponse(null, "Invalid Query For", true));
+        }
+
+        if(response.rows) {
+            const TotalApprove = response.rows.reduce(
+                (acc, obj) => {
+                    acc += obj.APROQTY;
+                    return acc;
+                }, 0);
+                
+            res.json(createResponse({
+                products: response.rows,
+                TotalApprove
+            }));
         }
     }
     catch (err) {

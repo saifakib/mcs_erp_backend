@@ -11,7 +11,13 @@ SUM(CASE WHEN REQUISTATUS = 3 THEN 1 ELSE 0 END) AS DONECOUNT
 FROM STR_REQUISITIONS`);
 
 
+const getStockAlert = () => Execute(`
+SELECT SP.PRONAME, SP.PRONAMETWO, C.CATEGORYBN, C.CATEGORYEN, SP.PROQTY, SP.STOCKALERT FROM STR_STOREPRODUCTS SP
+LEFT OUTER JOIN STR_CATEGORIES C
+ON SP.PROCATE = C.CAT_ID
+WHERE SP.PROQTY <= SP.STOCKALERT AND SP.PROQTY != ${Number(0)} AND SP.PROTSTATUS = ${Number(1)}`);
+
 /*--------------------------------END SELECT --------------------------------*/
 
 
-module.exports = { getRequisitionStatusCount }
+module.exports = { getRequisitionStatusCount, getStockAlert }
