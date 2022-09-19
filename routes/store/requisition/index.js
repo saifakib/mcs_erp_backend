@@ -11,6 +11,7 @@ router.get("/pending/:id", requisitionController.pendingRequisitionDetails);
 
 // approved
 router.get("/approved/all", requisitionController.approvedRequisitions);
+router.get("/approved/:id", requisitionController.approvedRequisitionDetails);
 
 // done
 router.get("/done/all", requisitionController.doneRequisitions);

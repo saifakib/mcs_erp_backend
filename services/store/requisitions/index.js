@@ -21,14 +21,16 @@ module.exports.getReqInfo = (id) =>
     id
   )}`);
 
-module.exports.userInfo = (id) => {
-  return Execute(`SELECT R.REQUIDATE, R.REQUITIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION from STR_REQUISITIONS r 
+module.exports.userInfo = (id, status = 0) => {
+  return Execute(`SELECT R.REQUIDATE, R.REQUISITIONNO, R.REQUITIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION from STR_REQUISITIONS r 
   left outer join HRM.EMPLOYEE E
     ON E.EMPLOYE_ID = R.PROFILEHRID
     LEFT OUTER JOIN HRM.DEPARTMENT_LIST D
     ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
     LEFT OUTER JOIN  HRM.DESIGNATION DG ON
-    DG.DESIGNATION_ID = E.DESIGNATION_ID WHERE R.REQID = ${Number(id)}`);
+    DG.DESIGNATION_ID = E.DESIGNATION_ID WHERE R.REQID = ${Number(
+      id
+    )} AND R.REQUISTATUS = ${Number(status)}`);
 };
 
 /*------------- Get ------------*/
@@ -127,6 +129,24 @@ module.exports.approvedRequisitions = (
   WHERE R.REQUISTATUS = ${Number(
     1
   )} AND LOWER(E.NAME_ENGLISH || D.DEPARTEMENT || DG.DESIGNATION) LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+};
+
+module.exports.approvedRequisitionDetails = (id) => {
+  return Execute(`select pr.requiid, pr.hridno, pr.proid, sp.proname || ' -' || sp.pronametwo as product_name, 
+  pr.prorequqty, pr.prodate from str_prorequisitions pr
+  left outer join str_storeproducts sp on pr.proid = sp.proid
+  left outer join str_requisitions r on r.reqid = pr.requiid
+  where pr.requiid = ${Number(id)} and r.requistatus = ${Number(1)}`);
+};
+
+module.exports.adminApproved = (item) => {
+  return Execute(`select pr.aproqty, sp.proname from str_prorequisitions pr
+  left outer join str_storeproducts sp on sp.proid = pr.proid
+  
+  where pr.requiid = ${Number(item.REQUIID)} and pr.proid = ${Number(
+    item.PROID
+  )} 
+  order by pr.proreqid desc`);
 };
 
 // get done requisitions

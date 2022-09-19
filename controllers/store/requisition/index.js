@@ -25,6 +25,8 @@ const {
   approvedRequisitions,
   currentStock,
   userInfo,
+  approvedRequisitionDetails,
+  adminApproved,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -91,7 +93,7 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
     const { rows: details } = await pendingRequisitionDetails(id);
 
     // requisitionar info
-    const { rows: info } = await userInfo(id);
+    const { rows: info } = await userInfo(id, 0);
     let reqInfo = info[0];
 
     // requisition details
@@ -155,6 +157,81 @@ module.exports.approvedRequisitions = async (req, res, next) => {
     }
     const { rows } = await approvedRequisitions(search, page, limit);
     res.json(createResponse(rows));
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+// pending requisition details
+module.exports.approvedRequisitionDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      res.json(createResponse(null, "Requisition id missing", true));
+    }
+    const { rows: details } = await approvedRequisitionDetails(id);
+
+    // requisitionar info
+    const { rows: info } = await userInfo(id, 1);
+    let reqInfo = info[0];
+
+    // requisition details
+    const detailProducts = await Promise.all(
+      details.map(async (item) => {
+        const { rows: data } = await getLastReqInfo(item);
+        const lastData = data.find((d) => d.PRODATE !== item.PRODATE);
+
+        let obj;
+
+        if (lastData.PROID === item.PROID) {
+          obj = {
+            PRODUCT_NAME: item.PRODUCT_NAME,
+            PROREQUQTY: item.PROREQUQTY,
+            PROID: item.PROID,
+            LAST_DATE: lastData.PRODATE,
+            LAST_QTY: lastData.PROREQUQTY,
+          };
+        } else {
+          obj = {
+            PRODUCT_NAME: item.PRODUCT_NAME,
+            PROREQUQTY: item.PROREQUQTY,
+            PROID: item.PROID,
+            LAST_DATE: null,
+            LAST_QTY: 0,
+          };
+        }
+
+        return obj;
+      })
+    );
+
+    // curren stock information
+    const stockInfo = await Promise.all(
+      details.map(async (item) => {
+        const { rows: data } = await currentStock(item.PROID);
+        const modified = data[0];
+        return modified;
+      })
+    );
+
+    // admin approved info
+    const adminInfo = await Promise.all(
+      details.map(async (item) => {
+        const { rows: data } = await adminApproved(item);
+        const modified = data[0];
+        return modified;
+      })
+    );
+
+    res.json(
+      createResponse({
+        reqInfo,
+        productsInfo: detailProducts,
+        adminApproved: adminInfo,
+        stockInfo,
+      })
+    );
   } catch (error) {
     next(error.message);
   }
@@ -340,7 +417,7 @@ module.exports.createManualRequisition = async (req, res, next) => {
         const PostPS = await postProductSummaries(productSummariesEntry);
 
         if (
-          PostPR.rowsAffected  >= 1 &&
+          PostPR.rowsAffected >= 1 &&
           UpdateSP.rowsAffected >= 1 &&
           PostPS.rowsAffected >= 1
         ) {
