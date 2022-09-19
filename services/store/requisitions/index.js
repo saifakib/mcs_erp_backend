@@ -21,6 +21,16 @@ module.exports.getReqInfo = (id) =>
     id
   )}`);
 
+module.exports.userInfo = (id) => {
+  return Execute(`SELECT R.REQUIDATE, R.REQUITIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION from STR_REQUISITIONS r 
+  left outer join HRM.EMPLOYEE E
+    ON E.EMPLOYE_ID = R.PROFILEHRID
+    LEFT OUTER JOIN HRM.DEPARTMENT_LIST D
+    ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
+    LEFT OUTER JOIN  HRM.DESIGNATION DG ON
+    DG.DESIGNATION_ID = E.DESIGNATION_ID WHERE R.REQID = ${Number(id)}`);
+};
+
 /*------------- Get ------------*/
 
 // get requisition by id
@@ -52,7 +62,7 @@ module.exports.getRequisitionDetailsById = (id) => {
   ON SP.PROID = PR.PROID
   LEFT OUTER JOIN STR_UNITS U
   ON U.UNIT_ID = SP.PRODUNIT
-  WHERE REQUIID = ${Number(id)} ORDER BY PR.PROREQID`);
+  WHERE REQUIID = ${Number(id)} ORDER BY PR.PROREQID DESC`);
 };
 
 // get pending requisitions
@@ -74,22 +84,55 @@ module.exports.pendingRequisitions = (
 };
 
 module.exports.pendingRequisitionDetails = (id) => {
-  return Execute(`select pr.hridno, pr.requiid, pr.proid, sp.proname || ' -' || sp.pronametwo as product_name, pr.prorequqty, pr.prodate from str_prorequisitions pr
+  return Execute(`select pr.hridno, pr.proid, sp.proname || ' -' || sp.pronametwo as product_name, 
+  pr.prorequqty, pr.prodate from str_prorequisitions pr
   left outer join str_storeproducts sp on pr.proid = sp.proid
-  where pr.requiid = ${Number(id)}`);
+  left outer join str_requisitions r on r.reqid = pr.requiid
+  where pr.requiid = ${Number(id)} and r.requistatus = ${Number(
+    0
+  )} order by proreqid`);
 };
 
-module.exports.getLastReqInfo = (hrid, proid) => {
-  return Execute(`select pr.requiid, pr.proid, prodate, PROREQUQTY from str_prorequisitions pr
-  where pr.hridno = ${Number(hrid)} and pr.proid = ${Number(
-    proid
-  )} and pr.requiid = (select max(requiid)-1 from str_prorequisitions) order by pr.prodate desc`);
+module.exports.getLastReqInfo = (item) => {
+  return Execute(
+    `select proid, prodate, prorequqty from str_prorequisitions where hridno = ${Number(
+      item.HRIDNO
+    )} and proid = ${Number(
+      item.PROID
+    )} order by prodate desc fetch next 2 rows only`
+  );
+};
+
+module.exports.currentStock = (proid) => {
+  return Execute(
+    `select proname, proqty from str_storeproducts where proid = ${Number(
+      proid
+    )}`
+  );
+};
+
+// get approved requisitions
+module.exports.approvedRequisitions = (
+  search = "%%",
+  page = 0,
+  limit = 1000
+) => {
+  let offset = limit * page;
+  return Execute(`SELECT distinct(R.REQID), R.REQUISITIONNO, R.REQUIDATE , E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, sum(p.PROREQUQTY) over(partition by p.REQUIID) req_qty, sum(p.APROQTY) over( partition by p.REQUIID) approved_qty from STR_REQUISITIONS r LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID left outer join HRM.EMPLOYEE E
+  ON E.EMPLOYE_ID = R.PROFILEHRID
+  LEFT OUTER JOIN HRM.DEPARTMENT_LIST D
+  ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
+  LEFT OUTER JOIN  HRM.DESIGNATION DG ON
+  DG.DESIGNATION_ID = E.DESIGNATION_ID
+  WHERE R.REQUISTATUS = ${Number(
+    1
+  )} AND LOWER(E.NAME_ENGLISH || D.DEPARTEMENT || DG.DESIGNATION) LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 // get done requisitions
 module.exports.doneRequisitions = (search = "%%", page = 0, limit = 1000) => {
   let offset = limit * page;
-  return Execute(`SELECT distinct(R.REQID), R.REQUISITIONNO, R.REQUIDATE , E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, sum(p.PROREQUQTY) over(partition by p.REQUIID) count_pro, sum(p.APROQTY) over( partition by p.REQUIID) sum_app_qty from STR_REQUISITIONS r LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID left outer join HRM.EMPLOYEE E
+  return Execute(`SELECT distinct(R.REQID), R.REQUISITIONNO, R.REQUIDATE , E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, sum(p.PROREQUQTY) over(partition by p.REQUIID) req_qty, sum(p.APROQTY) over( partition by p.REQUIID) approved_qty from STR_REQUISITIONS r LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID left outer join HRM.EMPLOYEE E
   ON E.EMPLOYE_ID = R.PROFILEHRID
   LEFT OUTER JOIN HRM.DEPARTMENT_LIST D
   ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID

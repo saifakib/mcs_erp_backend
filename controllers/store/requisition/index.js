@@ -22,6 +22,9 @@ const {
   getLastReqInfo,
   doneRequisitions,
   doneRequisitionsDetails,
+  approvedRequisitions,
+  currentStock,
+  userInfo,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -87,12 +90,71 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
     }
     const { rows: details } = await pendingRequisitionDetails(id);
 
-    const newArray = details.map(async (item) => {
-      const { rows: data } = await getLastReqInfo(item.HRIDNO, item.REQUIID);
-      console.log("ff", data);
-    });
+    // requisitionar info
+    const { rows: info } = await userInfo(id);
+    let reqInfo = info[0];
 
-    res.json(createResponse(details));
+    // requisition details
+    const detailProducts = await Promise.all(
+      details.map(async (item) => {
+        const { rows: data } = await getLastReqInfo(item);
+        const lastData = data.find((d) => d.PRODATE !== item.PRODATE);
+
+        let obj;
+
+        if (lastData.PROID === item.PROID) {
+          obj = {
+            PRODUCT_NAME: item.PRODUCT_NAME,
+            PROREQUQTY: item.PROREQUQTY,
+            PROID: item.PROID,
+            LAST_DATE: lastData.PRODATE,
+            LAST_QTY: lastData.PROREQUQTY,
+          };
+        } else {
+          obj = {
+            PRODUCT_NAME: item.PRODUCT_NAME,
+            PROREQUQTY: item.PROREQUQTY,
+            PROID: item.PROID,
+            LAST_DATE: null,
+            LAST_QTY: 0,
+          };
+        }
+
+        return obj;
+      })
+    );
+
+    // curren stock information
+    const stockInfo = await Promise.all(
+      details.map(async (item) => {
+        const { rows: data } = await currentStock(item.PROID);
+        const modified = data[0];
+        return modified;
+      })
+    );
+
+    res.json(
+      createResponse({ reqInfo, stockInfo, productsInfo: detailProducts })
+    );
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+// approved requisition
+module.exports.approvedRequisitions = async (req, res, next) => {
+  try {
+    const { search } = req.headers;
+    const { page, limit } = req.query;
+
+    if (!search) {
+      res.json(createResponse(null, "Search parameter missing", true));
+    }
+    if (!page || !limit) {
+      res.json(createResponse(null, "Parameter missing", true));
+    }
+    const { rows } = await approvedRequisitions(search, page, limit);
+    res.json(createResponse(rows));
   } catch (error) {
     next(error.message);
   }

@@ -9,6 +9,9 @@ router.get("/details/:id", requisitionController.getRequisitionDetailsById);
 router.get("/pending/all", requisitionController.pendingRequisitions);
 router.get("/pending/:id", requisitionController.pendingRequisitionDetails);
 
+// approved
+router.get("/approved/all", requisitionController.approvedRequisitions);
+
 // done
 router.get("/done/all", requisitionController.doneRequisitions);
 router.get("/done/:id", requisitionController.doneRequisitionsDetails);
