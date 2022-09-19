@@ -135,8 +135,19 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
       })
     );
 
+    // total qty
+    const totalQty = detailProducts.reduce((accumulator, object) => {
+      console.log();
+      return accumulator + object.PROREQUQTY;
+    }, 0);
+
     res.json(
-      createResponse({ reqInfo, stockInfo, productsInfo: detailProducts })
+      createResponse({
+        reqInfo,
+        stockInfo,
+        productsInfo: detailProducts,
+        totalQty,
+      })
     );
   } catch (error) {
     next(error.message);

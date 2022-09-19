@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 });
 
 // error handling
-app.use([notFoundHandler, errorHandler])
+app.use([notFoundHandler, errorHandler]);
 
 app.listen(port, () =>
   console.log(`App is listening at http://localhost:${port}`)
