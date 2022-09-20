@@ -14,10 +14,10 @@ module.exports.getProductBalance = (id) =>
 module.exports.getReqInfo = (id) =>
   Execute(`SELECT REQUITIME || ', ' || REQUIDATE AS DATE_TIME, 
   case
-  when REQUISTATUS = 0 then 'Pending'
-  when REQUISTATUS = 1 then 'Pending'
-  when REQUISTATUS = 2 then 'Pending To Accept'
-  when REQUISTATUS = 3 then 'Done' end Status FROM STR_REQUISITIONS WHERE REQID = ${Number(
+  when REQUISTATUS = 0 and APPROVED = 0 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Pending'
+  when REQUISTATUS = 1 and APPROVED = 1 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Approved'
+  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 0 and STOREACCEPT = 1 then 'Pending To Accept'
+  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 1 then 'Done' end Status FROM STR_REQUISITIONS WHERE REQID = ${Number(
     id
   )}`);
 
@@ -43,11 +43,12 @@ module.exports.getRequisitionById = (
   limit = 1000
 ) => {
   let offset = limit * page;
-  return Execute(`SELECT R.REQID, R.REQUITIME || ', ' || R.REQUIDATE AS DATE_TIME, R.REQUISITIONNO, case
-  when REQUISTATUS = 0 then 'Pending'
-  when REQUISTATUS = 1 then 'Pending'
-  when REQUISTATUS = 2 then 'Approved'
-  when REQUISTATUS = 3 then 'Done' end Status, PR.PROREQUQTY, PR.APROQTY 
+  return Execute(`SELECT R.REQID, R.PROFILEHRID, R.REQUITIME || ', ' || R.REQUIDATE AS DATE_TIME, R.REQUISITIONNO, case
+  when REQUISTATUS = 0 and APPROVED = 0 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Pending'
+  when REQUISTATUS = 1 and APPROVED = 1 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Approved'
+  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 0 and STOREACCEPT = 1 then 'Pending To Accept'
+  when REQUISTATUS = 2 and DENY = 1 then 'Rejected'
+  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 1 then 'Done' end Status, PR.PROREQUQTY, PR.APROQTY 
   FROM STR_REQUISITIONS R LEFT OUTER JOIN STR_PROREQUISITIONS PR ON PR.HRIDNO = R.PROFILEHRID WHERE PROFILEHRID = ${Number(
     id
   )} AND LOWER(REQUISITIONNO) LIKE LOWER('${search}') ORDER BY REQID OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
@@ -132,9 +133,10 @@ module.exports.approvedRequisitions = (
 };
 
 module.exports.approvedRequisitionDetails = (id) => {
-  return Execute(`select pr.requiid, pr.hridno, pr.proid, sp.proname || ' -' || sp.pronametwo as product_name, 
-  pr.prorequqty, pr.prodate from str_prorequisitions pr
+  return Execute(`select pr.requiid, pr.hridno, pr.proid, pr.premarks, pr.approveremarks, sp.proname || ' -' || sp.pronametwo as product_name, 
+  pr.prorequqty, pr.prodate, u.unit from str_prorequisitions pr
   left outer join str_storeproducts sp on pr.proid = sp.proid
+  left outer join str_units u on u.unit_id = sp.produnit
   left outer join str_requisitions r on r.reqid = pr.requiid
   where pr.requiid = ${Number(id)} and r.requistatus = ${Number(1)}`);
 };
@@ -184,11 +186,17 @@ module.exports.postRequisitionInfo = ({
   requiDate,
   lastReqNo,
   status,
+  approve,
+  storeaccept,
+  proaccept,
+  deny,
 }) =>
   Execute(
-    `INSERT INTO STR_REQUISITIONS (REQUISITIONNO, REQUITIME, REQUIDATE, REQUIMONTH, REQUISTATUS, PROFILEHRID) VALUES ('${lastReqNo}', '${requiTime}', '${requiDate}', '${requiMonth}', ${Number(
+    `INSERT INTO STR_REQUISITIONS (REQUISITIONNO, REQUITIME, REQUIDATE, REQUIMONTH, REQUISTATUS, PROFILEHRID, APPROVED, STOREACCEPT, PROACCEPT, DENY) VALUES ('${lastReqNo}', '${requiTime}', '${requiDate}', '${requiMonth}', ${Number(
       status
-    )}, ${Number(profilehrId)}) RETURN REQID INTO :id`,
+    )}, ${Number(profilehrId)}, ${Number(approve)}, ${Number(
+      storeaccept
+    )}, ${Number(proaccept)}, ${Number(deny)}) RETURN REQID INTO :id`,
     { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
@@ -235,7 +243,8 @@ module.exports.postReqProduct = (array) => {
 };
 
 /*------------- Put ------------*/
-// update requisition by admin
+
+/*------- update requisition for admin ------ */
 module.exports.updateRequisitionInfo = (updatedInfo) => {
   const {
     REQUISTATUS,
@@ -271,7 +280,7 @@ module.exports.updateReqProducts = (products) => {
   return ExecuteMany(statement, newArray);
 };
 
-// update requisition for store_officer
+/*------- update requisition for store_officer ------ */
 module.exports.updateBalance = ({ PROID, PROQTY }) =>
   Execute(
     `UPDATE STR_STOREPRODUCTS SET PROQTY = ${Number(
@@ -328,4 +337,27 @@ module.exports.updateStoreProduct = (array) => {
   let newArray = array;
   const statement = `UPDATE STR_STOREPRODUCTS SET PROQTY = :PROQTY WHERE PROID = :PROID`;
   return ExecuteMany(statement, newArray);
+};
+
+module.exports.updateReqByStore = (data) => {
+  return Execute(
+    `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
+      data.REQUISTATUS
+    )}, STOREACCEPT = ${Number(data.STOREACCEPT)}, APPROVEDBY = ${
+      data.APPROVEDBY
+    }, APROVEDTIME = ${data.APROVEDTIME}, APPROVEDDATE = ${
+      data.APPROVEDDATE
+    } WHERE REQID = ${data.REQID}`
+  );
+};
+
+/*------- update requisition for requisitionar ------ */
+module.exports.reqAcceptByUser = (data) => {
+  return Execute(
+    `UPDATE STR_REQUISITIONS SET PROACCEPT = ${Number(
+      data.PROACCEPT
+    )}, PROACCEPTTIME = ${data.PROACCEPTTIME}, PROACCEPTDATE = ${
+      data.PROACCEPTDATE
+    } WHERE REQID = ${data.REQID}`
+  );
 };

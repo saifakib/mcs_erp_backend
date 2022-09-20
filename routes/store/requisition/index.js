@@ -28,4 +28,6 @@ router.put(
   requisitionController.updateReqByStoreOfficer
 );
 
+router.put("/acceptByUser", requisitionController.reqAcceptByUser);
+
 module.exports = router;

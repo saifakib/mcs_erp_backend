@@ -13,6 +13,7 @@ const {
   updateStoreProducts,
   updateBalance,
   insertSummeries,
+  updateReqByStore,
   manualPostRequisitionInfo,
   postProRequisition,
   postProductSummaries,
@@ -27,6 +28,7 @@ const {
   userInfo,
   approvedRequisitionDetails,
   adminApproved,
+  reqAcceptByUser,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -192,16 +194,17 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
       details.map(async (item) => {
         const { rows: data } = await getLastReqInfo(item);
         const lastData = data.find((d) => d.PRODATE !== item.PRODATE);
-
         let obj;
-
-        if (lastData.PROID === item.PROID) {
+        if (lastData !== undefined && lastData.PROID === item.PROID) {
           obj = {
             PRODUCT_NAME: item.PRODUCT_NAME,
             PROREQUQTY: item.PROREQUQTY,
             PROID: item.PROID,
+            UNIT: item.UNIT,
             LAST_DATE: lastData.PRODATE,
             LAST_QTY: lastData.PROREQUQTY,
+            USER_REMARKS: item.PREMARKS,
+            ADMIN_REMARKS: item.APPROVEREMARKS,
           };
         } else {
           obj = {
@@ -304,6 +307,10 @@ module.exports.postRequisition = async (req, res, next) => {
         requiDate: format(new Date(), "yyyy-MM-dd"),
         lastReqNo: reqNo,
         status: 0,
+        approve: 0,
+        storeaccept: 0,
+        proaccept: 0,
+        deny: 0,
       };
 
       let insertedId = await postRequisitionInfo(requisitionInfo);
@@ -488,7 +495,7 @@ module.exports.updateRequisitionByAdmin = async (req, res, next) => {
 // update requisition by store_officer
 module.exports.updateReqByStoreOfficer = async (req, res, next) => {
   try {
-    const { req_id, products } = req.body;
+    const { req_id, approvedBy, products } = req.body;
     if (!req_id) {
       res.json(createResponse(null, "Requisition id missing", true));
     }
@@ -502,6 +509,7 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
       let { rows } = await getProductBalance(item.proid);
       const balance = rows[0].PROQTY;
       const newBalance = balance - item.qty;
+
       // update product balance
       const data = {
         PROID: item.proid,
@@ -537,7 +545,43 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
       await insertSummeries(dataToInsert);
     });
 
-    res.json(createResponse(null, "Requisition Approved"));
+    const data = {
+      REQUISTATUS: 3,
+      STOREACCEPT: 1,
+      APPROVEDBY: approvedBy,
+      APROVEDTIME: format(new Date(), "hh:mm a"),
+      APPROVEDDATE: format(new Date(), "yyyy-MM-dd"),
+      REQID: req_id,
+    };
+
+    const finalUpdate = await updateReqByStore(data);
+    if (finalUpdate) {
+      res.json(createResponse(null, "Requisition Approved"));
+    }
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+// requisition accept by user
+module.exports.reqAcceptByUser = async (req, res, next) => {
+  try {
+    const { req_id } = req.headers;
+    if (!req_id) {
+      res.json(createResponse(null, "Requisitions id missing", true));
+    }
+
+    const data = {
+      REQID: req_id,
+      PROACCEPT: 1,
+      PROACCEPTTIME: format(new Date(), "hh:mm a"),
+      PROACCEPTDATE: format(new Date(), "yyyy-MM-dd"),
+    };
+
+    const finalUpdate = await reqAcceptByUser(data);
+    if (finalUpdate) {
+      res.json(createResponse(null, "Requisition Approved"));
+    }
   } catch (error) {
     next(error.message);
   }
