@@ -87,7 +87,7 @@ module.exports.pendingRequisitions = (
 };
 
 module.exports.pendingRequisitionDetails = (id) => {
-  return Execute(`select pr.hridno, pr.proid, sp.proname || ' -' || sp.pronametwo as product_name, 
+  return Execute(`select pr.proreqid, pr.hridno, pr.proid, sp.proname || ' -' || sp.pronametwo as product_name, 
   pr.prorequqty, pr.prodate from str_prorequisitions pr
   left outer join str_storeproducts sp on pr.proid = sp.proid
   left outer join str_requisitions r on r.reqid = pr.requiid
@@ -133,7 +133,7 @@ module.exports.approvedRequisitions = (
 };
 
 module.exports.approvedRequisitionDetails = (id) => {
-  return Execute(`select pr.requiid, pr.hridno, pr.proid, pr.premarks, pr.approveremarks, sp.proname || ' -' || sp.pronametwo as product_name, 
+  return Execute(`select pr.proreqid, pr.requiid, pr.hridno, pr.proid, pr.premarks, pr.approveremarks, sp.proname || ' -' || sp.pronametwo as product_name, 
   pr.prorequqty, pr.prodate, u.unit from str_prorequisitions pr
   left outer join str_storeproducts sp on pr.proid = sp.proid
   left outer join str_units u on u.unit_id = sp.produnit

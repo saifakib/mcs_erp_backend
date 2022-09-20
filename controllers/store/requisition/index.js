@@ -106,8 +106,9 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
 
         let obj;
 
-        if (lastData.PROID === item.PROID) {
+        if (lastData !== undefined && lastData.PROID === item.PROID) {
           obj = {
+            PROREQID: item.PROREQID,
             PRODUCT_NAME: item.PRODUCT_NAME,
             PROREQUQTY: item.PROREQUQTY,
             PROID: item.PROID,
@@ -116,6 +117,7 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
           };
         } else {
           obj = {
+            PROREQID: item.PROREQID,
             PRODUCT_NAME: item.PRODUCT_NAME,
             PROREQUQTY: item.PROREQUQTY,
             PROID: item.PROID,
@@ -139,7 +141,6 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
 
     // total qty
     const totalQty = detailProducts.reduce((accumulator, object) => {
-      console.log();
       return accumulator + object.PROREQUQTY;
     }, 0);
 
@@ -197,6 +198,7 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
         let obj;
         if (lastData !== undefined && lastData.PROID === item.PROID) {
           obj = {
+            PROREQID: item.PROREQID,
             PRODUCT_NAME: item.PRODUCT_NAME,
             PROREQUQTY: item.PROREQUQTY,
             PROID: item.PROID,
@@ -208,9 +210,13 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
           };
         } else {
           obj = {
+            PROREQID: item.PROREQID,
             PRODUCT_NAME: item.PRODUCT_NAME,
             PROREQUQTY: item.PROREQUQTY,
             PROID: item.PROID,
+            USER_REMARKS: item.PREMARKS,
+            ADMIN_REMARKS: item.APPROVEREMARKS,
+            UNIT: item.UNIT,
             LAST_DATE: null,
             LAST_QTY: 0,
           };
@@ -238,12 +244,18 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
       })
     );
 
+    // total qty
+    const totalQty = detailProducts.reduce((accumulator, object) => {
+      return accumulator + object.PROREQUQTY;
+    }, 0);
+
     res.json(
       createResponse({
         reqInfo,
         productsInfo: detailProducts,
         adminApproved: adminInfo,
         stockInfo,
+        totalQty,
       })
     );
   } catch (error) {
