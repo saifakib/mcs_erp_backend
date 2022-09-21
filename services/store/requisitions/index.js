@@ -173,7 +173,7 @@ module.exports.doneRequisitionsDetails = (id) => {
     ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
     LEFT OUTER JOIN  HRM.DESIGNATION DG ON
     DG.DESIGNATION_ID = E.DESIGNATION_ID    
-    WHERE R.REQID = ${Number(id)}`
+    WHERE R.REQID = ${Number(id)} AND R.REQUISTATUS = ${Number(3)}`
   );
 };
 
@@ -189,6 +189,18 @@ module.exports.deniedRequisitions = (search = "%%", page = 0, limit = 1000) => {
   WHERE R.REQUISTATUS = ${Number(
     2
   )} AND LOWER(E.NAME_ENGLISH || D.DEPARTEMENT || DG.DESIGNATION) LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+};
+
+module.exports.deniedRequisitionsDetails = (id) => {
+  return Execute(
+    `SELECT R.REQID, R.REQUISITIONNO, R.REQUIDATE, E.NAME_ENGLISH, E.MOBILE_PHONE, D.DEPARTEMENT, DG.DESIGNATION FROM str_requisitions R
+    LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.PROFILEHRID
+    LEFT OUTER JOIN HRM.DEPARTMENT_LIST D
+    ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
+    LEFT OUTER JOIN  HRM.DESIGNATION DG ON
+    DG.DESIGNATION_ID = E.DESIGNATION_ID    
+    WHERE R.REQID = ${Number(id)} AND R.REQUISTATUS = ${Number(2)}`
+  );
 };
 
 /*------------- Post ------------*/

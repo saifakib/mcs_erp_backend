@@ -32,6 +32,7 @@ const {
   denyRequisition,
   updateProReqOnDeny,
   deniedRequisitions,
+  deniedRequisitionsDetails,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -312,6 +313,20 @@ module.exports.deniedRequisitions = async (req, res, next) => {
   }
   const { rows } = await deniedRequisitions(search, page, limit);
   res.json(createResponse(rows));
+};
+
+// denied requisition details
+module.exports.deniedRequisitionsDetails = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.json(createResponse(null, "Requisition id missing", true));
+    }
+    const { rows: data } = await deniedRequisitionsDetails(id);
+    res.json(createResponse(data));
+  } catch (error) {
+    next(err.message);
+  }
 };
 
 /*------------- post ------------*/
