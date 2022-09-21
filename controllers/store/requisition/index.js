@@ -33,6 +33,7 @@ const {
   updateProReqOnDeny,
   deniedRequisitions,
   deniedRequisitionsDetails,
+  doneReqProducts,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -300,6 +301,10 @@ module.exports.doneRequisitionsDetails = async (req, res, next) => {
       res.json(createResponse(null, "Requisition id missing", true));
     }
     const { rows: data } = await doneRequisitionsDetails(id);
+
+    // get products
+    const { rows: products } = await doneReqProducts(id);
+
     res.json(createResponse(data));
   } catch (error) {
     next(error.message);
