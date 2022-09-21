@@ -307,19 +307,22 @@ module.exports.updateReqProducts = (products) => {
 };
 
 /*------- update requisition for store_officer ------ */
-module.exports.updateBalance = ({ PROID, PROQTY }) =>
-  Execute(
+module.exports.updateBalance = ({ PROID, PROQTY }) => {
+  console.log(PROID, PROQTY)
+  return  Execute(
     `UPDATE STR_STOREPRODUCTS SET PROQTY = ${Number(
       PROQTY
     )} WHERE PROID = ${Number(PROID)}`
   );
 
+ }
 module.exports.updateStoreProducts = ({
   APPROQTY,
   REQUPRODSTATUS,
   STOREREMARKS,
   PROREQID,
 }) => {
+  console.log( APPROQTY,REQUPRODSTATUS, STOREREMARKS, PROREQID)
   return Execute(
     `UPDATE STR_PROREQUISITIONS SET APROQTY = ${Number(
       APPROQTY
@@ -333,7 +336,6 @@ module.exports.insertSummeries = (data) => {
   const {
     PRODUCTID,
     PRODUCTNAME,
-    PRODNAMETWO,
     PROCAT,
     INTIALQTY,
     TOTALBALANCE,
@@ -344,11 +346,12 @@ module.exports.insertSummeries = (data) => {
     REQUISITIONFOR,
     SUMMERTYPE,
   } = data;
+  console.log(data)
 
   return Execute(
-    `INSERT INTO STR_PRODUCTSUMMARIES (PRODUCTID, PRODUCTNAME, PRODNAMETWO, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH, REQUISITIONFOR, SUMMERTYPE, PROCAT) VALUES (${Number(
+    `INSERT INTO STR_PRODUCTSUMMARIES (PRODUCTID, PRODUCTNAME, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH, REQUISITIONFOR, SUMMERTYPE, PROCAT) VALUES (${Number(
       PRODUCTID
-    )}, '${PRODUCTNAME}', '${PRODNAMETWO}', ${Number(INTIALQTY)}, ${Number(
+    )}, '${PRODUCTNAME}', ${Number(INTIALQTY)}, ${Number(
       TOTALBALANCE
     )}, ${Number(TOTALOUT)}, ${Number(
       PRESENTBALANCE
@@ -358,6 +361,8 @@ module.exports.insertSummeries = (data) => {
   );
 };
 
+
+
 // manual Update Store Product
 module.exports.updateStoreProduct = (array) => {
   let newArray = array;
@@ -366,16 +371,15 @@ module.exports.updateStoreProduct = (array) => {
 };
 
 module.exports.updateReqByStore = (data) => {
-  return Execute(
-    `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
+  return Execute(`UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
       data.REQUISTATUS
-    )}, STOREACCEPT = ${Number(data.STOREACCEPT)}, APPROVEDBY = ${
+    )}, STOREACCEPT = ${Number(data.STOREACCEPT)}, APPROVEDBY = '${
       data.APPROVEDBY
-    }, APROVEDTIME = ${data.APROVEDTIME}, APPROVEDDATE = ${
+    }', APROVEDTIME = '${data.APROVEDTIME}', APPROVEDDATE = '${
       data.APPROVEDDATE
-    } WHERE REQID = ${data.REQID}`
-  );
+    }' WHERE REQID = ${Number(data.REQID)}`);
 };
+
 
 /*------- update requisition for requisitionar ------ */
 module.exports.reqAcceptByUser = (data) => {
@@ -387,16 +391,6 @@ module.exports.reqAcceptByUser = (data) => {
     } WHERE REQID = ${data.REQID}`
   );
 };
-
-// const data = {
-//   REQUISTATUS: 2,
-//   PROACCEPT: 2,
-//   DENYREMAKRS: denyRemakrs,
-//   DENYBY: user_name,
-//   DENYTIME: format(new Date(), "hh:mm a"),
-//   DENYDATE: format(new Date(), "yyyy-MM-dd"),
-//   REQID: req_id,
-// };
 
 /*------- deny requisition ------ */
 module.exports.denyRequisition = (data) => {

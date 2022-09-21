@@ -547,6 +547,9 @@ module.exports.updateRequisitionByAdmin = async (req, res, next) => {
 module.exports.updateReqByStoreOfficer = async (req, res, next) => {
   try {
     const { req_id, approvedBy, products } = req.body;
+
+    console.log(req.body)
+
     if (!req_id) {
       res.json(createResponse(null, "Requisition id missing", true));
     }
@@ -555,17 +558,34 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
         createResponse(null, "You might not select product to approve", true)
       );
     }
+    
+    const data = {
+      REQUISTATUS: 3,
+      STOREACCEPT: 1,
+      APPROVEDBY: approvedBy,
+      APROVEDTIME: format(new Date(), "hh:mm a"),
+      APPROVEDDATE: format(new Date(), "yyyy-MM-dd"),
+      REQID: req_id,
+    };
+
+    const resss = await updateReqByStore(data);
+  
 
     products.forEach(async (item) => {
+ 
       let { rows } = await getProductBalance(item.proid);
       const balance = rows[0].PROQTY;
       const newBalance = balance - item.qty;
 
+      console.log(newBalance, 'dddd')
+     
       // update product balance
       const data = {
         PROID: item.proid,
         PROQTY: newBalance,
       };
+
+   
 
       await updateBalance(data);
 
@@ -576,39 +596,33 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
         STOREREMARKS: item.remarks,
         PROREQID: item.proreqid,
       };
+
+      
+      console.log(p_info)
+
       await updateStoreProducts(p_info);
 
       const dataToInsert = {
         PRODUCTID: item.proid,
-        PRODUCTNAME: item.productname,
-        PRODNAMETWO: item.productnametwo,
-        PROCAT: item.procat,
+        PRODUCTNAME: item.proname,
+        PROCAT: item.procate,
         INTIALQTY: balance,
         TOTALBALANCE: balance,
         TOTALOUT: item.qty,
         PRESENTBALANCE: newBalance,
         SUMMDATE: format(new Date(), "yyyy-MM-dd"),
         SUMMMONTH: format(new Date(), "LLLL-yyyy"),
-        REQUISITIONFOR: item.employe_id,
+        REQUISITIONFOR: item.hridno,
         SUMMERTYPE: "Out",
       };
+      console.log(dataToInsert)
+      
 
       await insertSummeries(dataToInsert);
     });
 
-    const data = {
-      REQUISTATUS: 3,
-      STOREACCEPT: 1,
-      APPROVEDBY: approvedBy,
-      APROVEDTIME: format(new Date(), "hh:mm a"),
-      APPROVEDDATE: format(new Date(), "yyyy-MM-dd"),
-      REQID: req_id,
-    };
-
-    const finalUpdate = await updateReqByStore(data);
-    if (finalUpdate) {
-      res.json(createResponse(null, "Requisition Approved"));
-    }
+    res.json(createResponse(null, "Requisition Approved"));
+    
   } catch (error) {
     next(error.message);
   }

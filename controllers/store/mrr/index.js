@@ -210,7 +210,8 @@ const updateSingleProductEntriList = async (req, res, next) => {
           changequantity = Number(oldquantity) + Number(newquantity);
           changeamount = Number(newamount);
         }
-      } else if (change_status == "minus") {
+      } 
+      else if (change_status == "minus") {
         if (!newquantity) {
           res.json(
             createResponse(null, "Required Body Missing - New Quantity", true)
@@ -220,7 +221,8 @@ const updateSingleProductEntriList = async (req, res, next) => {
           changequantity = Number(oldquantity) - Number(newquantity);
           changeamount = Number(newamount);
         }
-      } else {
+      } 
+      else {
         if (!newamount) {
           res.json(
             createResponse(null, "Required Body Missing - New Amount", true)
