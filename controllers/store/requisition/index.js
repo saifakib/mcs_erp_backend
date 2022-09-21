@@ -65,7 +65,7 @@ module.exports.getRequisitionDetailsById = async (req, res, next) => {
     const { rows: info } = await getReqInfo(id);
     res.json(createResponse({ info: info[0], products: data }));
   } catch (error) {
-    next(err.message);
+    next(error.message);
   }
 };
 
@@ -203,7 +203,8 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
         if (lastData !== undefined && lastData.PROID === item.PROID) {
           obj = {
             PROREQID: item.PROREQID,
-            PRODUCT_NAME: item.PRODUCT_NAME,
+            PRONAME: item.PRONAME,
+            PRONAMETWO: item.PRONAMETWO,
             PROREQUQTY: item.PROREQUQTY,
             PROID: item.PROID,
             UNIT: item.UNIT,
@@ -211,18 +212,23 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
             LAST_QTY: lastData.PROREQUQTY,
             USER_REMARKS: item.PREMARKS,
             ADMIN_REMARKS: item.APPROVEREMARKS,
+            HRIDNO: item.HRIDNO,
+            PROCATE: item.PROCATE,
           };
         } else {
           obj = {
             PROREQID: item.PROREQID,
-            PRODUCT_NAME: item.PRODUCT_NAME,
+            PRONAME: item.PRONAME,
+            PRONAMETWO: item.PRONAMETWO,
             PROREQUQTY: item.PROREQUQTY,
             PROID: item.PROID,
             USER_REMARKS: item.PREMARKS,
             ADMIN_REMARKS: item.APPROVEREMARKS,
+            HRIDNO: item.HRIDNO,
             UNIT: item.UNIT,
             LAST_DATE: null,
             LAST_QTY: 0,
+            PROCATE: item.PROCATE,
           };
         }
 
@@ -296,7 +302,7 @@ module.exports.doneRequisitionsDetails = async (req, res, next) => {
     const { rows: data } = await doneRequisitionsDetails(id);
     res.json(createResponse(data));
   } catch (error) {
-    next(err.message);
+    next(error.message);
   }
 };
 
@@ -325,7 +331,7 @@ module.exports.deniedRequisitionsDetails = async (req, res, next) => {
     const { rows: data } = await deniedRequisitionsDetails(id);
     res.json(createResponse(data));
   } catch (error) {
-    next(err.message);
+    next(error.message);
   }
 };
 
@@ -503,7 +509,7 @@ module.exports.createManualRequisition = async (req, res, next) => {
       }
     }
   } catch (err) {
-    next(err);
+    next(err.message);
   }
 };
 
