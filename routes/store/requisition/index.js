@@ -19,6 +19,7 @@ router.get("/done/:id", requisitionController.doneRequisitionsDetails);
 
 // denied
 router.get("/denied/all", requisitionController.deniedRequisitions);
+router.get("/denied/:id", requisitionController.deniedRequisitionsDetails);
 
 // post route
 router.post("/", requisitionController.postRequisition);
