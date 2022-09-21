@@ -29,6 +29,9 @@ const {
   approvedRequisitionDetails,
   adminApproved,
   reqAcceptByUser,
+  denyRequisition,
+  updateProReqOnDeny,
+  deniedRequisitions,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -294,6 +297,21 @@ module.exports.doneRequisitionsDetails = async (req, res, next) => {
   } catch (error) {
     next(err.message);
   }
+};
+
+// denied requisition
+module.exports.deniedRequisitions = async (req, res, next) => {
+  const { search } = req.headers;
+  const { page, limit } = req.query;
+
+  if (!search) {
+    res.json(createResponse(null, "Search parameter missing", true));
+  }
+  if (!page || !limit) {
+    res.json(createResponse(null, "Parameter missing", true));
+  }
+  const { rows } = await deniedRequisitions(search, page, limit);
+  res.json(createResponse(rows));
 };
 
 /*------------- post ------------*/
@@ -593,6 +611,37 @@ module.exports.reqAcceptByUser = async (req, res, next) => {
     const finalUpdate = await reqAcceptByUser(data);
     if (finalUpdate) {
       res.json(createResponse(null, "Requisition Approved"));
+    }
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+// deny requisition by admin
+module.exports.denyRequisition = async (req, res, next) => {
+  try {
+    const { req_id, denyRemakrs, user_name } = req.body;
+    if (!req_id) {
+      res.json(createResponse(null, "Requisition id missing", true));
+    }
+    const data = {
+      REQUISTATUS: 2,
+      PROACCEPT: 2,
+      DENYREMAKRS: denyRemakrs,
+      DENYBY: user_name,
+      DENYTIME: format(new Date(), "hh:mm a"),
+      DENYDATE: format(new Date(), "yyyy-MM-dd"),
+      REQID: req_id,
+    };
+
+    // update pro_requisition table
+    await updateProReqOnDeny(req_id);
+
+    // update requisitation table
+    const deny = await denyRequisition(data);
+
+    if (deny) {
+      res.json(createResponse(deny, "Requisition has been denied"));
     }
   } catch (error) {
     next(error.message);

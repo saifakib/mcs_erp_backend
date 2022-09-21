@@ -17,6 +17,9 @@ router.get("/approved/:id", requisitionController.approvedRequisitionDetails);
 router.get("/done/all", requisitionController.doneRequisitions);
 router.get("/done/:id", requisitionController.doneRequisitionsDetails);
 
+// denied
+router.get("/denied/all", requisitionController.deniedRequisitions);
+
 // post route
 router.post("/", requisitionController.postRequisition);
 router.post("/manual", requisitionController.createManualRequisition);
@@ -29,5 +32,6 @@ router.put(
 );
 
 router.put("/acceptByUser", requisitionController.reqAcceptByUser);
+router.put("/deny/admin", requisitionController.denyRequisition);
 
 module.exports = router;

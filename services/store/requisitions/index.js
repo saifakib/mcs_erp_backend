@@ -177,6 +177,20 @@ module.exports.doneRequisitionsDetails = (id) => {
   );
 };
 
+// denied requisitions
+module.exports.deniedRequisitions = (search = "%%", page = 0, limit = 1000) => {
+  let offset = limit * page;
+  return Execute(`SELECT distinct(R.REQID), R.REQUISITIONNO, R.REQUIDATE , E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION from STR_REQUISITIONS r LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID left outer join HRM.EMPLOYEE E
+  ON E.EMPLOYE_ID = R.PROFILEHRID
+  LEFT OUTER JOIN HRM.DEPARTMENT_LIST D
+  ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
+  LEFT OUTER JOIN  HRM.DESIGNATION DG ON
+  DG.DESIGNATION_ID = E.DESIGNATION_ID
+  WHERE R.REQUISTATUS = ${Number(
+    2
+  )} AND LOWER(E.NAME_ENGLISH || D.DEPARTEMENT || DG.DESIGNATION) LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+};
+
 /*------------- Post ------------*/
 // post requisition information
 module.exports.postRequisitionInfo = ({
@@ -359,5 +373,37 @@ module.exports.reqAcceptByUser = (data) => {
     )}, PROACCEPTTIME = ${data.PROACCEPTTIME}, PROACCEPTDATE = ${
       data.PROACCEPTDATE
     } WHERE REQID = ${data.REQID}`
+  );
+};
+
+// const data = {
+//   REQUISTATUS: 2,
+//   PROACCEPT: 2,
+//   DENYREMAKRS: denyRemakrs,
+//   DENYBY: user_name,
+//   DENYTIME: format(new Date(), "hh:mm a"),
+//   DENYDATE: format(new Date(), "yyyy-MM-dd"),
+//   REQID: req_id,
+// };
+
+/*------- deny requisition ------ */
+module.exports.denyRequisition = (data) => {
+  return Execute(
+    `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
+      data.REQUISTATUS
+    )}, PROACCEPT = ${Number(data.PROACCEPT)}, DENYREMAKRS = ${
+      data.DENYREMAKRS
+    }, DENYBY = ${data.DENYBY}, DENYTIME = ${data.DENYTIME}, DENYDATE = ${
+      data.DENYDATE
+    } WHERE REQID = ${data.REQID}`
+  );
+};
+
+// update pro_requisition table
+module.exports.updateProReqOnDeny = (req_id) => {
+  return Execute(
+    `UPDATE STR_PROREQUISITIONS SET REQUPRODSTATUS = ${Number(
+      2
+    )} WHERE REQUIID = ${Number(req_id)}`
   );
 };
