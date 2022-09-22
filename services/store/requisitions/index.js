@@ -320,7 +320,6 @@ module.exports.updateStoreProducts = ({
   STOREREMARKS,
   PROREQID,
 }) => {
-  console.log(APPROQTY, REQUPRODSTATUS, STOREREMARKS, PROREQID);
   return Execute(
     `UPDATE STR_PROREQUISITIONS SET APROQTY = ${Number(
       APPROQTY
@@ -344,7 +343,6 @@ module.exports.insertSummeries = (data) => {
     REQUISITIONFOR,
     SUMMERTYPE,
   } = data;
-  console.log(data);
 
   return Execute(
     `INSERT INTO STR_PRODUCTSUMMARIES (PRODUCTID, PRODUCTNAME, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH, REQUISITIONFOR, SUMMERTYPE, PROCAT) VALUES (${Number(
