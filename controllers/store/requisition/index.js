@@ -34,6 +34,7 @@ const {
   deniedRequisitions,
   deniedRequisitionsDetails,
   doneReqProducts,
+  deniedReqProducts,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -305,7 +306,7 @@ module.exports.doneRequisitionsDetails = async (req, res, next) => {
     // get products
     const { rows: products } = await doneReqProducts(id);
 
-    res.json(createResponse(data));
+    res.json(createResponse({ userInfo: data, products }));
   } catch (error) {
     next(error.message);
   }
@@ -334,7 +335,11 @@ module.exports.deniedRequisitionsDetails = async (req, res, next) => {
       res.json(createResponse(null, "Requisition id missing", true));
     }
     const { rows: data } = await deniedRequisitionsDetails(id);
-    res.json(createResponse(data));
+
+    // get products
+    const { rows: products } = await deniedReqProducts(id);
+
+    res.json(createResponse({ userInfo: data, products }));
   } catch (error) {
     next(error.message);
   }

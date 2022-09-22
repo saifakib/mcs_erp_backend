@@ -27,12 +27,13 @@ router.post("/manual", requisitionController.createManualRequisition);
 
 // update route
 router.put("/approve/admin", requisitionController.updateRequisitionByAdmin);
+router.put("/deny/admin", requisitionController.denyRequisition);
+
 router.put(
   "/approve/store_officer",
   requisitionController.updateReqByStoreOfficer
 );
 
 router.put("/acceptByUser", requisitionController.reqAcceptByUser);
-router.put("/deny/admin", requisitionController.denyRequisition);
 
 module.exports = router;

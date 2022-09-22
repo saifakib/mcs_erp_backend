@@ -177,6 +177,14 @@ module.exports.doneRequisitionsDetails = (id) => {
   );
 };
 
+module.exports.doneReqProducts = (id) => {
+  return Execute(
+    `select pr.proreqid, sp.proname, pr.prorequqty, pr.aproqty, pr.premarks from str_requisitions r left outer join str_prorequisitions pr on pr.requiid = r.reqid left outer join str_storeproducts sp on sp.proid = pr.proid where r.reqid = ${Number(
+      id
+    )} and r.requistatus = ${Number(3)}`
+  );
+};
+
 // denied requisitions
 module.exports.deniedRequisitions = (search = "%%", page = 0, limit = 1000) => {
   let offset = limit * page;
@@ -200,6 +208,14 @@ module.exports.deniedRequisitionsDetails = (id) => {
     LEFT OUTER JOIN  HRM.DESIGNATION DG ON
     DG.DESIGNATION_ID = E.DESIGNATION_ID    
     WHERE R.REQID = ${Number(id)} AND R.REQUISTATUS = ${Number(2)}`
+  );
+};
+
+module.exports.deniedReqProducts = (id) => {
+  return Execute(
+    `select pr.proreqid, sp.proname, pr.prorequqty, pr.aproqty, pr.premarks from str_requisitions r left outer join str_prorequisitions pr on pr.requiid = r.reqid left outer join str_storeproducts sp on sp.proid = pr.proid where r.reqid = ${Number(
+      id
+    )} and r.requistatus = ${Number(3)}`
   );
 };
 
