@@ -307,22 +307,20 @@ module.exports.updateReqProducts = (products) => {
 };
 
 /*------- update requisition for store_officer ------ */
-module.exports.updateBalance = ({ PROID, PROQTY }) => {
-  console.log(PROID, PROQTY)
-  return  Execute(
+module.exports.updateBalance = ({ PROID, PROQTY }) =>
+  Execute(
     `UPDATE STR_STOREPRODUCTS SET PROQTY = ${Number(
       PROQTY
     )} WHERE PROID = ${Number(PROID)}`
   );
 
- }
 module.exports.updateStoreProducts = ({
   APPROQTY,
   REQUPRODSTATUS,
   STOREREMARKS,
   PROREQID,
 }) => {
-  console.log( APPROQTY,REQUPRODSTATUS, STOREREMARKS, PROREQID)
+  console.log(APPROQTY, REQUPRODSTATUS, STOREREMARKS, PROREQID);
   return Execute(
     `UPDATE STR_PROREQUISITIONS SET APROQTY = ${Number(
       APPROQTY
@@ -346,7 +344,7 @@ module.exports.insertSummeries = (data) => {
     REQUISITIONFOR,
     SUMMERTYPE,
   } = data;
-  console.log(data)
+  console.log(data);
 
   return Execute(
     `INSERT INTO STR_PRODUCTSUMMARIES (PRODUCTID, PRODUCTNAME, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH, REQUISITIONFOR, SUMMERTYPE, PROCAT) VALUES (${Number(
@@ -361,8 +359,6 @@ module.exports.insertSummeries = (data) => {
   );
 };
 
-
-
 // manual Update Store Product
 module.exports.updateStoreProduct = (array) => {
   let newArray = array;
@@ -371,15 +367,16 @@ module.exports.updateStoreProduct = (array) => {
 };
 
 module.exports.updateReqByStore = (data) => {
-  return Execute(`UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
+  return Execute(
+    `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
       data.REQUISTATUS
     )}, STOREACCEPT = ${Number(data.STOREACCEPT)}, APPROVEDBY = '${
       data.APPROVEDBY
     }', APROVEDTIME = '${data.APROVEDTIME}', APPROVEDDATE = '${
       data.APPROVEDDATE
-    }' WHERE REQID = ${Number(data.REQID)}`);
+    }' WHERE REQID = ${Number(data.REQID)}`
+  );
 };
-
 
 /*------- update requisition for requisitionar ------ */
 module.exports.reqAcceptByUser = (data) => {

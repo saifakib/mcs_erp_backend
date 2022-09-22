@@ -553,8 +553,6 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
   try {
     const { req_id, approvedBy, products } = req.body;
 
-    console.log(req.body)
-
     if (!req_id) {
       res.json(createResponse(null, "Requisition id missing", true));
     }
@@ -563,34 +561,17 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
         createResponse(null, "You might not select product to approve", true)
       );
     }
-    
-    const data = {
-      REQUISTATUS: 3,
-      STOREACCEPT: 1,
-      APPROVEDBY: approvedBy,
-      APROVEDTIME: format(new Date(), "hh:mm a"),
-      APPROVEDDATE: format(new Date(), "yyyy-MM-dd"),
-      REQID: req_id,
-    };
-
-    const resss = await updateReqByStore(data);
-  
 
     products.forEach(async (item) => {
- 
       let { rows } = await getProductBalance(item.proid);
       const balance = rows[0].PROQTY;
       const newBalance = balance - item.qty;
 
-      console.log(newBalance, 'dddd')
-     
       // update product balance
       const data = {
         PROID: item.proid,
         PROQTY: newBalance,
       };
-
-   
 
       await updateBalance(data);
 
@@ -601,9 +582,6 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
         STOREREMARKS: item.remarks,
         PROREQID: item.proreqid,
       };
-
-      
-      console.log(p_info)
 
       await updateStoreProducts(p_info);
 
@@ -620,14 +598,23 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
         REQUISITIONFOR: item.hridno,
         SUMMERTYPE: "Out",
       };
-      console.log(dataToInsert)
-      
 
       await insertSummeries(dataToInsert);
     });
 
-    res.json(createResponse(null, "Requisition Approved"));
-    
+    const data = {
+      REQUISTATUS: 3,
+      STOREACCEPT: 1,
+      APPROVEDBY: approvedBy,
+      APROVEDTIME: format(new Date(), "hh:mm a"),
+      APPROVEDDATE: format(new Date(), "yyyy-MM-dd"),
+      REQID: req_id,
+    };
+
+    const result = await updateReqByStore(data);
+    if (result) {
+      res.json(createResponse(null, "Requisition Approved"));
+    }
   } catch (error) {
     next(error.message);
   }
