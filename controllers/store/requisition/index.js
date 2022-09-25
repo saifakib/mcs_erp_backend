@@ -34,7 +34,7 @@ const {
   deniedRequisitions,
   deniedRequisitionsDetails,
   doneReqProducts,
-  deniedReqProducts
+  deniedReqProducts,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -128,6 +128,8 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
             REMAKRS: item.PREMARKS,
             UNIT: item.UNIT,
             PROCATE: item.PROCATE,
+            APROQTY: item.PROREQUQTY,
+            ADMINREMARKS: item.APPROVEREMARKS,
           };
         } else {
           obj = {
@@ -145,6 +147,8 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
             REMAKRS: item.PREMARKS,
             UNIT: item.UNIT,
             PROCATE: item.PROCATE,
+            APROQTY: item.PROREQUQTY,
+            ADMINREMARKS: item.APPROVEREMARKS,
           };
         }
 
@@ -322,19 +326,22 @@ module.exports.doneRequisitionsDetails = async (req, res, next) => {
     // get products
     const { rows: products } = await doneReqProducts(id);
 
-    const total = products.reduce((acc, obj) => {
-      acc[0] += obj.APROQTY,
-      acc[1] += obj.PROREQUQTY
-      return acc;
-    }, [0, 0]);
+    const total = products.reduce(
+      (acc, obj) => {
+        (acc[0] += obj.APROQTY), (acc[1] += obj.PROREQUQTY);
+        return acc;
+      },
+      [0, 0]
+    );
 
-    res.json(createResponse({ 
-      userInfo: data, 
-      products,
-      totalAppQty: total[0],
-      totalRequQty: total[1]
-     }));
-
+    res.json(
+      createResponse({
+        userInfo: data,
+        products,
+        totalAppQty: total[0],
+        totalRequQty: total[1],
+      })
+    );
   } catch (error) {
     next(error.message);
   }
@@ -594,20 +601,17 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
         createResponse(null, "You might not select product to approve", true)
       );
     }
-    
+
     products.forEach(async (item) => {
- 
       let { rows } = await getProductBalance(item.proid);
       const balance = rows[0].PROQTY;
       const newBalance = balance - item.qty;
-     
+
       // update product balance
       const data = {
         PROID: item.proid,
         PROQTY: newBalance,
       };
-
-   
 
       await updateBalance(data);
 
@@ -618,7 +622,6 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
         STOREREMARKS: item.remarks,
         PROREQID: item.proreqid,
       };
-
 
       await updateStoreProducts(p_info);
 
@@ -650,7 +653,7 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
 
     const result = await updateReqByStore(data);
     if (result) {
-    res.json(createResponse(null, "Requisition Approved"));
+      res.json(createResponse(null, "Requisition Approved"));
     }
   } catch (error) {
     next(error.message);
@@ -684,14 +687,14 @@ module.exports.reqAcceptByUser = async (req, res, next) => {
 // deny requisition by admin
 module.exports.denyRequisition = async (req, res, next) => {
   try {
-    const { req_id, denyRemakrs, user_name } = req.body;
+    const { req_id, denyRemarks, user_name } = req.body;
     if (!req_id) {
       res.json(createResponse(null, "Requisition id missing", true));
     }
     const data = {
       REQUISTATUS: 2,
       PROACCEPT: 2,
-      DENYREMAKRS: denyRemakrs,
+      DENYREMAKRS: denyRemarks,
       DENYBY: user_name,
       DENYTIME: format(new Date(), "hh:mm a"),
       DENYDATE: format(new Date(), "yyyy-MM-dd"),
@@ -699,11 +702,10 @@ module.exports.denyRequisition = async (req, res, next) => {
     };
 
     // update pro_requisition table
-    const proReqDeny = await updateProReqOnDeny(req_id);
+    await updateProReqOnDeny(req_id);
 
     // update requisitation table
     const deny = await denyRequisition(data);
-
 
     if (deny) {
       res.json(createResponse(deny, "Requisition has been denied"));
