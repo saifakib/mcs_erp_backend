@@ -409,11 +409,11 @@ module.exports.denyRequisition = (data) => {
   return Execute(
     `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
       data.REQUISTATUS
-    )}, PROACCEPT = ${Number(data.PROACCEPT)}, DENYREMAKRS = ${
+    )}, PROACCEPT = ${Number(data.PROACCEPT)}, DENYREMARKS = '${
       data.DENYREMAKRS
-    }, DENYBY = ${data.DENYBY}, DENYTIME = ${data.DENYTIME}, DENYDATE = ${
+    }', DENYBY = '${data.DENYBY}', DENYTIME = '${data.DENYTIME}', DENYDATE = '${
       data.DENYDATE
-    } WHERE REQID = ${data.REQID}`
+    }' WHERE REQID = ${Number(data.REQID)}`
   );
 };
 

@@ -588,8 +588,6 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
       let { rows } = await getProductBalance(item.proid);
       const balance = rows[0].PROQTY;
       const newBalance = balance - item.qty;
-
-      console.log(newBalance, 'dddd')
      
       // update product balance
       const data = {
@@ -609,8 +607,6 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
         PROREQID: item.proreqid,
       };
 
-      
-      console.log(p_info)
 
       await updateStoreProducts(p_info);
 
@@ -687,14 +683,15 @@ module.exports.denyRequisition = async (req, res, next) => {
       DENYBY: user_name,
       DENYTIME: format(new Date(), "hh:mm a"),
       DENYDATE: format(new Date(), "yyyy-MM-dd"),
-      REQID: req_id,
+      REQID: Number(req_id),
     };
 
     // update pro_requisition table
-    await updateProReqOnDeny(req_id);
+    const proReqDeny = await updateProReqOnDeny(req_id);
 
     // update requisitation table
     const deny = await denyRequisition(data);
+
 
     if (deny) {
       res.json(createResponse(deny, "Requisition has been denied"));
