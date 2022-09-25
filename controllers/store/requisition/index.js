@@ -34,7 +34,7 @@ const {
   deniedRequisitions,
   deniedRequisitionsDetails,
   doneReqProducts,
-  deniedReqProducts,
+  deniedReqProducts
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -118,6 +118,8 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
             PRODUCT_NAME: item.PRODUCT_NAME,
             PROREQUQTY: item.PROREQUQTY,
             PROID: item.PROID,
+            UNIT: item.UNIT,
+            PREMARKS: item.PREMARKS,
             LAST_DATE: lastData.PRODATE,
             LAST_QTY: lastData.PROREQUQTY,
           };
@@ -127,6 +129,8 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
             PRODUCT_NAME: item.PRODUCT_NAME,
             PROREQUQTY: item.PROREQUQTY,
             PROID: item.PROID,
+            UNIT: item.UNIT,
+            PREMARKS: item.PREMARKS,
             LAST_DATE: null,
             LAST_QTY: 0,
           };
@@ -306,7 +310,19 @@ module.exports.doneRequisitionsDetails = async (req, res, next) => {
     // get products
     const { rows: products } = await doneReqProducts(id);
 
-    res.json(createResponse({ userInfo: data, products }));
+    const total = products.reduce((acc, obj) => {
+      acc[0] += obj.APROQTY,
+      acc[1] += obj.PROREQUQTY
+      return acc;
+    }, [0, 0]);
+
+    res.json(createResponse({ 
+      userInfo: data, 
+      products,
+      totalAppQty: total[0],
+      totalRequQty: total[1]
+     }));
+
   } catch (error) {
     next(error.message);
   }
@@ -566,17 +582,22 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
         createResponse(null, "You might not select product to approve", true)
       );
     }
-
+    
     products.forEach(async (item) => {
+ 
       let { rows } = await getProductBalance(item.proid);
       const balance = rows[0].PROQTY;
       const newBalance = balance - item.qty;
 
+      console.log(newBalance, 'dddd')
+     
       // update product balance
       const data = {
         PROID: item.proid,
         PROQTY: newBalance,
       };
+
+   
 
       await updateBalance(data);
 
@@ -587,6 +608,9 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
         STOREREMARKS: item.remarks,
         PROREQID: item.proreqid,
       };
+
+      
+      console.log(p_info)
 
       await updateStoreProducts(p_info);
 
@@ -618,7 +642,7 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
 
     const result = await updateReqByStore(data);
     if (result) {
-      res.json(createResponse(null, "Requisition Approved"));
+    res.json(createResponse(null, "Requisition Approved"));
     }
   } catch (error) {
     next(error.message);
