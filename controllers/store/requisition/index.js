@@ -115,13 +115,19 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
         if (lastData !== undefined && lastData.PROID === item.PROID) {
           obj = {
             PROREQID: item.PROREQID,
-            PRODUCT_NAME: item.PRODUCT_NAME,
+            PRONAME: item.PRONAME,
             PROREQUQTY: item.PROREQUQTY,
             PROID: item.PROID,
             UNIT: item.UNIT,
             PREMARKS: item.PREMARKS,
             LAST_DATE: lastData.PRODATE,
             LAST_QTY: lastData.PROREQUQTY,
+            REQUIID: item.REQUIID,
+            HRIDNO: item.HRIDNO,
+            PROID: item.PROID,
+            REMAKRS: item.PREMARKS,
+            UNIT: item.UNIT,
+            PROCATE: item.PROCATE,
           };
         } else {
           obj = {
@@ -133,6 +139,12 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
             PREMARKS: item.PREMARKS,
             LAST_DATE: null,
             LAST_QTY: 0,
+            REQUIID: item.REQUIID,
+            HRIDNO: item.HRIDNO,
+            PROID: item.PROID,
+            REMAKRS: item.PREMARKS,
+            UNIT: item.UNIT,
+            PROCATE: item.PROCATE,
           };
         }
 

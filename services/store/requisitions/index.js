@@ -87,9 +87,10 @@ module.exports.pendingRequisitions = (
 };
 
 module.exports.pendingRequisitionDetails = (id) => {
-  return Execute(`select pr.proreqid, pr.hridno, pr.proid, sp.proname || ' -' || sp.pronametwo as product_name, 
-  pr.prorequqty, pr.prodate, pr.PREMARKS, su.unit from str_prorequisitions pr
+  return Execute(`select pr.proreqid, pr.requiid, pr.hridno, pr.proid, pr.premarks, sp.proname, 
+  pr.prorequqty, u.unit, sp.procate from str_prorequisitions pr
   left outer join str_storeproducts sp on pr.proid = sp.proid
+  left outer join str_units u on u.unit_id = sp.produnit
   left outer join str_requisitions r on r.reqid = pr.requiid
   left outer join STR_UNITS su on sp.PRODUNIT = su.UNIT_ID
   where pr.requiid = ${Number(id)} and r.requistatus = ${Number(
