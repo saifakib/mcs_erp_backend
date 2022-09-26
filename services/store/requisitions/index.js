@@ -43,7 +43,7 @@ module.exports.getRequisitionById = (
   limit = 1000
 ) => {
   let offset = limit * page;
-  return Execute(`SELECT R.REQID, R.PROFILEHRID, R.REQUITIME || ', ' || R.REQUIDATE AS DATE_TIME, R.REQUISITIONNO, case
+  return Execute(`SELECT DISTINCT(R.REQID), R.PROFILEHRID, R.REQUITIME || ', ' || R.REQUIDATE AS DATE_TIME, R.REQUISITIONNO, case
   when REQUISTATUS = 0 and APPROVED = 0 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Pending'
   when REQUISTATUS = 1 and APPROVED = 1 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Approved'
   when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 0 and STOREACCEPT = 1 then 'Pending To Accept'
@@ -399,9 +399,9 @@ module.exports.reqAcceptByUser = (data) => {
   return Execute(
     `UPDATE STR_REQUISITIONS SET PROACCEPT = ${Number(
       data.PROACCEPT
-    )}, PROACCEPTTIME = ${data.PROACCEPTTIME}, PROACCEPTDATE = ${
+    )}, PROACCEPTTIME = '${data.PROACCEPTTIME}', PROACCEPTDATE = '${
       data.PROACCEPTDATE
-    } WHERE REQID = ${data.REQID}`
+    }' WHERE REQID = ${data.REQID}`
   );
 };
 

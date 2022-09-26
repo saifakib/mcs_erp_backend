@@ -15,6 +15,8 @@ const {
   getSingleProEntriesByMrrno,
   updateSingleProEntriesByMrrno,
   updateProductEntriListsSupplier,
+  getProductEntiresFirsts,
+  getProductEntriListss
 } = require("../../../services/store/mrr");
 const { getSingleSupplier } = require("../../../services/store/settings");
 
@@ -62,7 +64,37 @@ const mrrProListBySupId = async (req, res, next) => {
       res.json(createResponse(null, "Required Parameter Missing", true));
     } else {
       let response = await getMrrProListBySupplierId(SUP_ID);
-      res.json(createResponse(response.rows));
+
+      let result = {};
+
+      if(response.rows.length > 0) {
+        result = response.rows.reduce((acc, val) => {
+          let obj = {
+            SUP_ID: val.SUP_ID,
+            MRRNUMBER: val.MRRNUMBER,
+            PRODATE: val.PRODATE
+          }
+          if(acc[val.PRODATE]) {
+            acc[val.PRODATE].push(obj)
+          }
+          else {
+            acc[val.PRODATE] = [];
+            acc[val.PRODATE].push(obj)
+          }
+          return acc;
+        }, {})
+      }
+
+      let result2 = Object.keys(result).reduce((acc, key) => {
+        let createObj = {
+          PRODATE: key,
+          MRR: result[key]
+        }
+        acc.push({...createObj})
+        return acc;
+      }, [])
+
+      res.json(createResponse(result2));
     }
   } catch (err) {
     next(err);
@@ -84,6 +116,36 @@ const viewProductReceptBySupIdDate = async (req, res, next) => {
       const suppliers = await getSingleSupplier({ SUP_ID });
       const entriesInfo = await getProductEntiresFirst(SUP_ID, date);
       const entriLists = await getProductEntriLists(SUP_ID, date);
+
+      let response = {
+        suppliers: suppliers.rows,
+        entriesInfo: entriesInfo.rows,
+        entriLists: entriLists.rows,
+      };
+
+      res.json(createResponse(response));
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+/**
+ * All Product Lists With Supplier Info with mrrno
+ * @param {Number} sup_id
+ * @param {String} date
+ */
+ const viewProductReceptBySupIdMrrDate = async (req, res, next) => {
+  const { sup_id: SUP_ID, mrrno: MRRNO, date: date } = req.params;
+
+  try {
+    if (!SUP_ID || !date) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    } else {
+      const suppliers = await getSingleSupplier({ SUP_ID });
+      const entriesInfo = await getProductEntiresFirsts(SUP_ID, MRRNO, date);
+      const entriLists = await getProductEntriListss(SUP_ID, MRRNO, date);
 
       let response = {
         suppliers: suppliers.rows,
@@ -392,6 +454,7 @@ module.exports = {
   manageSupplier,
   mrrProListBySupId,
   viewProductReceptBySupIdDate,
+  viewProductReceptBySupIdMrrDate,
   lastEntryListByProListId,
   updateSingleProductEntriList,
   deleteSingleProductEntriList,
