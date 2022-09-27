@@ -17,6 +17,7 @@ module.exports.getReqInfo = (id) =>
   when REQUISTATUS = 0 and APPROVED = 0 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Pending'
   when REQUISTATUS = 1 and APPROVED = 1 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Approved'
   when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 0 and STOREACCEPT = 1 then 'Pending To Accept'
+  when REQUISTATUS = 2 and DENY = 1 then 'Rejected'
   when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 1 then 'Done' end Status FROM STR_REQUISITIONS WHERE REQID = ${Number(
     id
   )}`);
@@ -43,15 +44,16 @@ module.exports.getRequisitionById = (
   limit = 1000
 ) => {
   let offset = limit * page;
-  return Execute(`SELECT DISTINCT(R.REQID), R.PROFILEHRID, R.REQUITIME || ', ' || R.REQUIDATE AS DATE_TIME, R.REQUISITIONNO, case
+  return Execute(`SELECT distinct(R.REQID), R.PROFILEHRID, R.REQUITIME || ', ' || R.REQUIDATE AS DATE_TIME, R.REQUISITIONNO, case
   when REQUISTATUS = 0 and APPROVED = 0 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Pending'
   when REQUISTATUS = 1 and APPROVED = 1 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Approved'
-  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 0 and STOREACCEPT = 1 then 'Pending To Accept'
+  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 0 then 'Pending To Accept'
   when REQUISTATUS = 2 and DENY = 1 then 'Rejected'
-  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 1 then 'Done' end Status, PR.PROREQUQTY, PR.APROQTY 
-  FROM STR_REQUISITIONS R LEFT OUTER JOIN STR_PROREQUISITIONS PR ON PR.HRIDNO = R.PROFILEHRID WHERE PROFILEHRID = ${Number(
+  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 1 then 'Done' end Status,
+  sum(PR.PROREQUQTY) over(partition by (PR.REQUIID)) as PROREQUQTY, sum(PR.APROQTY) over(partition by (PR.REQUIID)) as APROQTY
+  FROM STR_PROREQUISITIONS PR LEFT OUTER JOIN  STR_REQUISITIONS R ON PR.REQUIID  = R.REQID WHERE PROFILEHRID = ${Number(
     id
-  )} AND LOWER(REQUISITIONNO) LIKE LOWER('${search}') ORDER BY REQID OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND LOWER(R.REQUISITIONNO) LIKE LOWER('${search}') ORDER BY REQID OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.getRequisitionDetailsById = (id) => {

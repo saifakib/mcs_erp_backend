@@ -603,80 +603,59 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
       );
     }
 
-    products.forEach(async (item, index) => {
+    products.forEach(async (item) => {
       let { rows } = await getProductBalance(item.proid);
       let balance = rows[0].PROQTY;
       let newBalance = balance - item.qty;
-      if(newBalance < 0) {
-        res.json(
-          createResponse(
-            null,
-            "Approved Quantities Product Are Bigger than Stock Quantities",
-            true
-          )
-        );
-      }
-      if(index === products.length-1) {
-        check = true
-      }
+
+      // update product balance
+      const data = {
+        PROID: item.proid,
+        PROQTY: newBalance,
+      };
+
+      await updateBalance(data);
+
+      // update store products
+      const p_info = {
+        APPROQTY: item.qty,
+        REQUPRODSTATUS: 1,
+        STOREREMARKS: item.remarks,
+        PROREQID: item.proreqid,
+      };
+
+      await updateStoreProducts(p_info);
+
+      const dataToInsert = {
+        PRODUCTID: item.proid,
+        PRODUCTNAME: item.proname,
+        PROCAT: item.procate,
+        INTIALQTY: balance,
+        TOTALBALANCE: balance,
+        TOTALOUT: item.qty,
+        PRESENTBALANCE: newBalance,
+        SUMMDATE: format(new Date(), "yyyy-MM-dd"),
+        SUMMMONTH: format(new Date(), "LLLL-yyyy"),
+        REQUISITIONFOR: item.hridno,
+        SUMMERTYPE: "Out",
+      };
+
+      await insertSummeries(dataToInsert);
     });
 
-    if(check) {
-      products.forEach(async (item) => {
-        let { rows } = await getProductBalance(item.proid);
-        let balance = rows[0].PROQTY;
-        let newBalance = balance - item.qty;
-  
-        // update product balance
-        const data = {
-          PROID: item.proid,
-          PROQTY: newBalance,
-        };
-  
-        await updateBalance(data);
-  
-        // update store products
-        const p_info = {
-          APPROQTY: item.qty,
-          REQUPRODSTATUS: 1,
-          STOREREMARKS: item.remarks,
-          PROREQID: item.proreqid,
-        };
-  
-        await updateStoreProducts(p_info);
-  
-        const dataToInsert = {
-          PRODUCTID: item.proid,
-          PRODUCTNAME: item.proname,
-          PROCAT: item.procate,
-          INTIALQTY: balance,
-          TOTALBALANCE: balance,
-          TOTALOUT: item.qty,
-          PRESENTBALANCE: newBalance,
-          SUMMDATE: format(new Date(), "yyyy-MM-dd"),
-          SUMMMONTH: format(new Date(), "LLLL-yyyy"),
-          REQUISITIONFOR: item.hridno,
-          SUMMERTYPE: "Out",
-        };
-  
-        await insertSummeries(dataToInsert);
-      });
-  
-      const data = {
-        REQUISTATUS: 3,
-        STOREACCEPT: 1,
-        APPROVEDBY: approvedBy,
-        APROVEDTIME: format(new Date(), "hh:mm a"),
-        APPROVEDDATE: format(new Date(), "yyyy-MM-dd"),
-        REQID: req_id,
-      };
-  
-      const result = await updateReqByStore(data);
-      if (result) {
-        res.json(createResponse(null, "Requisition Approved"));
-      }
-    }
+    const data = {
+      REQUISTATUS: 3,
+      STOREACCEPT: 1,
+      APPROVEDBY: approvedBy,
+      APROVEDTIME: format(new Date(), "hh:mm a"),
+      APPROVEDDATE: format(new Date(), "yyyy-MM-dd"),
+      REQID: req_id,
+    };
 
+    const result = await updateReqByStore(data);
+    if (result) {
+      res.json(createResponse(null, "Requisition Approved"));
+    }
   } catch (error) {
     next(error.message);
   }
@@ -688,17 +667,16 @@ module.exports.reqAcceptByUser = async (req, res, next) => {
     const { req_id } = req.body;
     if (!req_id) {
       res.json(createResponse(null, "Requisitions id missing", true));
-    }
-    else {
+    } else {
       const data = {
         REQID: req_id,
         PROACCEPT: 1,
         PROACCEPTTIME: format(new Date(), "hh:mm a"),
         PROACCEPTDATE: format(new Date(), "yyyy-MM-dd"),
       };
-  
+
       const finalUpdate = await reqAcceptByUser(data);
-      console.log(finalUpdate)
+      console.log(finalUpdate);
       if (finalUpdate.rowsAffected >= 1) {
         res.json(createResponse(null, "Requisition Approved"));
       }
