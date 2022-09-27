@@ -18,7 +18,7 @@ module.exports.getReqInfo = (id) =>
   when REQUISTATUS = 1 and APPROVED = 1 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Approved'
   when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 0 and STOREACCEPT = 1 then 'Pending To Accept'
   when REQUISTATUS = 2 and DENY = 1 then 'Rejected'
-  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 1 then 'Done' end Status FROM STR_REQUISITIONS WHERE REQID = ${Number(
+  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 1 then 'Delivered' end Status FROM STR_REQUISITIONS WHERE REQID = ${Number(
     id
   )}`);
 
@@ -49,7 +49,7 @@ module.exports.getRequisitionById = (
   when REQUISTATUS = 1 and APPROVED = 1 and STOREACCEPT = 0 and PROACCEPT = 0 then 'Approved'
   when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 0 then 'Pending To Accept'
   when REQUISTATUS = 2 and DENY = 1 then 'Rejected'
-  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 1 then 'Done' end Status,
+  when REQUISTATUS = 3 and APPROVED = 1 and STOREACCEPT = 1 and PROACCEPT = 1 then 'Delivered' end Status,
   sum(PR.PROREQUQTY) over(partition by (PR.REQUIID)) as PROREQUQTY, sum(PR.APROQTY) over(partition by (PR.REQUIID)) as APROQTY
   FROM STR_PROREQUISITIONS PR LEFT OUTER JOIN  STR_REQUISITIONS R ON PR.REQUIID  = R.REQID WHERE PROFILEHRID = ${Number(
     id
