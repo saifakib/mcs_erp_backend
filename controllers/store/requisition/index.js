@@ -676,7 +676,6 @@ module.exports.reqAcceptByUser = async (req, res, next) => {
       };
 
       const finalUpdate = await reqAcceptByUser(data);
-      console.log(finalUpdate);
       if (finalUpdate.rowsAffected >= 1) {
         res.json(createResponse(null, "Requisition Approved"));
       }
@@ -695,7 +694,7 @@ module.exports.denyRequisition = async (req, res, next) => {
     }
     const data = {
       REQUISTATUS: 2,
-      PROACCEPT: 2,
+      DENY: 1,
       DENYREMAKRS: denyRemarks,
       DENYBY: user_name,
       DENYTIME: format(new Date(), "hh:mm a"),

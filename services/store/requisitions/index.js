@@ -412,7 +412,7 @@ module.exports.denyRequisition = (data) => {
   return Execute(
     `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
       data.REQUISTATUS
-    )}, PROACCEPT = ${Number(data.PROACCEPT)}, DENYREMARKS = '${
+    )}, DENY = ${Number(data.DENY)}, DENYREMARKS = '${
       data.DENYREMAKRS
     }', DENYBY = '${data.DENYBY}', DENYTIME = '${data.DENYTIME}', DENYDATE = '${
       data.DENYDATE
