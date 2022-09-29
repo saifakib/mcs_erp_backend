@@ -42,6 +42,9 @@ module.exports.userInfo = (id, status = 0) => {
 
 /*------------- Get ------------*/
 
+
+module.exports.getTotalProReqQuantities = () => Execute("SELECT SUM(PROREQUQTY) AS totalrequisitions, SUM(APROQTY) AS approvedqty FROM STR_PROREQUISITIONS");
+
 // get requisition by id
 module.exports.getRequisitionById = (
   id,

@@ -14,10 +14,15 @@ const getSupplierWithProductEntriesInfo = (
   );
 };
 
-const getRecentMonthSupply = (month) =>
-  Execute(
-    `SELECT PE.MRRNNO, PE.PROINID, S.SUP_ID, S.SUPPLIER, PE.ENTRIDATE FROM STR_PRODUCTENTRIES PE LEFT OUTER JOIN STR_SUPPLIERS S ON PE.SUPPLIER = S.SUP_ID WHERE ENTRIMONTH = '${month}' ORDER BY ENTRIDATE`
+
+const getRecentMonthSupply = (
+  month, searchr = "%%", pager = 0, limitr = 1000) => {
+  let offsetr = limitr * pager;
+  return Execute(
+    `SELECT PE.MRRNNO, PE.PROINID, S.SUP_ID, S.SUPPLIER, PE.ENTRIDATE FROM STR_PRODUCTENTRIES PE LEFT OUTER JOIN STR_SUPPLIERS S ON PE.SUPPLIER = S.SUP_ID WHERE ENTRIMONTH = '${month}' AND PE.MRRNNO LIKE ('${searchr}') OR S.SUPPLIER LIKE LOWER('${searchr}') ORDER BY ENTRIDATE OFFSET ${offsetr} ROWS FETCH NEXT ${limitr} ROWS ONLY`
   );
+}
+
 
 const getMrrProListBySupplierId = (SUP_ID) =>
   Execute(

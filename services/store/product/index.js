@@ -15,10 +15,14 @@ const getStoreProducts = (search = "%%", page = 0, limit = 1000) => {
   );
 };
 const getTotalStoreProducts = () =>
-  Execute("SELECT COUNT(PROID) FROM STR_STOREPRODUCTS");
+  Execute("SELECT COUNT(PROID) as TOTAL_PRODUCT FROM STR_STOREPRODUCTS");
 
 const totalQuantites = () =>
   Execute("SELECT COUNT(PROQTY) FROM STR_STOREPRODUCTS");
+
+const getTotalEntQuantites = () => 
+  Execute("SELECT SUM(QUANTITIES) AS TOTAL_QUANTITIES FROM STR_PRODUCTENTRILISTS");
+
 
 const getTotalStoreProdQty = () =>
   Execute(
@@ -193,6 +197,7 @@ const updateStoreProductM = (
 module.exports = {
   getStoreProducts,
   totalQuantites,
+  getTotalEntQuantites,
   totalQuantitesByCategoryId,
   getProducListById,
   getTotalStoreProducts,

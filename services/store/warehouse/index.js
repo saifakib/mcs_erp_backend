@@ -17,6 +17,7 @@ LEFT OUTER JOIN STR_CATEGORIES C
 ON SP.PROCATE = C.CAT_ID
 WHERE SP.PROQTY <= SP.STOCKALERT AND SP.PROQTY != ${Number(0)} AND SP.PROTSTATUS = ${Number(1)}`);
 
+
 /*--------------------------------END SELECT --------------------------------*/
 
 

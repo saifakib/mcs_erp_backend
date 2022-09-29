@@ -36,7 +36,7 @@ const manageSupplier = async (req, res, next) => {
   const date = new Date();
   let month = format(date, "LLLL-yyyy");
   const { search = "%%", searchr = "%%" } = req.headers;
-  const { page, limit, pager, limitr } = req.query;
+  const { page, limit } = req.query;
   try {
     const suppliersWithEntriesInfo = await getSupplierWithProductEntriesInfo(
       search,
@@ -46,8 +46,8 @@ const manageSupplier = async (req, res, next) => {
     const recentMonthSupply = await getRecentMonthSupply(
       month,
       searchr,
-      pager,
-      limitr
+      page,
+      limit
     );
     const response = {
       suppliersWithEntriesInfo: suppliersWithEntriesInfo.rows,

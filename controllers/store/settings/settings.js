@@ -63,11 +63,13 @@ module.exports.getSingleCategory = async (req, res, next) => {
     const { id } = req.params;
     if (!id) {
       res.json(createResponse(null, "Id required", true));
-    } else {
+    }
+    else {
       const result = await getSingleCategory({ CAT_ID: id });
       res.json(createResponse(result.rows[0]));
     }
   } catch (err) {
+    console.log(err.message.split(":"))
     next(err.message);
   }
 };
