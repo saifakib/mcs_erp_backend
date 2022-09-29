@@ -9,7 +9,7 @@ module.exports.getLastReqNo = () =>
           MAX( reqid )
       FROM
           str_requisitions
-  );`);
+  )`);
 
 module.exports.lastProRequiId = () =>
   Execute(`SELECT MAX(PROREQID) AS LAST_ID FROM STR_PROREQUISITIONS`);

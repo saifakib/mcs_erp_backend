@@ -392,8 +392,8 @@ module.exports.postRequisition = async (req, res, next) => {
       res.json(createResponse(null, "Product is missing", true));
     } else {
       const { rows: lastReqNo } = await getLastReqNo();
-      const reqNo = lastReqNo[0].LAST_ID
-        ? parseInt(lastReqNo[0].LAST_ID) + 1
+      const reqNo = lastReqNo[0].REQUISITIONNO
+        ? parseInt(lastReqNo[0].REQUISITIONNO) + 1
         : 1;
 
       const requisitionInfo = {
