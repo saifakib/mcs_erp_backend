@@ -19,7 +19,7 @@ const {
   getProductEntiresFirsts,
   getProductEntriListss,
   getCurrentStock,
-  getProListById
+  getProListById,
 } = require("../../../services/store/mrr");
 const { getSingleSupplier } = require("../../../services/store/settings");
 
@@ -35,7 +35,7 @@ const { getSingleSupplier } = require("../../../services/store/settings");
 const manageSupplier = async (req, res, next) => {
   const date = new Date();
   let month = format(date, "LLLL-yyyy");
-  const { search='%%', searchr='%%' } = req.headers;
+  const { search = "%%", searchr = "%%" } = req.headers;
   const { page, limit, pager, limitr } = req.query;
   try {
     const suppliersWithEntriesInfo = await getSupplierWithProductEntriesInfo(
@@ -43,7 +43,12 @@ const manageSupplier = async (req, res, next) => {
       page,
       limit
     );
-    const recentMonthSupply = await getRecentMonthSupply( month, searchr, pager, limitr );
+    const recentMonthSupply = await getRecentMonthSupply(
+      month,
+      searchr,
+      pager,
+      limitr
+    );
     const response = {
       suppliersWithEntriesInfo: suppliersWithEntriesInfo.rows,
       recentMonthSupply: recentMonthSupply.rows,
@@ -69,32 +74,31 @@ const mrrProListBySupId = async (req, res, next) => {
 
       let result = {};
 
-      if(response.rows.length > 0) {
+      if (response.rows.length > 0) {
         result = response.rows.reduce((acc, val) => {
           let obj = {
             SUP_ID: val.SUP_ID,
             MRRNUMBER: val.MRRNUMBER,
-            PRODATE: val.PRODATE
-          }
-          if(acc[val.PRODATE]) {
-            acc[val.PRODATE].push(obj)
-          }
-          else {
+            PRODATE: val.PRODATE,
+          };
+          if (acc[val.PRODATE]) {
+            acc[val.PRODATE].push(obj);
+          } else {
             acc[val.PRODATE] = [];
-            acc[val.PRODATE].push(obj)
+            acc[val.PRODATE].push(obj);
           }
           return acc;
-        }, {})
+        }, {});
       }
 
       let result2 = Object.keys(result).reduce((acc, key) => {
         let createObj = {
           PRODATE: key,
-          MRR: result[key]
-        }
-        acc.push({...createObj})
+          MRR: result[key],
+        };
+        acc.push({ ...createObj });
         return acc;
-      }, [])
+      }, []);
 
       res.json(createResponse(result2));
     }
@@ -132,13 +136,12 @@ const viewProductReceptBySupIdDate = async (req, res, next) => {
   }
 };
 
-
 /**
  * All Product Lists With Supplier Info with mrrno
  * @param {Number} sup_id
  * @param {String} date
  */
- const viewProductReceptBySupIdMrrDate = async (req, res, next) => {
+const viewProductReceptBySupIdMrrDate = async (req, res, next) => {
   const { sup_id: SUP_ID, mrrno: MRRNO, date: date } = req.params;
 
   try {
@@ -149,25 +152,52 @@ const viewProductReceptBySupIdDate = async (req, res, next) => {
       const entriesInfo = await getProductEntiresFirsts(SUP_ID, MRRNO, date);
       const entriLists = await getProductEntriListss(SUP_ID, MRRNO, date);
 
-      const total = entriLists.rows.reduce((acc, obj) => {
-        acc[0] += obj.QUANTITIES,
-        acc[1] += obj.QUANTITIES * obj.PROAMOUNT
-        return acc;
-      }, [0,0]);
+      const total = entriLists.rows.reduce(
+        (acc, obj) => {
+          (acc[0] += obj.QUANTITIES),
+            (acc[1] += obj.QUANTITIES * obj.PROAMOUNT);
+          return acc;
+        },
+        [0, 0]
+      );
 
       let entriesInfoEd = {
         ...entriesInfo.rows[0],
-        SUPPDATE: format(new Date(entriesInfo.rows[0].SUPPDATE.replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3")), "yyyy-MM-dd"),
-        WORKODATE: format(new Date(entriesInfo.rows[0].WORKODATE.replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3")), "yyyy-MM-dd"),
-        CASHMEMODATE: format(new Date(entriesInfo.rows[0].CASHMEMODATE.replace( /(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3")), "yyyy-MM-dd")
-      }
+        SUPPDATE: format(
+          new Date(
+            entriesInfo.rows[0].SUPPDATE.replace(
+              /(\d{2})-(\d{2})-(\d{4})/,
+              "$2/$1/$3"
+            )
+          ),
+          "yyyy-MM-dd"
+        ),
+        WORKODATE: format(
+          new Date(
+            entriesInfo.rows[0].WORKODATE.replace(
+              /(\d{2})-(\d{2})-(\d{4})/,
+              "$2/$1/$3"
+            )
+          ),
+          "yyyy-MM-dd"
+        ),
+        CASHMEMODATE: format(
+          new Date(
+            entriesInfo.rows[0].CASHMEMODATE.replace(
+              /(\d{2})-(\d{2})-(\d{4})/,
+              "$2/$1/$3"
+            )
+          ),
+          "yyyy-MM-dd"
+        ),
+      };
 
       let response = {
         suppliers: suppliers.rows[0],
         entriesInfo: entriesInfoEd,
         entriLists: entriLists.rows,
         totalQuantities: total[0],
-        totalProAmount: total[1]
+        totalProAmount: total[1],
       };
 
       res.json(createResponse(response));
@@ -242,18 +272,17 @@ const addMoreMrr = async (req, res, next) => {
   }
 };
 
-
 /**
  * Get a single entry product info
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
  */
-const getSingleEntry = async ( req, res, next ) => {
+const getSingleEntry = async (req, res, next) => {
   const { proid, prolistid } = req.params;
-  console.log(req.params)
+  console.log(req.params);
   try {
-    if (!proid || !prolistid ) {
+    if (!proid || !prolistid) {
       res.json(createResponse(null, "Required Parameter Missing", true));
     } else {
       const currentStock = await getCurrentStock({ proid });
@@ -261,19 +290,19 @@ const getSingleEntry = async ( req, res, next ) => {
 
       const object = {
         ...currentStock.rows[0],
-        ...proList.rows[0]
-      }
+        ...proList.rows[0],
+      };
 
       let response = {
-        mrrSingleGet: object
+        mrrSingleGet: object,
       };
 
       res.json(createResponse(response));
-  }
- } catch (err) {
+    }
+  } catch (err) {
     next(err);
   }
-}
+};
 
 /*-------------------------------------- End Get Controller ----------------------------------------*/
 
@@ -321,8 +350,7 @@ const updateSingleProductEntriList = async (req, res, next) => {
           changequantity = Number(oldquantity) + Number(newquantity);
           changeamount = Number(newamount);
         }
-      } 
-      else if (change_status == "minus") {
+      } else if (change_status == "minus") {
         if (!newquantity) {
           res.json(
             createResponse(null, "Required Body Missing - New Quantity", true)
@@ -332,8 +360,7 @@ const updateSingleProductEntriList = async (req, res, next) => {
           changequantity = Number(oldquantity) - Number(newquantity);
           changeamount = Number(newamount);
         }
-      } 
-      else {
+      } else {
         if (!newamount) {
           res.json(
             createResponse(null, "Required Body Missing - New Amount", true)
@@ -365,7 +392,7 @@ const updateSingleProductEntriList = async (req, res, next) => {
         username
       );
 
-      console.log(updateProEntListById, updateStoreProdById, newMrrLog)
+      console.log(updateProEntListById, updateStoreProdById, newMrrLog);
 
       if (
         updateProEntListById.rowsAffected == 0 ||
@@ -393,37 +420,55 @@ const updateSingleProductEntriList = async (req, res, next) => {
  */
 const updateProductEntriesBymrrno = async (req, res, next) => {
   const {
-    mrrno, supplier, suppdate, workorder, workodate, cashmemono, cashmemodate,
+    mrrno,
+    supplier,
+    suppdate,
+    workorder,
+    workodate,
+    cashmemono,
+    cashmemodate,
   } = req.body;
 
   try {
-    console.log(req.body)
+    console.log(req.body);
     if (
-      !mrrno || !supplier || !suppdate || !workorder || !workodate || !cashmemono || !cashmemodate
+      !mrrno ||
+      !supplier ||
+      !suppdate ||
+      !workorder ||
+      !workodate ||
+      !cashmemono ||
+      !cashmemodate
     ) {
       res.json(createResponse(null, "Required Parameter Missing", true));
     } else {
-      const productEntriesInfo = await updateSingleProEntriesByMrrno(
-        mrrno, supplier, suppdate, workorder, workodate, cashmemono, cashmemodate
+      await updateSingleProEntriesByMrrno(
+        mrrno,
+        supplier,
+        suppdate,
+        workorder,
+        workodate,
+        cashmemono,
+        cashmemodate
       );
-      const changeSupplierEntriLists = await updateProductEntriListsSupplier(
-        mrrno, supplier
-      );
+      await updateProductEntriListsSupplier(mrrno, supplier);
 
-      if (
-        productEntriesInfo.rowsAffected == 0 ||
-        changeSupplierEntriLists.rowsAffected == 0
-      ) {
-        res.json(
-          createResponse(
-            null,
-            "Something Error Occured in Updateing Product",
-            true
-          )
-        );
-      } else {
-        res.json(createResponse(null, "Product Update Succesfully"));
-      }
+      // if (
+      //   productEntriesInfo.rowsAffected ||
+      //   changeSupplierEntriLists.rowsAffected
+      // ) {
+      //   res.json(
+      //     createResponse(
+      //       null,
+      //       "Something Error Occured in Updateing Product",
+      //       true
+      //     )
+      //   );
+      // } else {
+      //   res.json(createResponse(null, "Product Update Succesfully"));
+      // }
+
+      res.json(createResponse(null, "Product Update Succesfully"));
     }
   } catch (err) {
     next(err);
@@ -439,23 +484,20 @@ const deleteSingleProductEntriList = async (req, res, next) => {
   let date = new Date();
   let entritime = format(date, "hh:mm a");
   let entridate = format(date, "yyyy-MM-dd");
-  try {console.log(req.body)
+  try {
+    console.log(req.body);
     if (!prolistid || !proid || !proamount) {
       res.json(createResponse(null, "Required Body Missing", true));
     } else {
       const isFind = await findProductEntriListById(prolistid);
-      if(isFind.rows.length == 0) {
-        res.json(
-          createResponse(
-            null,
-            "Id didn't find in database",
-            true
-          )
-        );
-      }
-      else {
+      if (isFind.rows.length == 0) {
+        res.json(createResponse(null, "Id didn't find in database", true));
+      } else {
         const deleteProdEntList = await deleteProductEntriListById(prolistid);
-        const updateStoreProdById = await updateStoreProductById(proid, quantity);
+        const updateStoreProdById = await updateStoreProductById(
+          proid,
+          quantity
+        );
         `'${entridate}, ${entritime}'`;
         const newMrrLog = await insertMrrLogsWithRemarks(
           proid,
@@ -470,13 +512,12 @@ const deleteSingleProductEntriList = async (req, res, next) => {
           `'${entridate}, ${entritime}'`,
           username
         );
-  
+
         if (
           !deleteProdEntList ||
           updateStoreProdById.rowsAffected == 0 ||
           newMrrLog.rowsAffected == 0
         ) {
-          
           res.json(
             createResponse(
               null,
@@ -507,5 +548,5 @@ module.exports = {
   singleProductEntriesBymrrno,
   updateProductEntriesBymrrno,
   addMoreMrr,
-  getSingleEntry
+  getSingleEntry,
 };
