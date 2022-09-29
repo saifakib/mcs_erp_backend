@@ -3,7 +3,13 @@ const { Execute, ExecuteMany } = require("../../../utils/dynamicController");
 
 // use of work
 module.exports.getLastReqNo = () =>
-  Execute(`SELECT MAX(REQUISITIONNO) AS LAST_ID FROM STR_REQUISITIONS`);
+  Execute(`select requisitionno from str_requisitions WHERE
+  reqid = (
+      SELECT
+          MAX( reqid )
+      FROM
+          str_requisitions
+  );`);
 
 module.exports.lastProRequiId = () =>
   Execute(`SELECT MAX(PROREQID) AS LAST_ID FROM STR_PROREQUISITIONS`);
@@ -192,7 +198,7 @@ module.exports.doneReqProducts = (id) => {
 // denied requisitions
 module.exports.deniedRequisitions = (search = "%%", page = 0, limit = 1000) => {
   let offset = limit * page;
-  return Execute(`SELECT distinct(R.REQID), R.REQUISITIONNO, R.REQUIDATE , E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION from STR_REQUISITIONS r LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID left outer join HRM.EMPLOYEE E
+  return Execute(`SELECT distinct(R.REQID), R.REQUISITIONNO, R.REQUIDATE , E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, R.DENYTIME from STR_REQUISITIONS r LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID left outer join HRM.EMPLOYEE E
   ON E.EMPLOYE_ID = R.PROFILEHRID
   LEFT OUTER JOIN HRM.DEPARTMENT_LIST D
   ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID

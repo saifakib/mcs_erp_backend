@@ -5,11 +5,18 @@ const { Execute } = require('../../../utils/dynamicController');
 /*-------------------------------- SELECT --------------------------------*/
 
 const getSupplierWithProductEntriesInfo = (search = "%%", page = 0, limit = 1000) => {
+  console.log("From Service",search)
     let offset = limit * page;
     return Execute(`SELECT DISTINCT(S.SUP_ID), S.SUPPLIER,  SUM(LT.QUANTITIES*PROAMOUNT) OVER(PARTITION BY LT.PRODUCTFROM) AS Total_Amount, SUM(QUANTITIES) OVER (PARTITION BY  LT.PRODUCTFROM) AS Total_quantity FROM STR_PRODUCTENTRILISTS LT LEFT OUTER JOIN STR_SUPPLIERS S ON LT.PRODUCTFROM = S.SUP_ID WHERE LOWER(S.SUPPLIER) LIKE LOWER('${search}') OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
-const getRecentMonthSupply = (month) => Execute(`SELECT PE.MRRNNO, PE.PROINID, S.SUP_ID, S.SUPPLIER, PE.ENTRIDATE FROM STR_PRODUCTENTRIES PE LEFT OUTER JOIN STR_SUPPLIERS S ON PE.SUPPLIER = S.SUP_ID WHERE ENTRIMONTH = '${month}' ORDER BY ENTRIDATE`);
+// const getRecentMonthSupply = (month) => Execute(`SELECT PE.MRRNNO, PE.PROINID, S.SUP_ID, S.SUPPLIER, PE.ENTRIDATE FROM STR_PRODUCTENTRIES PE LEFT OUTER JOIN STR_SUPPLIERS S ON PE.SUPPLIER = S.SUP_ID WHERE ENTRIMONTH = '${month}' ORDER BY ENTRIDATE`);
+
+const getRecentMonthSupply = (month, searchr = "%%", pager = 0, limitr = 1000) => {
+  console.log(`${searchr}`)
+  let offset = limitr * pager;
+  return  Execute(`SELECT PE.MRRNNO, PE.PROINID, S.SUP_ID, S.SUPPLIER, PE.ENTRIDATE FROM STR_PRODUCTENTRIES PE LEFT OUTER JOIN STR_SUPPLIERS S ON PE.SUPPLIER = S.SUP_ID WHERE ENTRIMONTH = '${month}' AND PE.MRRNNO LIKE ('${searchr}') AND LOWER(S.SUPPLIER) LIKE LOWER('${searchr}') ORDER BY ENTRIDATE OFFSET ${offset} ROWS FETCH NEXT ${limitr} ROWS ONLY`)
+};
 
 
 const getMrrProListBySupplierId = (SUP_ID) => Execute(`SELECT DISTINCT (PRODATE), productfrom AS SUP_ID, MRRNUMBER FROM STR_PRODUCTENTRILISTS WHERE PRODUCTFROM = ${SUP_ID} ORDER BY PRODATE DESC`)
@@ -25,11 +32,15 @@ const getProductEntriLists = (SUP_ID, date) => Execute(`SELECT * FROM STR_PRODUC
 //---
 const getProductEntiresFirsts = (SUP_ID, MRRNO, date) => Execute(`SELECT * FROM STR_PRODUCTENTRIES WHERE SUPPLIER = ${SUP_ID} AND MRRNNO= ${MRRNO} AND ENTRIDATE = '${date}' FETCH NEXT 1 ROWS ONLY`) ;
 
-const getProductEntriListss = (SUP_ID, MRRNO, date) => Execute(`SELECT * FROM STR_PRODUCTENTRILISTS LT LEFT OUTER JOIN STR_STOREPRODUCTS S ON LT.PRODUCTIDNO = S.PROID WHERE PRODUCTFROM = ${SUP_ID} AND MRRNUMBER=${MRRNO} AND PRODATE = '${date}'`)
+const getProductEntriListss = (SUP_ID, MRRNO, date) => Execute(`SELECT * FROM STR_PRODUCTENTRILISTS LT LEFT OUTER JOIN STR_STOREPRODUCTS S ON LT.PRODUCTIDNO = S.PROID LEFT OUTER JOIN STR_UNITS U ON S.PRODUNIT = U.UNIT_ID WHERE PRODUCTFROM = ${SUP_ID} AND MRRNUMBER=${MRRNO} AND PRODATE = '${date}'`)
 
 const getProductEntriListsFirst = (LIST_ID) => Execute(`SELECT PROLISTID, PROID, PROQTY, QUANTITIES, PROAMOUNT FROM STR_PRODUCTENTRILISTS LT LEFT OUTER JOIN STR_STOREPRODUCTS S ON LT.PRODUCTIDNO = S.PROID WHERE PROLISTID = ${LIST_ID} FETCH NEXT 1 ROWS ONLY`);
 
 const getSingleProEntriesByMrrno = (mrrno) => Execute(`SELECT * FROM STR_PRODUCTENTRIES WHERE MRRNNO = ${mrrno}`);
+
+const getCurrentStock = ({ proid }) => Execute(`SELECT proid, proqty FROM STR_STOREPRODUCTS WHERE PROID = ${Number(proid)}`);
+
+const getProListById = ({ prolistid }) => Execute(`SELECT PROLISTID, QUANTITIES, PROAMOUNT FROM STR_PRODUCTENTRILISTS WHERE PROLISTID = ${Number(prolistid)}`);
 
 /*--------------------------------END SELECT --------------------------------*/
 
@@ -63,14 +74,19 @@ const updateStoreProductById = (proid, changproqty) =>
   );
 
 
-const updateSingleProEntriesByMrrno = (mrrno, supplier, suppdate, workorder, workodate, cashmemono, cashmemodate) => Execute(`UPDATE STR_PRODUCTENTRIES SET SUPPLIER = ${Number(supplier)}, SUPPDATE = '${suppdate}', WORKORDER = ${Number(workorder)}, WORKODATE = '${workodate}', CASHMEMONO = ${Number(supplier)}, CASHMEMODATE = '${cashmemodate}' WHERE MRRNNO = ${Number(mrrno)}`);
+const updateSingleProEntriesByMrrno = (mrrno, supplier, suppdate, workorder, workodate, cashmemono, cashmemodate) => Execute(`UPDATE STR_PRODUCTENTRIES SET SUPPLIER = ${Number(supplier)}, SUPPDATE = '${suppdate}', WORKORDER = '${workorder}', WORKODATE = '${workodate}', CASHMEMONO = '${cashmemono}', CASHMEMODATE = '${cashmemodate}' WHERE MRRNNO = ${Number(mrrno)}`);
 
 const updateProductEntriListsSupplier = (mrrno, supplier) => Execute(`UPDATE STR_PRODUCTENTRILISTS SET PRODUCTFROM = ${Number(supplier)} WHERE MRRNUMBER = ${Number(mrrno)}`);
 
 /*---------------------------------- END UPDATE -----------------------------------*/
 
 
+/*---------------------------------- FIND -----------------------------------*/
 
+const findProductEntriListById = (prolistid) => Execute(`SELECT PROLISTID from STR_PRODUCTENTRILISTS  WHERE PROLISTID = ${Number(prolistid)}`);
+
+
+/*---------------------------------- END FIND -----------------------------------*/
 
 
 
@@ -93,10 +109,13 @@ module.exports = {
     updateStoreProductById,
     insertMrrLogs,
     insertMrrLogsWithRemarks,
+    findProductEntriListById,
     deleteProductEntriListById,
     getSingleProEntriesByMrrno,
     updateSingleProEntriesByMrrno,
     updateProductEntriListsSupplier,
     getProductEntiresFirsts,
-    getProductEntriListss
+    getProductEntriListss,
+    getCurrentStock,
+    getProListById
 }
