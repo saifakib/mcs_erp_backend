@@ -35,7 +35,7 @@ const {
   deniedRequisitionsDetails,
   doneReqProducts,
   deniedReqProducts,
-  getUserRequisitionStatusCount
+  getTotalProductByUser,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -52,7 +52,10 @@ module.exports.getRequisitionById = async (req, res, next) => {
       res.json(createResponse(null, "Parameter missing", true));
     }
     const { rows } = await getRequisitionById(id, search, page, limit);
-    res.json(createResponse(rows));
+
+    const { rows: totals } = await getTotalProductByUser(id);
+
+    res.json(createResponse({ rows, totals }));
   } catch (error) {
     next(error.message);
   }

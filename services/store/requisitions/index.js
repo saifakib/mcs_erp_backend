@@ -79,6 +79,14 @@ module.exports.getRequisitionDetailsById = (id) => {
   WHERE REQUIID = ${Number(id)} ORDER BY PR.PROREQID DESC`);
 };
 
+module.exports.getTotalProductByUser = (id) => {
+  return Execute(
+    `select distinct(requiid), sum(PROREQUQTY)over(partition by hridno) as total_products,  
+    sum(APROQTY)over(partition by hridno) as total_approved
+    from str_prorequisitions where requiid = ${Number(id)}`
+  );
+};
+
 // get pending requisitions
 module.exports.pendingRequisitions = (
   search = "%%",
