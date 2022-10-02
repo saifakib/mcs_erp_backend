@@ -47,6 +47,13 @@ module.exports.getProducts = (search = "%%", page = 0, limit = 1000) => {
   );
 };
 
+// get product count
+module.exports.getCountProducts = () => {
+  return Execute(
+    `select count(prodid) as total_products from str_productlists`
+  );
+};
+
 module.exports.getSingleProduct = ({ PRODID }) =>
   Execute(
     `SELECT PL.PRODID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, C.CATEGORYBN, C.CATEGORYEN FROM  STR_PRODUCTLISTS PL LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = PL.PROCATE WHERE PRODID = ${PRODID}`

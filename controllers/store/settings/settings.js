@@ -8,6 +8,7 @@ const {
   getSuppliers,
   getSingleSupplier,
   getProducts,
+  getCountProducts,
   getSingleProduct,
   getCategoryWithLength,
   getProductByCatId,
@@ -63,13 +64,12 @@ module.exports.getSingleCategory = async (req, res, next) => {
     const { id } = req.params;
     if (!id) {
       res.json(createResponse(null, "Id required", true));
-    }
-    else {
+    } else {
       const result = await getSingleCategory({ CAT_ID: id });
       res.json(createResponse(result.rows[0]));
     }
   } catch (err) {
-    console.log(err.message.split(":"))
+    console.log(err.message.split(":"));
     next(err.message);
   }
 };
@@ -145,8 +145,9 @@ module.exports.getProducts = async (req, res, next) => {
     if (!search) {
       res.json(createResponse(null, "Parameter required", true));
     } else {
-      const result = await getProducts(search, page, limit);
-      res.json(createResponse(result.rows));
+      const { rows } = await getProducts(search, page, limit);
+      const { rows: count } = await getCountProducts();
+      res.json(createResponse({ rows, count }));
     }
   } catch (err) {
     next(err.message);
