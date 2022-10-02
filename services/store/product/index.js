@@ -20,7 +20,7 @@ const getTotalStoreProducts = () =>
 const totalQuantites = () =>
   Execute("SELECT COUNT(PROQTY) FROM STR_STOREPRODUCTS");
 
-const getTotalEntQuantites = () => 
+const getTotalEntQuantites = () =>
   Execute("SELECT SUM(QUANTITIES) AS TOTAL_QUANTITIES FROM STR_PRODUCTENTRILISTS");
 
 
@@ -182,6 +182,8 @@ const updateStoreProductM = (
   procate,
   prounit,
   stockalert,
+  proqty,
+  stockprice,
   status
 ) =>
   Execute(
@@ -189,7 +191,7 @@ const updateStoreProductM = (
       procate
     )}, produnit = ${Number(prounit)}, protstatus = ${Number(
       status
-    )}, STOCKALERT = ${Number(stockalert)} WHERE proid = ${Number(proid)}`
+    )}, proqty = ${Number(proqty)}, stockprice = ${Number(stockprice)}, STOCKALERT = ${Number(stockalert)} WHERE proid = ${Number(proid)}`
   );
 
 

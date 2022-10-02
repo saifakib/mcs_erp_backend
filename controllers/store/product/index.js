@@ -417,6 +417,8 @@ const updateProductList = async (req, res, next) => {
     pro_name_two,
     procate,
     prounit,
+    proqty,
+    stockprice,
     stockalert,
     status,
   } = req.body;
@@ -438,6 +440,8 @@ const updateProductList = async (req, res, next) => {
         procate,
         prounit,
         stockalert,
+        proqty,
+        stockprice,
         status
       );
       const updateListPro = await updateProducts({
