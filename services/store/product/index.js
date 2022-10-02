@@ -69,7 +69,7 @@ const getStoreProductByProdListId = (PROD_ID) =>
 
 const getExStoreProductByProdListId = (PROID) =>
   Execute(
-    `SELECT PROID, PRONAME, PRONAMETWO, PROCATE, CATEGORYEN, CATEGORYBN, PRODUNIT, PROQTY, STOCKALERT, UNIT, PROTSTATUS, PRODLISTID AS PROD_LIST_ID from STR_STOREPRODUCTS S left outer join STR_UNITS U on S.PRODUNIT = U.UNIT_ID left outer join STR_CATEGORIES C ON S.PROCATE = C.CAT_ID where proid = ${PROID}`
+    `SELECT PROID, PRONAME, PRONAMETWO, PROCATE, CATEGORYEN, CATEGORYBN, PRODUNIT, PROQTY, STOCKPRICE, STOCKALERT, UNIT, PROTSTATUS, PRODLISTID AS PROD_LIST_ID from STR_STOREPRODUCTS S left outer join STR_UNITS U on S.PRODUNIT = U.UNIT_ID left outer join STR_CATEGORIES C ON S.PROCATE = C.CAT_ID where proid = ${PROID}`
   );
 
 const getLastMrrNumber = () =>
@@ -150,18 +150,17 @@ const postProductEntriesLists = (
 const postProductSummaries = (
   { qty, price, category },
   storeproid,
-  entridate,
   summdate,
   entrimonth
 ) =>
   Execute(
-    `INSERT INTO STR_PRODUCTSUMMARIES (productid, newaddqty, totalbalance, presentbalance, currentprice, addtodate, summdate, summmonth, summertype, procat) VALUES (${Number(
+    `INSERT INTO STR_PRODUCTSUMMARIES (productid, newaddqty, totalbalance, presentbalance, currentprice, summdate, summmonth, summertype, procat) VALUES (${Number(
       storeproid
     )}, ${Number(qty)}, ${Number(
       qty
     )}, ${Number(qty)}, ${Number(
       price
-    )}, '${entridate}', '${summdate}', '${entrimonth}', 'In', ${Number(
+    )}, '${summdate}', '${entrimonth}', 'In', ${Number(
       category
     )}) RETURN prosumid INTO :id`,
     { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }

@@ -19,6 +19,7 @@ const {
   getLastMrrNumber,
   getNewProductList,
   updateStoreProductM,
+  getTotalEntQuantites
 } = require("../../../services/store/product/index");
 const {
   getSingleCategory,
@@ -32,12 +33,13 @@ const { format } = require("date-fns");
 const manageProducts = async (_, res, next) => {
   try {
     const categorirs = await getCategoryWithStoreLength();
+    const { rows: totalQuantites } = await getTotalEntQuantites();
     const { rows } = await getTotalStoreProdQty();
 
     let result = {
       categories: categorirs.rows,
       totalProducts: rows[0].PRODUCT,
-      totalquantites: rows[0].QUENTITY,
+      totalquantites: totalQuantites[0].TOTAL_QUANTITIES,
     };
 
     res.json(createResponse(result));
@@ -262,7 +264,6 @@ const saveProductEntrilist = async (req, res, next) => {
               const postProSum = await postProductSummaries(
                 product,
                 postStorePro.outBinds.id[0],
-                entridate,
                 summdate,
                 entrimonth
               );

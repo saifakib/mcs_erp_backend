@@ -54,8 +54,9 @@ module.exports.getRequisitionById = async (req, res, next) => {
     const { rows } = await getRequisitionById(id, search, page, limit);
 
     const { rows: totals } = await getTotalProductByUser(id);
+    const totalCount = totals[0]
 
-    res.json(createResponse({ rows, totals }));
+    res.json(createResponse({ rows, totalCount }));
   } catch (error) {
     next(error.message);
   }

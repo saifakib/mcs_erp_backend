@@ -10,7 +10,7 @@ module.exports.getMonths = (search) =>
 module.exports.getCategories = (search = "%%", page = 0, limit = 1000) => {
   let offset = limit * page;
   return Execute(
-    `SELECT * FROM STR_CATEGORIES WHERE LOWER(CATEGORYEN || CATEGORYBN) LIKE LOWER('${search}' || '${search}') ORDER BY CAT_ID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+    `SELECT * FROM STR_CATEGORIES WHERE LOWER(CATEGORYEN) LIKE LOWER('${search}') ORDER BY CAT_ID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
   );
 };
 
