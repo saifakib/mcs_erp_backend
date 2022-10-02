@@ -147,7 +147,9 @@ module.exports.getProducts = async (req, res, next) => {
     } else {
       const { rows } = await getProducts(search, page, limit);
       const { rows: count } = await getCountProducts();
-      res.json(createResponse({ rows, count }));
+      let totalCount = count[0];
+      res.json(createResponse({ rows, totalCount }));
+      y;
     }
   } catch (err) {
     next(err.message);

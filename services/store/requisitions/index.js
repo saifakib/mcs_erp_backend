@@ -17,6 +17,13 @@ module.exports.lastProRequiId = () =>
 module.exports.getProductBalance = (id) =>
   Execute(`SELECT PROQTY FROM STR_STOREPRODUCTS WHERE PROID = ${Number(id)}`);
 
+// check requisition is pending or not of a user
+module.exports.isReqPending = (employe_id) => {
+  return Execute(
+    `SELECT PROQTY FROM STR_STOREPRODUCTS WHERE PROID = ${Number(employe_id)}`
+  );
+};
+
 module.exports.getReqInfo = (id) =>
   Execute(`SELECT REQUITIME || ', ' || REQUIDATE AS DATE_TIME, 
   case
@@ -42,8 +49,10 @@ module.exports.userInfo = (id, status = 0) => {
 
 /*------------- Get ------------*/
 
-
-module.exports.getTotalProReqQuantities = () => Execute("SELECT SUM(PROREQUQTY) AS totalrequisitions, SUM(APROQTY) AS approvedqty FROM STR_PROREQUISITIONS");
+module.exports.getTotalProReqQuantities = () =>
+  Execute(
+    "SELECT SUM(PROREQUQTY) AS totalrequisitions, SUM(APROQTY) AS approvedqty FROM STR_PROREQUISITIONS"
+  );
 
 // get requisition by id
 module.exports.getRequisitionById = (
@@ -107,7 +116,7 @@ module.exports.pendingRequisitions = (
 
 module.exports.pendingRequisitionDetails = (id) => {
   return Execute(`select pr.proreqid, pr.requiid, pr.hridno, pr.proid, pr.premarks, sp.proname, 
-  pr.prorequqty, pr.APPROVEREMARKS, u.unit, sp.procate from str_prorequisitions pr
+  pr.prorequqty, pr.APPROVEREMARKS, u.unit, sp.procate, sp.proqty from str_prorequisitions pr
   left outer join str_storeproducts sp on pr.proid = sp.proid
   left outer join str_units u on u.unit_id = sp.produnit
   left outer join str_requisitions r on r.reqid = pr.requiid
@@ -155,7 +164,7 @@ module.exports.approvedRequisitions = (
 
 module.exports.approvedRequisitionDetails = (id) => {
   return Execute(`select pr.proreqid, pr.requiid, pr.hridno, pr.proid, pr.premarks, pr.approveremarks, sp.proname, sp.pronametwo, 
-  pr.prorequqty, pr.prodate, u.unit, sp.procate from str_prorequisitions pr
+  pr.prorequqty, pr.prodate, u.unit, sp.procate, sp.proqty from str_prorequisitions pr
   left outer join str_storeproducts sp on pr.proid = sp.proid
   left outer join str_units u on u.unit_id = sp.produnit
   left outer join str_requisitions r on r.reqid = pr.requiid

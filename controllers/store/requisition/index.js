@@ -1,5 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const {
+  isReqPending,
   postRequisitionInfo,
   postReqProduct,
   getLastReqNo,
@@ -38,6 +39,21 @@ const {
   getTotalProductByUser,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
+
+// is pending\
+module.exports.isReqPending = async (req, res, next) => {
+  try {
+    const { employe_id } = req.params;
+
+    const result = await isReqPending(employe_id);
+
+    console.log(result);
+
+    res.json(createResponse(result));
+  } catch (error) {
+    next(error.message);
+  }
+};
 
 /*------------- get ------------*/
 module.exports.getRequisitionById = async (req, res, next) => {
@@ -135,6 +151,7 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
             PROCATE: item.PROCATE,
             APROQTY: item.PROREQUQTY,
             ADMINREMARKS: item.APPROVEREMARKS,
+            PROQTY: item.PROQTY,
           };
         } else {
           obj = {
@@ -154,6 +171,7 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
             PROCATE: item.PROCATE,
             APROQTY: item.PROREQUQTY,
             ADMINREMARKS: item.APPROVEREMARKS,
+            PROQTY: item.PROQTY,
           };
         }
 
@@ -241,6 +259,7 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
             ADMIN_REMARKS: item.APPROVEREMARKS,
             HRIDNO: item.HRIDNO,
             PROCATE: item.PROCATE,
+            PROQTY: item.PROQTY,
           };
         } else {
           obj = {
@@ -256,6 +275,7 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
             LAST_DATE: null,
             LAST_QTY: 0,
             PROCATE: item.PROCATE,
+            PROQTY: item.PROQTY,
           };
         }
 
