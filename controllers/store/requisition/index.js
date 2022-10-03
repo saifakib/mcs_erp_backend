@@ -40,6 +40,7 @@ const {
   signaturesOfApproval,
   employeeSignature,
   getStoreRoles,
+  singleStoreRoles,
   updateStoreRoles,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
@@ -761,6 +762,21 @@ module.exports.getStoreRoles = async (req, res, next) => {
   try {
     const { rows } = await getStoreRoles();
     res.json(createResponse(rows));
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+module.exports.singleStoreRoles = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.json(createResponse(null, "Id missing", true));
+    } else {
+      const { rows } = await singleStoreRoles(id);
+      const data = rows[0];
+      res.json(createResponse(data));
+    }
   } catch (error) {
     next(error.message);
   }

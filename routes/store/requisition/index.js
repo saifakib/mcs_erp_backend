@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const requisitionController = require("../../../controllers/store/requisition");
+const { validateUser } = require("../../../middlewares/validateUser");
 
 // get route
 router.get("/:id", requisitionController.getRequisitionById);
@@ -26,6 +27,7 @@ router.get("/denied/:id", requisitionController.deniedRequisitionsDetails);
 
 // roles
 router.get("/roles/all", requisitionController.getStoreRoles);
+router.get("/roles/id/:id", requisitionController.singleStoreRoles);
 router.put("/roles/:id", requisitionController.updateStoreRoles);
 
 // post route
