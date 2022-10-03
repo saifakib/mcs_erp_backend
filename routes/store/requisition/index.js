@@ -24,6 +24,10 @@ router.get("/done/:id", requisitionController.doneRequisitionsDetails);
 router.get("/denied/all", requisitionController.deniedRequisitions);
 router.get("/denied/:id", requisitionController.deniedRequisitionsDetails);
 
+// roles
+router.get("/roles/all", requisitionController.getStoreRoles);
+router.put("/roles/:id", requisitionController.updateStoreRoles);
+
 // post route
 router.post("/", requisitionController.postRequisition);
 router.post("/manual", requisitionController.createManualRequisition);

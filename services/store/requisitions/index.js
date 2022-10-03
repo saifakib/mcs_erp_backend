@@ -20,7 +20,15 @@ module.exports.getProductBalance = (id) =>
 // check requisition is pending or not of a user
 module.exports.isReqPending = (employe_id) => {
   return Execute(
-    `SELECT PROQTY FROM STR_STOREPRODUCTS WHERE PROID = ${Number(employe_id)}`
+    `SELECT REQID, REQUISITIONNO, REQPROFID, REQUISTATUS, APPROVED, STOREACCEPT, PROACCEPT, DENY,
+    case 
+    WHEN DENY = 0 and PROACCEPT = 1 THEN 'Accepted'
+    WHEN DENY = 1 and PROACCEPT = 0 THEN 'Denied'
+    WHEN DENY = 0 and PROACCEPT = 0 THEN 'Pending' end Status
+    FROM STR_REQUISITIONS 
+    WHERE REQID=(SELECT max(REQID) FROM STR_REQUISITIONS WHERE PROFILEHRID = ${Number(
+      employe_id
+    )})`
   );
 };
 
@@ -164,7 +172,7 @@ module.exports.approvedRequisitions = (
 
 module.exports.approvedRequisitionDetails = (id) => {
   return Execute(`select pr.proreqid, pr.requiid, pr.hridno, pr.proid, pr.premarks, pr.approveremarks, sp.proname, sp.pronametwo, 
-  pr.prorequqty, pr.prodate, u.unit, sp.procate, sp.proqty from str_prorequisitions pr
+  pr.prorequqty, pr.prodate, u.unit, sp.procate, sp.proqty, pr.aproqty from str_prorequisitions pr
   left outer join str_storeproducts sp on pr.proid = sp.proid
   left outer join str_units u on u.unit_id = sp.produnit
   left outer join str_requisitions r on r.reqid = pr.requiid
@@ -214,6 +222,18 @@ module.exports.doneReqProducts = (id) => {
     )} and r.requistatus = ${Number(3)}`
   );
 };
+
+module.exports.signaturesOfApproval = () =>
+  Execute(
+    "select r.role_id, r.emp_id, s.SIGNATURE_PATH from str_role r left outer join hrm.employee_signature s on s.employe_id = r.emp_id order by r.role_id"
+  );
+
+module.exports.employeeSignature = (id) =>
+  Execute(
+    `select distinct(r.profilehrid) as emp_id, s.signature_path from str_requisitions r
+    left outer join hrm.employee_signature s on s.employe_id = r.profilehrid
+    where r.reqid = ${Number(id)}`
+  );
 
 // denied requisitions
 module.exports.deniedRequisitions = (search = "%%", page = 0, limit = 1000) => {
@@ -452,5 +472,19 @@ module.exports.updateProReqOnDeny = (req_id) => {
     `UPDATE STR_PROREQUISITIONS SET REQUPRODSTATUS = ${Number(
       2
     )} WHERE REQUIID = ${Number(req_id)}`
+  );
+};
+
+// roles
+module.exports.getStoreRoles = () =>
+  Execute(
+    "SELECT R.ROLE_ID, R.ROLE_NAME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION from STR_ROLE R left outer join HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.EMP_ID LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID LEFT OUTER JOIN HRM.DESIGNATION DG ON  DG.DESIGNATION_ID = E.DESIGNATION_ID"
+  );
+
+module.exports.updateStoreRoles = (role_id, emp_id) => {
+  return Execute(
+    `UPDATE STR_ROLE SET EMP_ID = ${Number(emp_id)} WHERE ROLE_ID = ${Number(
+      role_id
+    )}`
   );
 };

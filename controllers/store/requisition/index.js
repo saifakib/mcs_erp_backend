@@ -37,6 +37,10 @@ const {
   doneReqProducts,
   deniedReqProducts,
   getTotalProductByUser,
+  signaturesOfApproval,
+  employeeSignature,
+  getStoreRoles,
+  updateStoreRoles,
 } = require("../../../services/store/requisitions");
 const { format } = require("date-fns");
 
@@ -45,11 +49,9 @@ module.exports.isReqPending = async (req, res, next) => {
   try {
     const { employe_id } = req.params;
 
-    const result = await isReqPending(employe_id);
-
-    console.log(result);
-
-    res.json(createResponse(result));
+    const { rows } = await isReqPending(employe_id);
+    const data = rows[0];
+    res.json(createResponse(data));
   } catch (error) {
     next(error.message);
   }
@@ -260,6 +262,7 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
             HRIDNO: item.HRIDNO,
             PROCATE: item.PROCATE,
             PROQTY: item.PROQTY,
+            APROQTY: item.APROQTY,
           };
         } else {
           obj = {
@@ -276,9 +279,9 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
             LAST_QTY: 0,
             PROCATE: item.PROCATE,
             PROQTY: item.PROQTY,
+            APROQTY: item.APROQTY,
           };
         }
-
         return obj;
       })
     );
@@ -351,6 +354,14 @@ module.exports.doneRequisitionsDetails = async (req, res, next) => {
     // get products
     const { rows: products } = await doneReqProducts(id);
 
+    const { rows: approvalSignatures } = await signaturesOfApproval();
+    const { rows: signature } = await employeeSignature(id);
+    let empSignature = signature[0];
+    if (empSignature !== undefined) {
+      empSignature["ROLE_ID"] = null;
+    }
+    const signatures = [...approvalSignatures, empSignature];
+
     const total = products.reduce(
       (acc, obj) => {
         (acc[0] += obj.APROQTY), (acc[1] += obj.PROREQUQTY);
@@ -363,6 +374,7 @@ module.exports.doneRequisitionsDetails = async (req, res, next) => {
       createResponse({
         userInfo: data,
         products,
+        signatures,
         totalAppQty: total[0],
         totalRequQty: total[1],
       })
@@ -374,17 +386,21 @@ module.exports.doneRequisitionsDetails = async (req, res, next) => {
 
 // denied requisition
 module.exports.deniedRequisitions = async (req, res, next) => {
-  const { search } = req.headers;
-  const { page, limit } = req.query;
+  try {
+    const { search } = req.headers;
+    const { page, limit } = req.query;
 
-  if (!search) {
-    res.json(createResponse(null, "Search parameter missing", true));
+    if (!search) {
+      res.json(createResponse(null, "Search parameter missing", true));
+    }
+    if (!page || !limit) {
+      res.json(createResponse(null, "Parameter missing", true));
+    }
+    const { rows } = await deniedRequisitions(search, page, limit);
+    res.json(createResponse(rows));
+  } catch (error) {
+    next(error.message);
   }
-  if (!page || !limit) {
-    res.json(createResponse(null, "Parameter missing", true));
-  }
-  const { rows } = await deniedRequisitions(search, page, limit);
-  res.json(createResponse(rows));
 };
 
 // denied requisition details
@@ -617,7 +633,6 @@ module.exports.updateRequisitionByAdmin = async (req, res, next) => {
 module.exports.updateReqByStoreOfficer = async (req, res, next) => {
   try {
     const { req_id, approvedBy, products } = req.body;
-    let check = false;
 
     if (!req_id) {
       res.json(createResponse(null, "Requisition id missing", true));
@@ -735,6 +750,31 @@ module.exports.denyRequisition = async (req, res, next) => {
 
     if (deny) {
       res.json(createResponse(deny, "Requisition has been denied"));
+    }
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+// roles
+module.exports.getStoreRoles = async (req, res, next) => {
+  try {
+    const { rows } = await getStoreRoles();
+    res.json(createResponse(rows));
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+module.exports.updateStoreRoles = async (req, res, next) => {
+  try {
+    const { role_id } = req.params;
+    const { emp_id } = req.body;
+    if (!emp_id && !role_id) {
+      res.json(createResponse(null, "Parameter missing", true));
+    } else {
+      const result = await updateStoreRoles(role_id, emp_id);
+      res.json(createResponse(result));
     }
   } catch (error) {
     next(error.message);
