@@ -9,6 +9,6 @@ module.exports.validateUser = (req, res, next) => {
     req.user = accessToken;
     return next();
   } catch (err) {
-    return res.json(createResponse(null, err));
+    return res.json(createResponse(null, `${err.message}`, true));
   }
 };

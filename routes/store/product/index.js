@@ -14,8 +14,6 @@ const {
   getStockProducts,
 } = require("../../../controllers/store/product");
 
-const { requireRole } = require("../../../middlewares/store/role")
-
 // Get Routes
 router.get("/manageproducts", manageProducts);
 router.get("/storeProducts", getStockProducts);
@@ -30,7 +28,7 @@ router.get(
 router.get("/getStoreProductByListId/:list_id", getStoreProductByListId),
   router.get("/newProductList/:cat_id", newProductList);
 
-router.get("/lastMrrNumber", requireRole, lastMrrNum);
+router.get("/lastMrrNumber", lastMrrNum);
 
 // Post Routes
 router.post("/productEntriesList", saveProductEntrilist);
