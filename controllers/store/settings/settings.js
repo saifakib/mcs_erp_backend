@@ -58,6 +58,7 @@ module.exports.getCategories = async (req, res, next) => {
     next(err.message);
   }
 };
+
 // single category
 module.exports.getSingleCategory = async (req, res, next) => {
   try {
@@ -149,7 +150,6 @@ module.exports.getProducts = async (req, res, next) => {
       const { rows: count } = await getCountProducts();
       let totalCount = count[0];
       res.json(createResponse({ rows, totalCount }));
-      y;
     }
   } catch (err) {
     next(err.message);
@@ -230,7 +230,6 @@ module.exports.postUnits = async (req, res, next) => {
       res.json(createResponse(null, "Unit name is required", true));
     } else {
       const result = await postUnits(req.body);
-      console.log(result);
       res.json(createResponse(result));
     }
   } catch (err) {

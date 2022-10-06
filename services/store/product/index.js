@@ -148,17 +148,16 @@ const postProductEntriesLists = (
 
 // Product Summaries
 const postProductSummaries = (
-  { qty, price, category },
+  initialQuantities,
+  { qty, price, category, proname },
   storeproid,
   summdate,
   entrimonth
 ) =>
   Execute(
-    `INSERT INTO STR_PRODUCTSUMMARIES (productid, newaddqty, totalbalance, presentbalance, currentprice, summdate, summmonth, summertype, procat) VALUES (${Number(
+    `INSERT INTO STR_PRODUCTSUMMARIES (productid, PRODUCTNAME, INTIALQTY, newaddqty, totalbalance, presentbalance, currentprice, summdate, summmonth, summertype, procat) VALUES (${Number(
       storeproid
-    )}, ${Number(qty)}, ${Number(
-      qty
-    )}, ${Number(qty)}, ${Number(
+    )}, '${proname}', ${Number(initialQuantities)}, ${Number(qty)}, ${Number(initialQuantities) + Number(qty)}, ${Number(initialQuantities) + Number(qty)}, ${Number(
       price
     )}, '${summdate}', '${entrimonth}', 'In', ${Number(
       category
@@ -172,7 +171,8 @@ const updateStoreProduct = ({ proid, qty, price }) =>
   Execute(
     `UPDATE STR_STOREPRODUCTS SET proqty = proqty + ${Number(
       qty
-    )}, stockprice = ${Number(price)} WHERE proid = ${proid}`
+    )}, stockprice = ${Number(price)} WHERE proid = ${proid} RETURN proqty INTO :storeQuantity`,
+    { storeQuantity: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
 const updateStoreProductM = (

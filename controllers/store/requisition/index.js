@@ -784,8 +784,9 @@ module.exports.singleStoreRoles = async (req, res, next) => {
 
 module.exports.updateStoreRoles = async (req, res, next) => {
   try {
-    const { role_id } = req.params;
+    const { id: role_id } = req.params;
     const { emp_id } = req.body;
+    
     if (!emp_id && !role_id) {
       res.json(createResponse(null, "Parameter missing", true));
     } else {

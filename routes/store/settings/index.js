@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const settingsController = require("../../../controllers/store/settings/settings");
+const { checkCatPostName, checkCatPostUnit, checkCatPostSupplier, checkCatPostProducts } = require("../../../validator/store/settings");
 
 
 // get route
@@ -21,9 +22,9 @@ router.get("/productByCatId/:id", settingsController.getProductByCatId);
 
 // post routes
 router.post("/categories", settingsController.postCategory);
-router.post("/units", settingsController.postUnits);
-router.post("/suppliers", settingsController.postSupplier);
-router.post("/products", settingsController.postProduct);
+router.post("/units", checkCatPostUnit, settingsController.postUnits);
+router.post("/suppliers", checkCatPostSupplier, settingsController.postSupplier);
+router.post("/products", checkCatPostProducts, settingsController.postProduct);
 
 // update routes
 router.put("/categories", settingsController.updateCategory);

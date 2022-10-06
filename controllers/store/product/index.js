@@ -62,13 +62,18 @@ const getStoreProByCatId = async (req, res, next) => {
   const { search } = req.headers;
   const { page, limit } = req.query;
   try {
-    const result = await getStoreProductByCategoryId(
-      CAT_ID,
-      search,
-      page,
-      limit
-    );
-    res.json(createResponse(result.rows));
+    if(!CAT_ID) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    } 
+    else {
+      const result = await getStoreProductByCategoryId(
+        CAT_ID,
+        search,
+        page,
+        limit
+      );
+      res.json(createResponse(result.rows));
+    }
   } catch (err) {
     next(err);
   }
@@ -79,7 +84,8 @@ const checkProductDuplicate = async (req, res, next) => {
   try {
     if (!PROD_ID) {
       res.json(createResponse(null, "Required Parameter Missing", true));
-    } else {
+    } 
+    else {
       const result1 = await getProducListById(PROD_ID);
       if (result1.rows.length > 0) {
         const result2 = await getStoreProductByProdListId(
@@ -105,7 +111,8 @@ const getProductlistByCategoryId = async (req, res, next) => {
   try {
     if (!CAT_ID) {
       res.json(createResponse(null, "Required Parameter Missing", true));
-    } else {
+    } 
+    else {
       const result = await getProducListByCategoryId(CAT_ID);
       if (result.rows.length > 0) {
         res.json(createResponse(result.rows));
@@ -322,6 +329,7 @@ const updateproductentrilist = async (req, res, next) => {
   let entrimonth = format(date, "LLLL-yyyy");
   let summdate = format(date, "yyyy-MM-dd");
 
+
   try {
     if (
       !mrrnno ||
@@ -360,7 +368,7 @@ const updateproductentrilist = async (req, res, next) => {
                 createResponse(null, "Missing Product Body Required!!", true)
               );
             } else {
-              await updateStoreProduct(product);
+              const updateStore = await updateStoreProduct(product);
               const postProEnList = await postProductEntriesLists(
                 product,
                 mrrnno,
@@ -371,9 +379,9 @@ const updateproductentrilist = async (req, res, next) => {
                 username
               );
               const postProSum = await postProductSummaries(
+                initialQuantities = updateStore.outBinds.storeQuantity[0],
                 product,
                 product.proid,
-                entridate,
                 summdate,
                 entrimonth
               );

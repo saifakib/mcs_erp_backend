@@ -35,6 +35,7 @@ const { getSingleSupplier } = require("../../../services/store/settings");
 const manageSupplier = async (req, res, next) => {
   const date = new Date();
   let month = format(date, "LLLL-yyyy");
+  console.log(month)
   const { search = "%%", searchr = "%%" } = req.headers;
   const { page, limit } = req.query;
   try {
