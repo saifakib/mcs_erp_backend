@@ -2,8 +2,9 @@ const router = require("express").Router();
 const settingsController = require("../../../controllers/store/settings/settings");
 const { checkCatPostName, checkCatPostUnit, checkCatPostSupplier, checkCatPostProducts } = require("../../../validator/store/settings");
 
+
 // get route
-router.get("/months", settingsController.getMonths);
+// router.get("/months", settingsController.getMonths);
 router.get("/categories", settingsController.getCategories);
 router.get("/category/:id", settingsController.getSingleCategory);
 
@@ -20,7 +21,7 @@ router.get("/categories-data", settingsController.getCategoryWithLength);
 router.get("/productByCatId/:id", settingsController.getProductByCatId);
 
 // post routes
-router.post("/categories", settingsController.postCategory);
+router.post("/categories", checkCatPostName, settingsController.postCategory);
 router.post("/units", checkCatPostUnit, settingsController.postUnits);
 router.post("/suppliers", checkCatPostSupplier, settingsController.postSupplier);
 router.post("/products", checkCatPostProducts, settingsController.postProduct);

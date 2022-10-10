@@ -28,20 +28,20 @@ const {
 
 /*------------- All Get Routes ---------------*/
 
-// months
-module.exports.getMonths = async (req, res, next) => {
-  try {
-    const { search } = req.headers;
-    if (!search) {
-      res.json(createResponse(null, "Parameter required", true));
-    } else {
-      const data = await getMonths(search);
-      res.json(createResponse(data.rows));
-    }
-  } catch (err) {
-    next(err.message);
-  }
-};
+// // months
+// module.exports.getMonths = async (req, res, next) => {
+//   try {
+//     const { search } = req.headers;
+//     if (!search) {
+//       res.json(createResponse(null, "Parameter required", true));
+//     } else {
+//       const data = await getMonths(search);
+//       res.json(createResponse(data.rows));
+//     }
+//   } catch (err) {
+//     next(err.message);
+//   }
+// };
 
 // category
 module.exports.getCategories = async (req, res, next) => {
@@ -70,7 +70,6 @@ module.exports.getSingleCategory = async (req, res, next) => {
       res.json(createResponse(result.rows[0]));
     }
   } catch (err) {
-    console.log(err.message.split(":"));
     next(err.message);
   }
 };

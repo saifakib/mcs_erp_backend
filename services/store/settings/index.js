@@ -1,10 +1,10 @@
 const { Execute } = require("../../../utils/dynamicController");
 
 /*------------- Get ------------*/
-module.exports.getMonths = (search) =>
-  Execute(
-    `SELECT * FROM months WHERE LOWER(MONTHS) LIKE '${search}' ORDER BY ID DESC`
-  );
+// module.exports.getMonths = (search) =>
+//   Execute(
+//     `SELECT * FROM months WHERE LOWER(MONTHS) LIKE '${search}' ORDER BY ID DESC`
+//   );
 
 // category
 module.exports.getCategories = (search = "%%", page = 0, limit = 1000) => {

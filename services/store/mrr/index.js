@@ -167,6 +167,13 @@ const updateProductEntriListsSupplier = (mrrno, supplier) =>
 
 /*---------------------------------- END UPDATE -----------------------------------*/
 
+/*---------------------------------- FIND -----------------------------------*/
+
+const findProductEntriListById = (prolistid) => Execute(`SELECT PROLISTID from STR_PRODUCTENTRILISTS  WHERE PROLISTID = ${Number(prolistid)}`);
+
+
+/*---------------------------------- END FIND -----------------------------------*/
+
 /*---------------------------------- DELETE -----------------------------------*/
 
 const deleteProductEntriListById = (prolistid) =>
@@ -195,4 +202,5 @@ module.exports = {
   getProductEntriListss,
   getCurrentStock,
   getProListById,
+  findProductEntriListById
 };

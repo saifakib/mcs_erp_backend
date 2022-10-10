@@ -13,6 +13,10 @@ const {
   getSingleEntry,
 } = require("../../../controllers/store/mrr");
 
+const { checkStoreAdmin } = require("../../../middlewares/checkAuthorization");
+const { validateUser } = require("../../../middlewares/validateUser");
+
+
 // get route
 router.get("/manageSupplier", manageSupplier);
 router.get("/supplierMrr/:sup_id", mrrProListBySupId);

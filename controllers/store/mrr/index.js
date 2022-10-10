@@ -35,7 +35,6 @@ const { getSingleSupplier } = require("../../../services/store/settings");
 const manageSupplier = async (req, res, next) => {
   const date = new Date();
   let month = format(date, "LLLL-yyyy");
-  console.log(month)
   const { search = "%%", searchr = "%%" } = req.headers;
   const { page, limit } = req.query;
   try {
@@ -281,7 +280,6 @@ const addMoreMrr = async (req, res, next) => {
  */
 const getSingleEntry = async (req, res, next) => {
   const { proid, prolistid } = req.params;
-  console.log(req.params);
   try {
     if (!proid || !prolistid) {
       res.json(createResponse(null, "Required Parameter Missing", true));
@@ -393,8 +391,6 @@ const updateSingleProductEntriList = async (req, res, next) => {
         username
       );
 
-      console.log(updateProEntListById, updateStoreProdById, newMrrLog);
-
       if (
         updateProEntListById.rowsAffected == 0 ||
         updateStoreProdById.rowsAffected == 0 ||
@@ -431,7 +427,6 @@ const updateProductEntriesBymrrno = async (req, res, next) => {
   } = req.body;
 
   try {
-    console.log(req.body);
     if (
       !mrrno ||
       !supplier ||
@@ -486,7 +481,6 @@ const deleteSingleProductEntriList = async (req, res, next) => {
   let entritime = format(date, "hh:mm a");
   let entridate = format(date, "yyyy-MM-dd");
   try {
-    console.log(req.body);
     if (!prolistid || !proid || !proamount) {
       res.json(createResponse(null, "Required Body Missing", true));
     } else {

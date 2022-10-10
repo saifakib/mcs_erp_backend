@@ -19,7 +19,8 @@ const {
   getLastMrrNumber,
   getNewProductList,
   updateStoreProductM,
-  getTotalEntQuantites
+  getTotalEntQuantites,
+  postProductSummariesEntry
 } = require("../../../services/store/product/index");
 const {
   getSingleCategory,
@@ -268,7 +269,7 @@ const saveProductEntrilist = async (req, res, next) => {
                 entrimonth,
                 username
               );
-              const postProSum = await postProductSummaries(
+              const postProSum = await postProductSummariesEntry(
                 product,
                 postStorePro.outBinds.id[0],
                 summdate,

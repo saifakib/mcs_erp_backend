@@ -11,7 +11,7 @@ const getStoreProducts = (search = "%%", page = 0, limit = 1000) => {
     `SELECT PL.PROID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, PL.PRODUNIT, C.CATEGORYBN, C.CATEGORYEN, U.UNIT, PL.PROTSTATUS , PL.PROQTY
     FROM STR_STOREPRODUCTS PL 
     LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = PL.PROCATE 
-    LEFT OUTER JOIN STR_UNITS U ON U.UNIT_ID = PL.PRODUNIT WHERE LOWER(PRONAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYEN) LIKE LOWER('${search}') OR LOWER(C.CATEGORYBN) LIKE LOWER('${search}') OR LOWER(U.UNIT) LIKE LOWER('${search}') OR LOWER(PL.PRONAMETWO) LIKE LOWER('${search}') OR LOWER(PL.PROQTY) LIKE LOWER('${search}') ORDER BY PROID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+    LEFT OUTER JOIN STR_UNITS U ON U.UNIT_ID = PL.PRODUNIT WHERE LOWER(PL.PRONAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYEN) LIKE LOWER('${search}') OR LOWER(C.CATEGORYBN) LIKE LOWER('${search}') OR LOWER(U.UNIT) LIKE LOWER('${search}') OR LOWER(PL.PRONAMETWO) LIKE LOWER('${search}') OR LOWER(PL.PROQTY) LIKE LOWER('${search}') ORDER BY PROID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
   );
 };
 const getTotalStoreProducts = () =>
@@ -165,6 +165,23 @@ const postProductSummaries = (
     { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
+  const postProductSummariesEntry = (
+    { qty, price, category, proname },
+    storeproid,
+    summdate,
+    entrimonth
+  ) =>
+    Execute(
+      `INSERT INTO STR_PRODUCTSUMMARIES (productid, PRODUCTNAME, INTIALQTY, newaddqty, totalbalance, presentbalance, currentprice, summdate, summmonth, summertype, procat) VALUES (${Number(
+        storeproid
+      )}, '${proname}', ${Number(qty)}, ${Number(qty)}, ${Number(qty)},  ${Number(qty)}, ${Number(
+        price
+      )}, '${summdate}', '${entrimonth}', 'In', ${Number(
+        category
+      )}) RETURN prosumid INTO :id`,
+      { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+    );
+
 /*--------------UPDATE-------------*/
 
 const updateStoreProduct = ({ proid, qty, price }) =>
@@ -216,4 +233,5 @@ module.exports = {
   postProductSummaries,
   getNewProductList,
   updateStoreProductM,
+  postProductSummariesEntry
 };

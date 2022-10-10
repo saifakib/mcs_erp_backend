@@ -4,12 +4,7 @@ const { Execute, ExecuteMany } = require("../../../utils/dynamicController");
 // use of work
 module.exports.getLastReqNo = () =>
   Execute(`select requisitionno from str_requisitions WHERE
-  reqid = (
-      SELECT
-          MAX( reqid )
-      FROM
-          str_requisitions
-  )`);
+  reqid = (SELECT MAX(reqid) FROM str_requisitions)`);
 
 module.exports.lastProRequiId = () =>
   Execute(`SELECT MAX(PROREQID) AS LAST_ID FROM STR_PROREQUISITIONS`);

@@ -49,10 +49,19 @@ const { format } = require("date-fns");
 module.exports.isReqPending = async (req, res, next) => {
   try {
     const { employe_id } = req.params;
-
-    const { rows } = await isReqPending(employe_id);
-    const data = rows[0];
-    res.json(createResponse(data));
+    if(!employe_id){
+      res.json(createResponse(null, "Employee id required", true))
+    }
+    else {
+      const { rows } = await isReqPending(employe_id);
+      const data = rows[0];
+     if(data){
+      res.json(createResponse(data));
+     }
+     else {
+      res.json(createResponse({}, "No requisition found", true));
+     }
+    }
   } catch (error) {
     next(error.message);
   }
@@ -69,9 +78,9 @@ module.exports.getRequisitionById = async (req, res, next) => {
     } else if (!search || !page || !limit) {
       res.json(createResponse(null, "Parameter missing", true));
     } else {
-      const { rows } = await getRequisitionById(id, search, page, limit);
+      const { rows } = await getRequisitionById(Number(id), search, page, limit);
 
-      const { rows: totals } = await getTotalProductByUser(id);
+      const { rows: totals } = await getTotalProductByUser(Number(id));
       const totalCount = totals[0];
 
       res.json(createResponse({ rows, totalCount }));
@@ -434,9 +443,7 @@ module.exports.postRequisition = async (req, res, next) => {
       res.json(createResponse(null, "Product is missing", true));
     } else {
       const { rows: lastReqNo } = await getLastReqNo();
-      const reqNo = lastReqNo[0].REQUISITIONNO
-        ? parseInt(lastReqNo[0].REQUISITIONNO) + 1
-        : 1;
+      const reqNo = parseInt(lastReqNo[0].REQUISITIONNO)  + 1
 
       const requisitionInfo = {
         profilehrId: user_id,
@@ -472,9 +479,8 @@ module.exports.postRequisition = async (req, res, next) => {
         };
         return obj;
       });
-
       const result = await postReqProduct(newProducts);
-      res.json(createResponse(result));
+      res.json(createResponse(null));
     }
   } catch (err) {
     next(err.message);

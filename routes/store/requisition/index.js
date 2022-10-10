@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const requisitionController = require("../../../controllers/store/requisition");
-const { checkStoreAdmin } = require("../../../middlewares/checkAuthorization");
-const { validateUser } = require("../../../middlewares/validateUser");
+
+const { checkBoth } = require("../../../middlewares/checkAuthorization");
 
 // get route
 router.get("/:id", requisitionController.getRequisitionById);
