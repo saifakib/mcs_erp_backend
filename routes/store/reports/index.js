@@ -3,7 +3,7 @@ const {
   entriesProductReport,
   productStockStatus,
   productLogs,
-  requisitionLogs
+  requisitionLogs,
 } = require("../../../controllers/store/reports");
 
 // get route

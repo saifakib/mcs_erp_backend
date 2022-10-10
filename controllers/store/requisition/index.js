@@ -66,16 +66,16 @@ module.exports.getRequisitionById = async (req, res, next) => {
     const { id } = req.params;
     if (!id) {
       res.json(createResponse(null, "User id missing", true));
-    }
-    if (!search || !page || !limit) {
+    } else if (!search || !page || !limit) {
       res.json(createResponse(null, "Parameter missing", true));
+    } else {
+      const { rows } = await getRequisitionById(id, search, page, limit);
+
+      const { rows: totals } = await getTotalProductByUser(id);
+      const totalCount = totals[0];
+
+      res.json(createResponse({ rows, totalCount }));
     }
-    const { rows } = await getRequisitionById(id, search, page, limit);
-
-    const { rows: totals } = await getTotalProductByUser(id);
-    const totalCount = totals[0];
-
-    res.json(createResponse({ rows, totalCount }));
   } catch (error) {
     next(error.message);
   }

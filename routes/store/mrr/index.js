@@ -10,14 +10,17 @@ const {
   singleProductEntriesBymrrno,
   updateProductEntriesBymrrno,
   addMoreMrr,
-  getSingleEntry
+  getSingleEntry,
 } = require("../../../controllers/store/mrr");
 
 // get route
 router.get("/manageSupplier", manageSupplier);
 router.get("/supplierMrr/:sup_id", mrrProListBySupId);
 router.get("/productRecept/:sup_id/:date", viewProductReceptBySupIdDate);
-router.get("/productrecept/:sup_id/:mrrno/:date", viewProductReceptBySupIdMrrDate);
+router.get(
+  "/productrecept/:sup_id/:mrrno/:date",
+  viewProductReceptBySupIdMrrDate
+);
 router.get("/lastEntryListByProListId/:list_id", lastEntryListByProListId);
 router.get("/productEntriesByMrrno/:mrrno", singleProductEntriesBymrrno);
 router.get("/addMoreMrr/:sup_id/:date", addMoreMrr);
