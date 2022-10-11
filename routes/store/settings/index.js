@@ -2,7 +2,6 @@ const router = require("express").Router();
 const settingsController = require("../../../controllers/store/settings/settings");
 const { checkCatPostName, checkCatPostUnit, checkCatPostSupplier, checkCatPostProducts } = require("../../../validator/store/settings");
 
-
 // get route
 // router.get("/months", settingsController.getMonths);
 router.get("/categories", settingsController.getCategories);
