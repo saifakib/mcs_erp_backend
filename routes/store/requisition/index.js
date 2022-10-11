@@ -1,6 +1,10 @@
 const router = require("express").Router();
 const requisitionController = require("../../../controllers/store/requisition");
-const { checkStoreAdmin } = require("../../../middlewares/checkAuthorization");
+const {
+  checkStoreAdmin,
+  checkStoreOfficer,
+  checkBoth,
+} = require("../../../middlewares/checkAuthorization");
 const { validateUser } = require("../../../middlewares/validateUser");
 
 // get route
@@ -11,39 +15,86 @@ router.get("/details/:id", requisitionController.getRequisitionDetailsById);
 router.get("/check_pending/:employe_id", requisitionController.isReqPending);
 
 // pending
-router.get("/pending/all", requisitionController.pendingRequisitions);
-router.get("/pending/:id", requisitionController.pendingRequisitionDetails);
+router.get(
+  "/pending/all",
+  checkStoreAdmin,
+  requisitionController.pendingRequisitions
+);
+router.get(
+  "/pending/:id",
+  checkStoreAdmin,
+  requisitionController.pendingRequisitionDetails
+);
 
 // approved
-router.get("/approved/all", requisitionController.approvedRequisitions);
-router.get("/approved/:id", requisitionController.approvedRequisitionDetails);
+router.get(
+  "/approved/all",
+  checkStoreOfficer,
+  requisitionController.approvedRequisitions
+);
+router.get(
+  "/approved/:id",
+  checkStoreOfficer,
+  requisitionController.approvedRequisitionDetails
+);
 
 // done
-router.get("/done/all", requisitionController.doneRequisitions);
-router.get("/done/:id", requisitionController.doneRequisitionsDetails);
+router.get("/done/all", checkBoth, requisitionController.doneRequisitions);
+router.get(
+  "/done/:id",
+  checkBoth,
+  requisitionController.doneRequisitionsDetails
+);
 
 // denied
-router.get("/denied/all", requisitionController.deniedRequisitions);
-router.get("/denied/:id", requisitionController.deniedRequisitionsDetails);
+router.get("/denied/all", checkBoth, requisitionController.deniedRequisitions);
+router.get(
+  "/denied/:id",
+  checkBoth,
+  requisitionController.deniedRequisitionsDetails
+);
 
 // roles
-router.get("/roles/all", requisitionController.getStoreRoles);
-router.get("/roles/id/:id", requisitionController.singleStoreRoles);
-router.put("/roles/:id", requisitionController.updateStoreRoles);
+router.get("/roles/all", checkStoreAdmin, requisitionController.getStoreRoles);
+router.get(
+  "/roles/id/:id",
+  checkStoreAdmin,
+  requisitionController.singleStoreRoles
+);
 
 // post route
 router.post("/", requisitionController.postRequisition);
-router.post("/manual", requisitionController.createManualRequisition);
+router.post(
+  "/manual",
+  checkStoreOfficer,
+  requisitionController.createManualRequisition
+);
 
 // update route
-router.put("/approve/admin", requisitionController.updateRequisitionByAdmin);
-router.put("/deny/admin", requisitionController.denyRequisition);
+router.put(
+  "/approve/admin",
+  checkStoreAdmin,
+  requisitionController.updateRequisitionByAdmin
+);
+router.put(
+  "/deny/admin",
+  checkStoreAdmin,
+  requisitionController.denyRequisition
+);
 
 router.put(
   "/approve/store_officer",
+  checkStoreOfficer,
   requisitionController.updateReqByStoreOfficer
 );
 
 router.put("/acceptByUser", requisitionController.reqAcceptByUser);
+
+// update roles
+router.put(
+  "/roles/:id",
+  checkStoreAdmin,
+  requisitionController.updateStoreRoles
+);
 
 module.exports = router;

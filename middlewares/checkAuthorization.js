@@ -1,12 +1,11 @@
 const { findRoleInHR } = require("../services/hr/roles");
-
 const { createResponse } = require("../utils/responseGenerator");
 
 // check store admin
 module.exports.checkStoreAdmin = async (req, res, next) => {
   try {
     const { role_id } = req.headers;
-    console.log(role_id)
+    console.log(role_id);
     if (!role_id) {
       res.json(
         createResponse(
@@ -67,8 +66,7 @@ module.exports.checkStoreOfficer = async (req, res, next) => {
   }
 };
 
-
-// check store officer
+// check both
 module.exports.checkBoth = async (req, res, next) => {
   try {
     const { role_id } = req.headers;
@@ -81,7 +79,7 @@ module.exports.checkBoth = async (req, res, next) => {
         )
       );
     } else {
-      const found = [5, 24].includes(parseInt(role_id))
+      const found = [5, 24].includes(parseInt(role_id));
       if (found) {
         return next();
       } else {
