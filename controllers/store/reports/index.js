@@ -1,5 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { getAllEntriesReports, getSingleEntriesReports, stockStatus, stockStatusByCatId, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId, getProductSummariesByCatId, getRequisitionsByDate, getRequisitionsByProduct, getRequisitionsByProductAndDate,getRequisitionsByPerson, getRequisitionsByPersonAndDate } = require("../../../services/store/reports");
+const { getAllEntriesReports, getSingleEntriesReports, stockStatus, stockStatusByCatId, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId, getProductSummariesByCatId, getRequisitionsByDate, getRequisitionsByProduct, getRequisitionsByProductAndDate, getRequisitionsByPerson, getRequisitionsByPersonAndDate, getUserReqReportByDate, getUserReqReportByMonth, getUserReqReportByYear, getUserSingleReqView } = require("../../../services/store/reports");
+const { format } = require('date-fns')
 
 
 /**
@@ -106,7 +107,7 @@ const productLogs = async (req, res, next) => {
         if (queryFor == "product") {
             if (!proid) {
                 res.json(createResponse(null, "Required query missing", true));
-            } 
+            }
             else {
                 const productSummaries = await getProductSummariesByProductid(proid);
 
@@ -125,7 +126,7 @@ const productLogs = async (req, res, next) => {
                     totalOut: total[1]
                 }));
             }
-        } 
+        }
         else if (queryFor == "month") {
             if (!month || !year) {
                 res.json(createResponse(null, "Required query missing", true));
@@ -153,7 +154,7 @@ const productLogs = async (req, res, next) => {
                     })
                 );
             }
-        } 
+        }
         else if (queryFor == "category") {
             if (!categoryid) {
                 res.json(createResponse(null, "Required query missing", true));
@@ -206,34 +207,34 @@ const requisitionLogs = async (req, res, next) => {
         let response = {};
 
         if (queryFor === "date") {
-            if(!fdate || !tdate) {
+            if (!fdate || !tdate) {
                 res.json(createResponse(null, "Required query missing", true));
-            } 
+            }
             else {
                 response = await getRequisitionsByDate(fdate, tdate);
             }
         }
-        else if(queryFor === "product") {
-            if(!proid) {
+        else if (queryFor === "product") {
+            if (!proid) {
                 res.json(createResponse(null, "Required query missing", true));
-            } 
+            }
             else {
-                if(fdate && tdate) {
+                if (fdate && tdate) {
                     response = await getRequisitionsByProductAndDate(proid, fdate, tdate);
-                } 
+                }
                 else {
                     response = await getRequisitionsByProduct(proid);
                 }
             }
         }
-        else if(queryFor === "person") {
-            if(!hrid) {
+        else if (queryFor === "person") {
+            if (!hrid) {
                 res.json(createResponse(null, "Required query missing", true));
-            } 
+            }
             else {
-                if(fdate && tdate) {
+                if (fdate && tdate) {
                     response = await getRequisitionsByPersonAndDate(hrid, fdate, tdate);
-                } 
+                }
                 else {
                     response = await getRequisitionsByPerson(hrid);
                 }
@@ -243,13 +244,13 @@ const requisitionLogs = async (req, res, next) => {
             res.json(createResponse(null, "Invalid Query For", true));
         }
 
-        if(response.rows) {
+        if (response.rows) {
             const TotalApprove = response.rows.reduce(
                 (acc, obj) => {
                     acc += obj.APROQTY;
                     return acc;
                 }, 0);
-                
+
             res.json(createResponse({
                 products: response.rows,
                 TotalApprove
@@ -261,9 +262,66 @@ const requisitionLogs = async (req, res, next) => {
     }
 }
 
+
+const userRequisitionLogs = async (req, res, next) => {
+    const { fdate, tdate, month, year, hrid } = req.query;
+    try {
+        if (!hrid) {
+            res.json(createResponse(null, "Required hrid missing", true));
+        }
+        else if (!fdate && !tdate && !month && !year) {
+            res.json(createResponse(null, "Required query missing", true));
+        }
+        else if (fdate || tdate) {
+            let from = fdate ? fdate : '2021-12-01';
+            let to = tdate ? tdate : format(new Date(), "yyyy-MM-dd");
+
+            console.log(from, to)
+
+            const response = await getUserReqReportByDate(hrid, from, to);
+            res.json(createResponse(response.rows));
+
+        }
+        else {
+            let queryParameter;
+            if (month) {
+                let yr = year ? year : new Date().getFullYear();
+                queryParameter = `${month}-${yr}`;
+                const response = await getUserReqReportByMonth(hrid, queryParameter);
+                res.json(createResponse(response.rows));
+            }
+            else {
+                queryParameter = `-${year}`;
+                const response = await getUserReqReportByYear(hrid, queryParameter);
+                res.json(createResponse(response.rows));
+            }
+        }
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
+const viewUserReqReport = async (req, res, next) => {
+    const { hrid, requestid } = req.params;
+    try {
+        if (!hrid || !requestid) {
+            res.json(createResponse(null, "Required params missing", true));
+        }
+        else {
+            const response = await getUserSingleReqView(hrid, requestid);
+            res.json(createResponse(response.rows));
+        }
+    } catch (err) {
+        next(err)
+    }
+}
+
 module.exports = {
     entriesProductReport,
     productStockStatus,
     productLogs,
-    requisitionLogs
+    requisitionLogs,
+    userRequisitionLogs,
+    viewUserReqReport
 };

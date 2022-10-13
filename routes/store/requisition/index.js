@@ -17,24 +17,24 @@ router.get("/check_pending/:employe_id", requisitionController.isReqPending);
 // pending
 router.get(
   "/pending/all",
-  checkStoreAdmin,
+  checkBoth,
   requisitionController.pendingRequisitions
 );
 router.get(
   "/pending/:id",
-  checkStoreAdmin,
+  checkBoth,
   requisitionController.pendingRequisitionDetails
 );
 
 // approved
 router.get(
   "/approved/all",
-  checkStoreOfficer,
+  checkBoth,
   requisitionController.approvedRequisitions
 );
 router.get(
   "/approved/:id",
-  checkStoreOfficer,
+  checkBoth,
   requisitionController.approvedRequisitionDetails
 );
 

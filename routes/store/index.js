@@ -11,7 +11,7 @@ router.use("/settings", checkBoth, settingsRoute);
 router.use("/requisition", requisitionRoute);
 router.use("/products", productsRoute);
 router.use("/mrr", checkBoth, supplierRoute);
-router.use("/reports", checkBoth, reportsRoute);
+router.use("/reports", reportsRoute);
 router.use("/warehouse", checkBoth, wareHouseRoute);
 
 module.exports = router;

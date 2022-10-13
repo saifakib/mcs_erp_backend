@@ -74,7 +74,7 @@ module.exports.getRequisitionById = (
   sum(PR.PROREQUQTY) over(partition by (PR.REQUIID)) as PROREQUQTY, sum(PR.APROQTY) over(partition by (PR.REQUIID)) as APROQTY
   FROM STR_PROREQUISITIONS PR LEFT OUTER JOIN  STR_REQUISITIONS R ON PR.REQUIID  = R.REQID WHERE PROFILEHRID = ${Number(
     id
-  )} AND LOWER(R.REQUISITIONNO) LIKE LOWER('${search}') ORDER BY REQID OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND LOWER(R.REQUISITIONNO) LIKE LOWER('${search}') ORDER BY REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.getRequisitionDetailsById = (id) => {

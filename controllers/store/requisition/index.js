@@ -493,6 +493,8 @@ module.exports.createManualRequisition = async (req, res, next) => {
   let requidate = format(date, "yyyy-MM-dd");
   let requimonth = format(date, "LLLL-yyyy");
 
+
+
   try {
     if (!hrid || !approvedby || !requisitionBy) {
       res.json(createResponse(null, "Required Body Missing", true));
@@ -510,9 +512,9 @@ module.exports.createManualRequisition = async (req, res, next) => {
       });
 
       const { rows: lastReqNo } = await getLastReqNo();
-      const lastReqN = lastReqNo[0].LAST_ID
-        ? parseInt(lastReqNo[0].LAST_ID) + 1
-        : 0;
+      const lastReqN = lastReqNo[0].REQUISITIONNO
+        ? parseInt(lastReqNo[0].REQUISITIONNO) + 1
+        : 1;
 
       let insertedId = await manualPostRequisitionInfo(
         lastReqN,
