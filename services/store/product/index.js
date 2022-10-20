@@ -69,7 +69,7 @@ const getStoreProductByProdListId = (PROD_ID) =>
 
 const getExStoreProductByProdListId = (PROID) =>
   Execute(
-    `SELECT PROID, PRONAME, PRONAMETWO, PROCATE, CATEGORYEN, CATEGORYBN, PRODUNIT, PROQTY, STOCKPRICE, STOCKALERT, UNIT, PROTSTATUS, PRODLISTID AS PROD_LIST_ID from STR_STOREPRODUCTS S left outer join STR_UNITS U on S.PRODUNIT = U.UNIT_ID left outer join STR_CATEGORIES C ON S.PROCATE = C.CAT_ID where proid = ${PROID}`
+    `SELECT PROID, PRONAME, PRONAMETWO, PROCATE, CATEGORYEN, CATEGORYBN, PRODUNIT, PROQTY, STOCKPRICE, STOCKALERT, UNIT, PROIMAGE, PROTSTATUS, PRODLISTID AS PROD_LIST_ID from STR_STOREPRODUCTS S left outer join STR_UNITS U on S.PRODUNIT = U.UNIT_ID left outer join STR_CATEGORIES C ON S.PROCATE = C.CAT_ID where proid = ${PROID}`
   );
 
 const getLastMrrNumber = () =>
@@ -201,14 +201,15 @@ const updateStoreProductM = (
   stockalert,
   proqty,
   stockprice,
-  status
+  status,
+  proimage
 ) =>
   Execute(
     `UPDATE STR_STOREPRODUCTS SET proname = '${proname}', pronametwo='${pro_name_two}', procate = ${Number(
       procate
     )}, produnit = ${Number(prounit)}, protstatus = ${Number(
       status
-    )}, proqty = ${Number(proqty)}, stockprice = ${Number(stockprice)}, STOCKALERT = ${Number(stockalert)} WHERE proid = ${Number(proid)}`
+    )}, proqty = ${Number(proqty)}, stockprice = ${Number(stockprice)}, STOCKALERT = ${Number(stockalert)}, PROIMAGE = '${proimage}' WHERE proid = ${Number(proid)}`
   );
 
 

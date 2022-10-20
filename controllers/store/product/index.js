@@ -430,6 +430,7 @@ const updateProductList = async (req, res, next) => {
     stockprice,
     stockalert,
     status,
+    proimage
   } = req.body;
   try {
     if (
@@ -451,7 +452,8 @@ const updateProductList = async (req, res, next) => {
         stockalert,
         proqty,
         stockprice,
-        status
+        status,
+        proimage
       );
       const updateListPro = await updateProducts({
         PRONAME: proname,

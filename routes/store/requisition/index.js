@@ -42,7 +42,6 @@ router.get(
 router.get("/done/all", checkBoth, requisitionController.doneRequisitions);
 router.get(
   "/done/:id",
-  checkBoth,
   requisitionController.doneRequisitionsDetails
 );
 
