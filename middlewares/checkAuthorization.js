@@ -67,6 +67,37 @@ module.exports.checkStoreOfficer = async (req, res, next) => {
 };
 
 // check both
+module.exports.checkStoreManagers = async (req, res, next) => {
+  try {
+    const { role_id } = req.headers;
+    if (!role_id) {
+      return res.json(
+        createResponse(
+          null,
+          "You are not authorized to perform the operation",
+          true
+        )
+      );
+    } else {
+      const found = [24, 41].includes(parseInt(role_id));
+      if (found) {
+        return next();
+      } else {
+        return res.json(
+          createResponse(
+            null,
+            "You are not authorized to perform the operation",
+            true
+          )
+        );
+      }
+    }
+  } catch (err) {
+    return next(err);
+  }
+};
+
+// check both
 module.exports.checkBoth = async (req, res, next) => {
   try {
     const { role_id } = req.headers;
@@ -79,7 +110,7 @@ module.exports.checkBoth = async (req, res, next) => {
         )
       );
     } else {
-      const found = [5, 24].includes(parseInt(role_id));
+      const found = [5, 24, 41].includes(parseInt(role_id));
       if (found) {
         return next();
       } else {

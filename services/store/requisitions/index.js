@@ -95,7 +95,7 @@ module.exports.getTotalProductByUser = (id) => {
   return Execute(
     `select distinct(requiid), sum(PROREQUQTY)over(partition by hridno) as total_products,  
     sum(APROQTY)over(partition by hridno) as total_approved
-    from str_prorequisitions where requiid = ${Number(id)}`
+    from str_prorequisitions where hridno = ${Number(id)}`
   );
 };
 
@@ -114,7 +114,7 @@ module.exports.pendingRequisitions = (
   DG.DESIGNATION_ID = E.DESIGNATION_ID
   WHERE R.REQUISTATUS = ${Number(
     0
-  )} AND LOWER(E.NAME_ENGLISH || D.DEPARTEMENT || DG.DESIGNATION) LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND R.REQUISITIONNO LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.pendingRequisitionDetails = (id) => {
@@ -162,7 +162,7 @@ module.exports.approvedRequisitions = (
   DG.DESIGNATION_ID = E.DESIGNATION_ID
   WHERE R.REQUISTATUS = ${Number(
     1
-  )} AND LOWER(E.NAME_ENGLISH || D.DEPARTEMENT || DG.DESIGNATION) LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND R.REQUISITIONNO LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.approvedRequisitionDetails = (id) => {
@@ -195,7 +195,7 @@ module.exports.doneRequisitions = (search = "%%", page = 0, limit = 1000) => {
   DG.DESIGNATION_ID = E.DESIGNATION_ID
   WHERE R.REQUISTATUS = ${Number(
     3
-  )} AND LOWER(E.NAME_ENGLISH || D.DEPARTEMENT || DG.DESIGNATION) LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND R.REQUISITIONNO LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.doneRequisitionsDetails = (id) => {
@@ -241,7 +241,7 @@ module.exports.deniedRequisitions = (search = "%%", page = 0, limit = 1000) => {
   DG.DESIGNATION_ID = E.DESIGNATION_ID
   WHERE R.REQUISTATUS = ${Number(
     2
-  )} AND LOWER(E.NAME_ENGLISH || D.DEPARTEMENT || DG.DESIGNATION) LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND R.REQUISITIONNO LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.deniedRequisitionsDetails = (id) => {

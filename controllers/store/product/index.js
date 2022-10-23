@@ -220,7 +220,8 @@ const saveProductEntrilist = async (req, res, next) => {
       !workorder ||
       !workodate ||
       !cashmemono ||
-      !cashmemodate
+      !cashmemodate ||
+      products.length == 0
     ) {
       res.json(createResponse(null, "Missing Body Required!!", true));
     } else {

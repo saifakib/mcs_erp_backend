@@ -4,6 +4,7 @@ const {
   checkStoreAdmin,
   checkStoreOfficer,
   checkBoth,
+  checkStoreManagers
 } = require("../../../middlewares/checkAuthorization");
 const { validateUser } = require("../../../middlewares/validateUser");
 
@@ -65,7 +66,7 @@ router.get(
 router.post("/", requisitionController.postRequisition);
 router.post(
   "/manual",
-  checkStoreOfficer,
+  checkStoreManagers,
   requisitionController.createManualRequisition
 );
 
@@ -83,7 +84,7 @@ router.put(
 
 router.put(
   "/approve/store_officer",
-  checkStoreOfficer,
+  checkStoreManagers,
   requisitionController.updateReqByStoreOfficer
 );
 
