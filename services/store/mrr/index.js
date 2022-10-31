@@ -26,10 +26,13 @@ const getRecentMonthSupply = (
   );
 };
 
-const getMrrProListBySupplierId = (SUP_ID) =>
-  Execute(
-    `SELECT DISTINCT (PRODATE), productfrom AS SUP_ID, MRRNUMBER FROM STR_PRODUCTENTRILISTS WHERE PRODUCTFROM = ${SUP_ID} ORDER BY PRODATE DESC`
+const getMrrProListBySupplierId = (SUP_ID, search = "%%", page = 0, limit = 1000) => {
+  let offset = limit * page;
+  return Execute(
+    `SELECT DISTINCT (PRODATE), productfrom AS SUP_ID, MRRNUMBER FROM STR_PRODUCTENTRILISTS WHERE PRODUCTFROM = ${SUP_ID} AND MRRNUMBER LIKE '${search}' ORDER BY PRODATE DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
   );
+}
+  
 
 // Previous getMrrProListBySupplierId
 // const getMrrProListBySupplierId = (SUP_ID) => Execute(`SELECT DISTINCT (PRODATE), productfrom AS SUP_ID, SUM(QUANTITIES*PROAMOUNT) OVER(PARTITION BY PRODATE) AS TOTAL_AMOUNT, SUM(QUANTITIES) OVER(PARTITION BY PRODATE) AS TOTAL_QUANTITIES, MRRNUMBER FROM STR_PRODUCTENTRILISTS WHERE PRODUCTFROM = ${SUP_ID} ORDER BY PRODATE DESC`)

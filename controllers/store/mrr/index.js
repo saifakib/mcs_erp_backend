@@ -66,11 +66,13 @@ const manageSupplier = async (req, res, next) => {
  */
 const mrrProListBySupId = async (req, res, next) => {
   const { sup_id: SUP_ID } = req.params;
+  const { search = "%%" } = req.headers;
+  const { page, limit } = req.query;
   try {
     if (!SUP_ID) {
       res.json(createResponse(null, "Required Parameter Missing", true));
     } else {
-      let response = await getMrrProListBySupplierId(SUP_ID);
+      let response = await getMrrProListBySupplierId(SUP_ID, search, page, limit);
 
       let result = {};
 
@@ -151,6 +153,7 @@ const viewProductReceptBySupIdMrrDate = async (req, res, next) => {
       const suppliers = await getSingleSupplier({ SUP_ID });
       const entriesInfo = await getProductEntiresFirsts(SUP_ID, MRRNO, date);
       const entriLists = await getProductEntriListss(SUP_ID, MRRNO, date);
+
 
       const total = entriLists.rows.reduce(
         (acc, obj) => {
