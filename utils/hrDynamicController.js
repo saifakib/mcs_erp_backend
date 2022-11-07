@@ -1,10 +1,10 @@
 const { getConnection } = require("../db/db");
 
 // execute single query
-module.exports.Execute = (QuertyString, object = {}) => {
+module.exports.ExecuteHR = (QuertyString, object = {}) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const connection = await getConnection("store");
+      const connection = await getConnection("hr");
       const result = await connection.execute(QuertyString, object);
       resolve(result);
       await connection.close();
@@ -16,10 +16,10 @@ module.exports.Execute = (QuertyString, object = {}) => {
 };
 
 // // execute many query
-module.exports.ExecuteMany = (QuertyString, binds, options = {}) => {
+module.exports.ExecuteHRMany = (QuertyString, binds, options = {}) => {
   return new Promise(async function (resolve, reject) {
     try {
-      let connection = await getConnection("store");
+      let connection = await getConnection("hr");
       const result = await connection.executeMany(QuertyString, binds, options);
       resolve(result);
       await connection.close();

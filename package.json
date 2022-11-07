@@ -18,6 +18,8 @@
     "date-fns": "^2.29.2",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
+    "express-device": "^0.4.2",
+    "jsonwebtoken": "^8.5.1",
     "oracledb": "^5.4.0"
   },
   "devDependencies": {

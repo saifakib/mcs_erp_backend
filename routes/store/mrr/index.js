@@ -14,8 +14,6 @@ const {
 } = require("../../../controllers/store/mrr");
 
 const { checkStoreAdmin } = require("../../../middlewares/checkAuthorization");
-const { validateUser } = require("../../../middlewares/validateUser");
-
 
 // get route
 router.get("/manageSupplier", manageSupplier);

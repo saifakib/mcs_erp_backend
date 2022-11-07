@@ -2,11 +2,9 @@ const router = require("express").Router();
 const requisitionController = require("../../../controllers/store/requisition");
 const {
   checkStoreAdmin,
-  checkStoreOfficer,
   checkBoth,
-  checkStoreManagers
+  checkStoreManagers,
 } = require("../../../middlewares/checkAuthorization");
-const { validateUser } = require("../../../middlewares/validateUser");
 
 // get route
 router.get("/:id", requisitionController.getRequisitionById);
@@ -41,10 +39,7 @@ router.get(
 
 // done
 router.get("/done/all", checkBoth, requisitionController.doneRequisitions);
-router.get(
-  "/done/:id",
-  requisitionController.doneRequisitionsDetails
-);
+router.get("/done/:id", requisitionController.doneRequisitionsDetails);
 
 // denied
 router.get("/denied/all", checkBoth, requisitionController.deniedRequisitions);

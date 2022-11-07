@@ -493,8 +493,6 @@ module.exports.createManualRequisition = async (req, res, next) => {
   let requidate = format(date, "yyyy-MM-dd");
   let requimonth = format(date, "LLLL-yyyy");
 
-
-
   try {
     if (!hrid || !approvedby || !requisitionBy) {
       res.json(createResponse(null, "Required Body Missing", true));
@@ -541,7 +539,14 @@ module.exports.createManualRequisition = async (req, res, next) => {
             // product should be an object
             const { proid, stockqty, prodqty, unit, appqty, procate, remarks } =
               product;
-            if (!proid || !stockqty || !prodqty || !unit || !procate || !appqty) {
+            if (
+              !proid ||
+              !stockqty ||
+              !prodqty ||
+              !unit ||
+              !procate ||
+              !appqty
+            ) {
               res.json(createResponse(null, "Required Body Missing", true));
             } else {
               preRequisitionEntry.push({

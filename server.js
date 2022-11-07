@@ -3,6 +3,8 @@ const app = express();
 const cors = require("cors");
 const routes = require("./routes/index");
 const cookieParser = require("cookie-parser");
+const device = require("express-device");
+
 const { notFoundHandler, errorHandler } = require("./middlewares/error");
 require("dotenv").config();
 
@@ -14,6 +16,7 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+app.use(device.capture());
 app.use("/api/v1", routes);
 
 //error handler
