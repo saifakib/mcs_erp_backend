@@ -19,6 +19,7 @@ const hrConfig = {
   connectString: process.env.NODE_ORACLEDB_CONNECTIONSTRING,
 };
 
+
 // creating store_pool
 function storePoolConnection() {
   return new Promise(async function (resolve, reject) {
@@ -66,5 +67,4 @@ function getConnection(pool) {
     }
   });
 }
-
 module.exports = { getConnection, oracledb };

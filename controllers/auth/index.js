@@ -2,8 +2,9 @@ const { getUserByUserName, getMaxEMP } = require("../../services/auth");
 const { createResponse } = require("../../utils/responseGenerator");
 const bcrypt = require("bcryptjs");
 const { createTokens } = require("../../utils/JWT");
-const { loginActivity, logOutActivity } = require("../../services/audit_log");
+const { loginActivity, logOutActivity, updateAuditLog } = require("../../services/audit_log");
 const { addHours, format, differenceInMinutes } = require("date-fns");
+
 
 // login
 module.exports.login = async (req, res, next) => {
@@ -16,6 +17,7 @@ module.exports.login = async (req, res, next) => {
       res.json(createResponse(null, "Username or Password missing", true));
     } else {
       const { rows } = await getUserByUserName(user);
+      
       if (rows.length > 0) {
         const mactchedUser = rows[0];
         const isMatchedPass = await bcrypt.compare(
@@ -33,8 +35,11 @@ module.exports.login = async (req, res, next) => {
               )
             );
           } else {
+
             const entryDate = addHours(new Date(), 6);
             const entryTime = format(new Date(), "hh:mm aa");
+
+            const token = createTokens(mactchedUser.USER_ID, mactchedUser.EMPLOYE_ID);
 
             await loginActivity(
               user,
@@ -43,10 +48,11 @@ module.exports.login = async (req, res, next) => {
               clientIp,
               entryDate,
               entryTime,
-              null
+              null,
+              token
             );
             const { PASSWORD, ...rest } = mactchedUser;
-            const token = createTokens(rest.USER_ID, rest.EMPLOYE_ID);
+
             res.cookie("login_time", entryDate);
             res.cookie("token", token, {
               maxAge: 36000000,
@@ -83,28 +89,40 @@ module.exports.login = async (req, res, next) => {
 
 // logout
 module.exports.logout = async (req, res, next) => {
+  //console.log(req.cookies["token"])
   try {
     const user = req.cookies["userId"];
     if (user) {
-      const clientIp = req.ip?.split(":")[3];
-      const device = req.device.type.toUpperCase();
-      const loginTime = req.cookies["login_time"];
-      const entryDate = addHours(new Date(), 6);
-      const entryTime = format(new Date(), "hh:mm aa");
+      // const clientIp = req.ip?.split(":")[3];
+      // const device = req.device.type.toUpperCase();
+      // const loginTime = req.cookies["login_time"];
+      const exitDay = addHours(new Date(), 6);
+      const exitTime = format(new Date(), "hh:mm aa");
 
-      const difference = differenceInMinutes(
-        addHours(new Date(), 6),
-        new Date(loginTime)
-      );
-      await logOutActivity(
-        user,
-        "Logout",
-        device,
-        clientIp,
-        entryDate,
-        entryTime,
-        difference
-      );
+      // console.log(exitDay)
+
+      // const difference = differenceInMinutes(
+      //   addHours(new Date(), 6),
+      //   new Date(loginTime)
+      // );
+
+      const token = req.cookies["token"]
+
+      const resu = await updateAuditLog(
+        token,
+        exitDay,
+        exitTime
+      )
+
+      // await logOutActivity(
+      //   user,
+      //   "Logout",
+      //   device,
+      //   clientIp,
+      //   entryDate,
+      //   entryTime,
+      //   difference
+      // );
       res.clearCookie("userId");
       res.clearCookie("token").clearCookie("Role").clearCookie("login_time");
       res.json(createResponse(null, "Logged out successfully"));
@@ -112,6 +130,7 @@ module.exports.logout = async (req, res, next) => {
       res.json(createResponse(null, "User already logged out", true));
     }
   } catch (error) {
+    console.log(error)
     next(error.message);
   }
 };
