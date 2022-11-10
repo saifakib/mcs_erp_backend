@@ -2,7 +2,6 @@ const { getConnection } = require("../db/db");
 
 // execute single query
 module.exports.ExecuteHR = (QuertyString, object = {}) => {
-  console.log(QuertyString)
   return new Promise(async function (resolve, reject) {
     try {
       const connection = await getConnection("hr");
