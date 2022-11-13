@@ -53,11 +53,11 @@ module.exports.logOutActivity = (
 
 // get all logs
 module.exports.getAllLogs = () =>
-  ExecuteHR(`select u.employe_id, al.type_name, al.device, al.ip, to_char(al.entry_day) as entry_day, al.entry_time, al.exit_time, al.elapsed_min, e.name_english, d.departement, d.departement_id, dg.designation from hrm.audit_log al left outer join hrm.users u
-on al.user_name = u.user_id
-left outer join hrm.employee e
-on e.employe_id = u.employe_id
-left outer join hrm.department_list d
-on d.departement_id = e.departement_id
-left outer join hrm.designation dg on
-dg.designation_id = e.designation_id`);
+  ExecuteHR(`select u.employe_id, al.type_name, al.device, al.ip, to_char(al.entry_day, 'yyyy-mm-dd') as entry_day , al.entry_time, al.exit_time, al.elapsed_min, e.name_english, d.departement, d.departement_id, dg.designation from hrm.audit_log al left outer join hrm.users u
+  on al.user_name = u.user_id
+  left outer join hrm.employee e
+  on e.employe_id = u.employe_id
+  left outer join hrm.department_list d
+  on d.departement_id = e.departement_id
+  left outer join hrm.designation dg on
+  dg.designation_id = e.designation_id`);
