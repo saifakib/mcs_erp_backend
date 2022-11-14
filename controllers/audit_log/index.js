@@ -8,8 +8,7 @@ const addMinutesDiff = (rows) => {
   const changes = rows.reduce((acc, obj, index) => {
     let makeObj = {};
     if (obj.EXIT_TIME) {
-      let diff =
-        time_difference(obj.EXIT_TIME) - time_difference(obj.ENTRY_TIME);
+      let diff = time_difference(obj.EXIT_TIME) - time_difference(obj.ENTRY_TIME);
       makeObj = {
         ...obj,
         DIFF_MIN: diff == 0 ? null : diff,
@@ -101,15 +100,18 @@ module.exports.auditReports = async (req, res, next) => {
         (log) => log.ENTRY_DAY?.split("-")[1] == month
       );
       res.json(createResponse({ logs: addMinutesDiff(response) }));
-    } else if (fdate || tdate) {
+    } else if (fdate && tdate) {
       const response = rows.filter(
         (log) =>
-          (fdate &&
-            log.ENTRY_DAY != null &&
-            new Date(`${log.ENTRY_DAY}`) >= new Date(`${fdate}`)) ||
-          (tdate &&
-            log.ENTRY_DAY != null &&
-            new Date(`${log.ENTRY_DAY}`) <= new Date(`${fdate}`))
+          new Date(`${log.ENTRY_DAY}`) >= new Date(`${fdate}`) &&
+          new Date(`${log.ENTRY_DAY}`) <= new Date(`${fdate}`)
+      );
+      res.json(createResponse({ logs: addMinutesDiff(response) }));
+    } else if (fdate && !tdate) {
+      const response = rows.filter(
+        (log) =>
+          new Date(`${log.ENTRY_DAY}`) >= new Date(`${fdate}`) &&
+          new Date(`${log.ENTRY_DAY}`) <= new Date()
       );
       res.json(createResponse({ logs: addMinutesDiff(response) }));
     }
