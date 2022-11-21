@@ -276,8 +276,6 @@ const userRequisitionLogs = async (req, res, next) => {
             let from = fdate ? fdate : '2021-12-01';
             let to = tdate ? tdate : format(new Date(), "yyyy-MM-dd");
 
-            console.log(from, to)
-
             const response = await getUserReqReportByDate(hrid, from, to);
             res.json(createResponse(response.rows));
 

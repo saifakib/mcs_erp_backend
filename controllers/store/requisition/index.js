@@ -48,7 +48,7 @@ const { format } = require("date-fns");
 // is pending\
 module.exports.isReqPending = async (req, res, next) => {
   try {
-    const { employe_id } = req.params;
+    const employe_id  = req.employe_id;
     if (!employe_id) {
       res.json(createResponse(null, "Employee id required", true));
     } else {
@@ -70,7 +70,7 @@ module.exports.getRequisitionById = async (req, res, next) => {
   try {
     const { search } = req.headers;
     const { page, limit } = req.query;
-    const { id } = req.params;
+    const id  = req.employe_id;
     if (!id) {
       res.json(createResponse(null, "User id missing", true));
     } else if (!search || !page || !limit) {

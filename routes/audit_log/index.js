@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { getAllLogs, auditReports } = require("../../controllers/audit_log");
+const { auditReports } = require("../../controllers/audit_log");
 // const { validateToken } = require("../../utils/JWT");
 
 // get route

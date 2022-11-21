@@ -14,6 +14,7 @@ module.exports.Execute = (QuertyString, object = {}) => {
     }
   });
 };
+
 // // execute many query
 module.exports.ExecuteMany = (QuertyString, binds, options = {}) => {
   return new Promise(async function (resolve, reject) {

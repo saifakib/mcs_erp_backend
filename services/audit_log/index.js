@@ -60,4 +60,6 @@ module.exports.getAllLogs = () =>
   left outer join hrm.department_list d
   on d.departement_id = e.departement_id
   left outer join hrm.designation dg on
-  dg.designation_id = e.designation_id`);
+  dg.designation_id = e.designation_id  ORDER BY
+  entry_day
+    DESC`);

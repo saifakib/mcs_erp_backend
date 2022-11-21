@@ -8,8 +8,10 @@ const notFoundHandler = (req, res, next) => {
 // Default error handler
 const errorHandler = (error, req, res, next) => {
   if(error.data == 404) {
+
     res.json(createResponse(null,  error.message, true))
   } else {
+    // console.log('hitting',error)
     res.json(createResponse(null, "Server Error", true));
   }
 };

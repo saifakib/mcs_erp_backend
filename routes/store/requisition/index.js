@@ -7,11 +7,11 @@ const {
 } = require("../../../middlewares/checkAuthorization");
 
 // get route
-router.get("/:id", requisitionController.getRequisitionById);
+router.get("/byId", requisitionController.getRequisitionById);
 router.get("/details/:id", requisitionController.getRequisitionDetailsById);
 
 // is pending
-router.get("/check_pending/:employe_id", requisitionController.isReqPending);
+router.get("/check_pending/byId", requisitionController.isReqPending);
 
 // pending
 router.get(
