@@ -1,10 +1,10 @@
-const { getConnection } = require("../db/db");
+const { oracledb } = require("../db/db");
 
 // execute single query
 module.exports.Execute = (QuertyString, object = {}) => {
   return new Promise(async function (resolve, reject) {
     try {
-      const connection = await getConnection("store");
+      let connection = await oracledb.getConnection("store");
       const result = await connection.execute(QuertyString, object);
       resolve(result);
       await connection.close();
@@ -15,11 +15,11 @@ module.exports.Execute = (QuertyString, object = {}) => {
   });
 };
 
-// // execute many query
+// execute many query
 module.exports.ExecuteMany = (QuertyString, binds, options = {}) => {
   return new Promise(async function (resolve, reject) {
     try {
-      let connection = await getConnection("store");
+      let connection = await oracledb.getConnection("store");
       const result = await connection.executeMany(QuertyString, binds, options);
       resolve(result);
       await connection.close();

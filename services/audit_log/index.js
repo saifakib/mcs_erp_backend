@@ -1,7 +1,6 @@
 const { format } = require("date-fns");
 const { ExecuteHR } = require("../../utils/hrDynamicController");
 
-
 // track login activity
 module.exports.loginActivity = (
   userId,
@@ -20,17 +19,12 @@ module.exports.loginActivity = (
 };
 
 // update audit log
-module.exports.updateAuditLog = (
-  token,
-  exitDay,
-  exitTime
-) => {
+module.exports.updateAuditLog = (token, exitDay, exitTime) => {
   const n_date = format(new Date(exitDay), "dd-MM-yyyy");
   return ExecuteHR(
     `UPDATE AUDIT_LOG SET EXIT_DAY=to_date('${n_date}', 'dd-mm-yy'), EXIT_TIME='${exitTime}' WHERE LOG_SESSION = '${token}'`
   );
 };
-
 
 // track logout activity
 module.exports.logOutActivity = (
@@ -49,7 +43,6 @@ module.exports.logOutActivity = (
     )})`
   );
 };
-
 
 // get all logs
 module.exports.getAllLogs = () =>

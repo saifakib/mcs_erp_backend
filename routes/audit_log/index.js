@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const { auditReports } = require("../../controllers/audit_log");
-// const { validateToken } = require("../../utils/JWT");
+const { validateToken } = require("../../utils/JWT");
 
 // get route
-router.get("/", auditReports);
+router.get("/", validateToken, auditReports);
 
 module.exports = router;

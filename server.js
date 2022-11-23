@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const routes = require("./routes/index");
-const device = require('express-device');
+const device = require("express-device");
 const cookieParser = require("cookie-parser");
 const { notFoundHandler, errorHandler } = require("./middlewares/error");
 require("dotenv").config();
@@ -21,12 +21,12 @@ app.use("/api/v1", routes);
 const port = process.env.PORT || 4000;
 
 app.get("/", (req, res) => {
-  res.json(`Server is running at ${port}`);
+  res.json(`Server is running at ${req.protocol}://${req.hostname}:${port}`);
 });
 
 // error handling
 app.use([notFoundHandler, errorHandler]);
 
 app.listen(port, () =>
-  console.log(`App is listening at http://localhost:${port}`)
+  console.log(`Server is running at http://127.0.0.1:${port}`)
 );

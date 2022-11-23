@@ -17,16 +17,16 @@ module.exports.validateToken = (req, res, next) => {
   try {
     const accessToken = req.cookies["token"];
     if (!accessToken) {
-      res.json(createResponse(null, "User not Authenticated!", true));
+      return res.json(createResponse(null, "User not Authenticated!", true));
     } else {
       const validToken = verify(accessToken, process.env.JWT_SECRET);
       if (validToken) {
         req.user = validToken.user_id;
         req.employe_id = validToken.employe_id;
-        next();
+        return next();
       }
     }
   } catch (error) {
-    res.json(createResponse(null, `${error.message}`, true));
+    return res.json(createResponse(null, `${error.message}`, true));
   }
 };

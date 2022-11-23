@@ -5,13 +5,22 @@ const {
   checkBoth,
   checkStoreManagers,
 } = require("../../../middlewares/checkAuthorization");
+const { validateToken } = require("../../../utils/JWT");
 
 // get route
-router.get("/byId", requisitionController.getRequisitionById);
-router.get("/details/:id", requisitionController.getRequisitionDetailsById);
+router.get("/byId", validateToken, requisitionController.getRequisitionById);
+router.get(
+  "/details/:id",
+  validateToken,
+  requisitionController.getRequisitionDetailsById
+);
 
 // is pending
-router.get("/check_pending/byId", requisitionController.isReqPending);
+router.get(
+  "/check_pending/byId",
+  validateToken,
+  requisitionController.isReqPending
+);
 
 // pending
 router.get(

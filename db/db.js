@@ -19,7 +19,6 @@ const hrConfig = {
   connectString: process.env.NODE_ORACLEDB_CONNECTIONSTRING,
 };
 
-
 // creating store_pool
 function storePoolConnection() {
   return new Promise(async function (resolve, reject) {
@@ -28,6 +27,7 @@ function storePoolConnection() {
         ...storeConfig,
         poolAlias: "store",
       });
+      pool.reconfigure({ poolMin: 1, poolMax: 10, poolTimeout: 2000000 });
       resolve(pool);
     } catch (error) {
       reject(error);
@@ -45,6 +45,7 @@ function hrPoolConnection() {
         ...hrConfig,
         poolAlias: "hr",
       });
+      pool.reconfigure({ poolMin: 1, poolMax: 10, poolTimeout: 2000000 });
       resolve(pool);
     } catch (error) {
       reject(error);
@@ -54,17 +55,4 @@ function hrPoolConnection() {
 // initializing
 hrPoolConnection();
 
-// common connection
-function getConnection(pool) {
-  return new Promise(async function (resolve, reject) {
-    let connection;
-    try {
-      connection = await oracledb.getConnection(pool);
-      // response
-      resolve(connection);
-    } catch (err) {
-      reject(err);
-    }
-  });
-}
-module.exports = { getConnection, oracledb };
+module.exports = { oracledb };

@@ -1,6 +1,5 @@
 const { getAllLogs } = require("../../services/audit_log");
 const { createResponse } = require("../../utils/responseGenerator");
-const { format } = require("date-fns");
 const { time_difference } = require("../../utils/manualTimeDifference");
 
 // Utils
@@ -8,7 +7,8 @@ const addMinutesDiff = (rows) => {
   const changes = rows.reduce((acc, obj, index) => {
     let makeObj = {};
     if (obj.EXIT_TIME) {
-      let diff = time_difference(obj.EXIT_TIME) - time_difference(obj.ENTRY_TIME);
+      let diff =
+        time_difference(obj.EXIT_TIME) - time_difference(obj.ENTRY_TIME);
       makeObj = {
         ...obj,
         DIFF_MIN: diff == 0 ? null : diff,
@@ -116,7 +116,6 @@ module.exports.auditReports = async (req, res, next) => {
       res.json(createResponse({ logs: addMinutesDiff(response) }));
     }
   } catch (err) {
-    console.log(err);
     next(err);
   }
 };
