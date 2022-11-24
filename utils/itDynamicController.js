@@ -1,0 +1,31 @@
+const { oracledb } = require("../db/db");
+
+// execute single query
+module.exports.ExecuteIT = (QuertyString, object = {}) => {
+  console.log(QuertyString)
+  return new Promise(async function (resolve, reject) {
+    try {
+      let connection = await oracledb.getConnection("it");
+      const result = await connection.execute(QuertyString, object);
+      resolve(result);
+      await connection.close();
+    } catch (err) {
+      console.log("error", err);
+      reject(err);
+    }
+  });
+};
+// execute many query
+module.exports.ExecuteITMany = (QuertyString, binds, options = {}) => {
+  return new Promise(async function (resolve, reject) {
+    try {
+      let connection = await oracledb.getConnection("it");
+      const result = await connection.executeMany(QuertyString, binds, options);
+      resolve(result);
+      await connection.close();
+    } catch (err) {
+      console.log("error on executeMany", err);
+      reject(err);
+    }
+  });
+};
