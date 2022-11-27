@@ -37,7 +37,45 @@ const checkCategory = (req, res, next) => {
     }
 };
 
+
+const checkProductList = (req, res, next) => {
+
+    let productSchema = {}
+    let headers = {}
+
+    if (req.method == 'POST') {
+        productSchema = Joi.object().keys({
+            product_name: Joi.string().min(2).required(),
+            category_id: Joi.number().required()
+        })
+    }
+    else if (req.method == 'PUT') {
+        const { product_id } = req.headers;
+        headers = { product_id }
+        productSchema = Joi.object().keys({
+            product_id: Joi.number().required(),
+            category_id: Joi.number().required(),
+            product_name: Joi.string().min(3).required(),
+        })
+    }
+    else if (req.method == 'DELETE') {
+        const { product_id } = req.headers;
+        headers = { product_id }
+        productSchema = Joi.object().keys({
+            product_id: Joi.number().required(),
+        })
+    }
+
+    const { error } = productSchema.validate({ ...req.body, ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
 module.exports = {
-    checkCategory
+    checkCategory,
+    checkProductList
 }
 
