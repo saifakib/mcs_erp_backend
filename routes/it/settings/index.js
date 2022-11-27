@@ -1,7 +1,6 @@
 const router = require("express").Router();
-const { getCategories, getCategory, postCategory, putCategory, removeCategory, getProductLists, getProduct, postProductLists, putProductLists, removeProductLists, getModels, getModel, postModel, putModel, removeModel, getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification } = require("../../../controllers/it/settings");
-const { checkCategory, checkProductList, checkModel, checkSpecification } = require("../../../validator/it/settings");
-
+const { getCategories, getCategory, postCategory, putCategory, removeCategory, getProductLists, getProduct, postProductLists, putProductLists, removeProductLists, getModels, getModel, postModel, putModel, removeModel, getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification, getUnits, getUnit, postUnit, putUnit, removeUnit } = require("../../../controllers/it/settings");
+const { checkCategory, checkProductList, checkModel, checkSpecification, checkUnit } = require("../../../validator/it/settings");
 
 
 router.route("/categories")
@@ -34,6 +33,14 @@ router.route("/specifications")
     .put(checkSpecification, putSpecifications)
     .delete(checkSpecification, removeSpecification)
 router.get("/specifications/:specification_id", getSpecification);
+
+
+router.route("/units")
+    .get(getUnits)
+    .post(checkUnit, postUnit)
+    .put(checkUnit, putUnit)
+    .delete(checkUnit, removeUnit)
+router.get("/units/:unit_id", getUnit);
 
 
 

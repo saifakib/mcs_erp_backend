@@ -53,6 +53,15 @@ const selectSpecification = (specification_id) =>
         `SELECT * FROM SPECIFICATION S LEFT OUTER JOIN MODEL M ON S.MODEL_ID = M.MODEL_ID WHERE  S.ID = ${Number(specification_id)}`
     );
 
+// Units
+const units = (search = "%%", page = 0, limit = 1000) => {
+    let offset = limit * page;
+    return ExecuteIT(
+        `SELECT * FROM UNIT WHERE LOWER(UNIT_NAME) LIKE LOWER('${search}') ORDER BY UNIT_ID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+    );
+};
+const selectUnit = (unit_id) => ExecuteIT(`SELECT * FROM UNIT WHERE UNIT_ID = ${Number(unit_id)}`)
+
 
 
 /*------------------ Post -------------------*/
@@ -79,6 +88,11 @@ const insertSpecification = ({ model_id, name, value }) =>
     ExecuteIT(
         `INSERT INTO SPECIFICATION (MODEL_ID, NAME, S_VALUE) VALUES ('${Number(model_id)}', '${name}', '${value}')`
     );
+
+// Units
+const insertUnit = ({ unit_name }) =>
+    ExecuteIT(`INSERT INTO UNIT (UNIT_NAME) VALUES ('${unit_name}')`);
+
 
 
 
@@ -107,6 +121,11 @@ const updateSpecification = ({ SPECIFICATION_ID, NAME, VALUE }) =>
         `UPDATE SPECIFICATION SET NAME = '${NAME}', S_VALUE = '${VALUE}', WHERE ID = ${Number(SPECIFICATION_ID)}`
     );
 
+// Units
+const updateUnit = ({ UNIT_NAME, UNIT_ID }) =>
+    ExecuteIT(`UPDATE UNIT SET UNIT_NAME = '${UNIT_NAME}' WHERE UNIT_IT = ${Number(UNIT_ID)}`);
+
+
 /*------------------ Delete ----------------*/
 
 // Category
@@ -125,6 +144,10 @@ const deleteModel = ({ MODEL_ID }) =>
 const deleteSpecification = ({ SPECIFICATION_ID }) =>
     ExecuteIT(`DELETE FROM SPECIFICATION WHERE ID = ${Number(SPECIFICATION_ID)}`);
 
+// Units
+const deleteUnit = ({ UNIT_ID }) =>
+ExecuteIT(`DELETE FROM UNIT WHERE UNIT_ID = ${Number(UNIT_ID)}`);
+
 
 
 module.exports = {
@@ -132,5 +155,6 @@ module.exports = {
     productLists, getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists,
     models, selectModel, insertModel, updateModel, deleteModel,
     specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification,
+    units, selectUnit, insertUnit, updateUnit, deleteUnit
 
 }

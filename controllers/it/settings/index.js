@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { categories, selectCategory, insertCategory, updateCategory, deleteCategory, productLists,
-    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification } = require("../../../services/it/settings")
+    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit } = require("../../../services/it/settings")
 
 
 /*------------- All Get Controllers ---------------*/
@@ -93,6 +93,30 @@ const getSpecification = async (req, res, next) => {
     }
 };
 
+// Units
+const getUnits = async (req, res, next) => {
+    try {
+        const { search } = req.headers;
+        const { page, limit } = req.query;
+        if (!search) {
+            res.json(createResponse(null, "Header required", true));
+        } else {
+            const result = await units(search, page, limit);
+            res.json(createResponse(result.rows));
+        }
+    } catch (err) {
+        next(err.message);
+    }
+};
+const getUnit = async (req, res, next) => {
+    try {
+        const { unit_id } = req.params;
+        const result = await selectUnit(unit_id);
+        res.json(createResponse(result.rows[0]));
+    } catch (err) {
+        next(err.message);
+    }
+};
 
 
 
@@ -135,6 +159,16 @@ const postModel = async (req, res, next) => {
 const postSpecification = async (req, res, next) => {
     try {
         const result = await insertSpecification(req.body);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Units
+const postUnit = async (req, res, next) => {
+    try {
+        const result = await insertUnit(req.body);
         res.json(createResponse(result));
     } catch (err) {
         next(err);
@@ -215,6 +249,22 @@ const putSpecifications = async (req, res, next) => {
     }
 };
 
+// Units
+const putUnit = async (req, res, next) => {
+    try {
+        const { unit_name, } = req.body;
+        const { unit_id } = req.headers;
+        const data = {
+            UNIT_ID: unit_id,
+            UNIT_NAME: unit_name,
+        };
+        const result = await updateUnit(data);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 
 
@@ -261,7 +311,19 @@ const removeSpecification = async (req, res, next) => {
     try {
         const { specification_id } = req.headers;
         const data = { SPECIFICATION_ID: specification_id };
-        const result = await deleteModel(data);
+        const result = await deleteSpecification(data);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Units
+const removeUnit = async (req, res, next) => {
+    try {
+        const { unit_id } = req.headers;
+        const data = { UNIT_ID: unit_id };
+        const result = await deleteUnit(data);
         res.json(createResponse(result));
     } catch (err) {
         next(err);
@@ -269,9 +331,10 @@ const removeSpecification = async (req, res, next) => {
 };
 
 module.exports = {
-    getCategories,getCategory,postCategory,putCategory,removeCategory,
-    getProductLists,getProduct,postProductLists,putProductLists,removeProductLists,
-    getModels,getModel,postModel,putModel,removeModel,
-    getSpecifications,getSpecification,postSpecification,putSpecifications,removeSpecification,
-    
+    getCategories, getCategory, postCategory, putCategory, removeCategory,
+    getProductLists, getProduct, postProductLists, putProductLists, removeProductLists,
+    getModels, getModel, postModel, putModel, removeModel,
+    getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification,
+    getUnits, getUnit, postUnit, putUnit, removeUnit,
+
 }

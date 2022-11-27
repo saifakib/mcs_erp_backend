@@ -143,10 +143,45 @@ const checkSpecification = (req, res, next) => {
     }
 };
 
+
+const checkUnit = (req, res, next) => {
+    let unitSchema = {}
+    let headers = {}
+
+    if (req.method == 'POST') {
+        unitSchema = Joi.object().keys({
+            unit_name: Joi.string().min(1).required()
+        })
+    }
+    else if (req.method == 'PUT') {
+        const { unit_id } = req.headers;
+        headers = { unit_id }
+        unitSchema = Joi.object().keys({
+            unit_id: Joi.number().required(),
+            unit_name: Joi.string().min(1).required()
+        })
+    }
+    else if (req.method == 'DELETE') {
+        const { unit_id } = req.headers;
+        headers = { unit_id }
+        unitSchema = Joi.object().keys({
+            unit_id: Joi.number().required(),
+        })
+    }
+
+    const { error } = unitSchema.validate({ ...req.body, ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
 module.exports = {
     checkCategory,
     checkProductList,
     checkModel,
-    checkSpecification
+    checkSpecification,
+    checkUnit
 }
 
