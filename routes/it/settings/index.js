@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const { getCategories, getCategory, postCategory, putCategory, removeCategory, getProductLists, getProduct, postProductLists, putProductLists, removeProductLists, getModels, getModel, postModel, putModel, removeModel, getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification, getUnits, getUnit, postUnit, putUnit, removeUnit } = require("../../../controllers/it/settings");
-const { checkCategory, checkProductList, checkModel, checkSpecification, checkUnit } = require("../../../validator/it/settings");
+const { getCategories, getCategory, postCategory, putCategory, removeCategory, getProductLists, getProduct, postProductLists, putProductLists, removeProductLists, getModels, getModel, postModel, putModel, removeModel, getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification, getUnits, getUnit, postUnit, putUnit, removeUnit, getBrands, getBrand, postBrand, putBrand, removeBrand } = require("../../../controllers/it/settings");
+const { checkCategory, checkProductList, checkModel, checkSpecification, checkUnit, checkBrand } = require("../../../validator/it/settings");
 
 
 router.route("/categories")
@@ -41,6 +41,14 @@ router.route("/units")
     .put(checkUnit, putUnit)
     .delete(checkUnit, removeUnit)
 router.get("/units/:unit_id", getUnit);
+
+
+router.route("/brands")
+    .get(getBrands)
+    .post(checkBrand, postBrand)
+    .put(checkBrand, putBrand)
+    .delete(checkBrand, removeBrand)
+router.get("/brands/:brand_id", getBrand);
 
 
 

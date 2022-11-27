@@ -62,6 +62,15 @@ const units = (search = "%%", page = 0, limit = 1000) => {
 };
 const selectUnit = (unit_id) => ExecuteIT(`SELECT * FROM UNIT WHERE UNIT_ID = ${Number(unit_id)}`)
 
+// Brands
+const brands = (search = "%%", page = 0, limit = 1000) => {
+    let offset = limit * page;
+    return ExecuteIT(
+        `SELECT * FROM BRAND WHERE LOWER(BRAND_NAME) LIKE LOWER('${search}') ORDER BY BRAND_ID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+    );
+};
+const selectBrand = (brand_id) => ExecuteIT(`SELECT * FROM BRAND WHERE BRAND_ID = ${Number(brand_id)}`)
+
 
 
 /*------------------ Post -------------------*/
@@ -92,6 +101,10 @@ const insertSpecification = ({ model_id, name, value }) =>
 // Units
 const insertUnit = ({ unit_name }) =>
     ExecuteIT(`INSERT INTO UNIT (UNIT_NAME) VALUES ('${unit_name}')`);
+
+// Brands
+const insertBrand = ({ brand_name }) =>
+ExecuteIT(`INSERT INTO BRAND (BRAND_NAME) VALUES ('${brand_name}')`);
 
 
 
@@ -125,6 +138,10 @@ const updateSpecification = ({ SPECIFICATION_ID, NAME, VALUE }) =>
 const updateUnit = ({ UNIT_NAME, UNIT_ID }) =>
     ExecuteIT(`UPDATE UNIT SET UNIT_NAME = '${UNIT_NAME}' WHERE UNIT_IT = ${Number(UNIT_ID)}`);
 
+// Brands
+const updateBrand = ({ BRAND_NAME, BRAND_ID }) =>
+ExecuteIT(`UPDATE BRAND SET BRAND_NAME = '${BRAND_NAME}' WHERE BRAND_ID = ${Number(BRAND_ID)}`);
+
 
 /*------------------ Delete ----------------*/
 
@@ -148,6 +165,10 @@ const deleteSpecification = ({ SPECIFICATION_ID }) =>
 const deleteUnit = ({ UNIT_ID }) =>
 ExecuteIT(`DELETE FROM UNIT WHERE UNIT_ID = ${Number(UNIT_ID)}`);
 
+// Brands
+const deleteBrand = ({ BRAND_ID }) =>
+ExecuteIT(`DELETE FROM BRAND WHERE BRAND_ID = ${Number(BRAND_ID)}`);
+
 
 
 module.exports = {
@@ -155,6 +176,7 @@ module.exports = {
     productLists, getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists,
     models, selectModel, insertModel, updateModel, deleteModel,
     specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification,
-    units, selectUnit, insertUnit, updateUnit, deleteUnit
+    units, selectUnit, insertUnit, updateUnit, deleteUnit,
+    brands, selectBrand, insertBrand, updateBrand, deleteBrand
 
 }

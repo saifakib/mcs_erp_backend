@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { categories, selectCategory, insertCategory, updateCategory, deleteCategory, productLists,
-    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit } = require("../../../services/it/settings")
+    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand } = require("../../../services/it/settings")
 
 
 /*------------- All Get Controllers ---------------*/
@@ -118,6 +118,31 @@ const getUnit = async (req, res, next) => {
     }
 };
 
+// Brands
+const getBrands = async (req, res, next) => {
+    try {
+        const { search } = req.headers;
+        const { page, limit } = req.query;
+        if (!search) {
+            res.json(createResponse(null, "Header required", true));
+        } else {
+            const result = await brands(search, page, limit);
+            res.json(createResponse(result.rows));
+        }
+    } catch (err) {
+        next(err.message);
+    }
+};
+const getBrand = async (req, res, next) => {
+    try {
+        const { brand_id } = req.params;
+        const result = await selectBrand(brand_id);
+        res.json(createResponse(result.rows[0]));
+    } catch (err) {
+        next(err.message);
+    }
+};
+
 
 
 
@@ -169,6 +194,16 @@ const postSpecification = async (req, res, next) => {
 const postUnit = async (req, res, next) => {
     try {
         const result = await insertUnit(req.body);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Brands
+const postBrand = async (req, res, next) => {
+    try {
+        const result = await insertBrand(req.body);
         res.json(createResponse(result));
     } catch (err) {
         next(err);
@@ -265,6 +300,21 @@ const putUnit = async (req, res, next) => {
     }
 };
 
+// Brands
+const putBrand = async (req, res, next) => {
+    try {
+        const { brand_name } = req.body;
+        const { brand_id } = req.headers;
+        const data = {
+            BRAND_ID: brand_id,
+            BRAND_NAME: brand_name,
+        };
+        const result = await updateBrand(data);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
 
 
 
@@ -330,11 +380,25 @@ const removeUnit = async (req, res, next) => {
     }
 };
 
+// Brands
+const removeBrand = async (req, res, next) => {
+    try {
+        const { brand_id } = req.headers;
+        const data = { BRAND_ID: brand_id };
+        const result = await deleteBrand(data);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     getCategories, getCategory, postCategory, putCategory, removeCategory,
     getProductLists, getProduct, postProductLists, putProductLists, removeProductLists,
     getModels, getModel, postModel, putModel, removeModel,
     getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification,
     getUnits, getUnit, postUnit, putUnit, removeUnit,
+    getBrands, getBrand, postBrand, putBrand, removeBrand,
+    
 
 }

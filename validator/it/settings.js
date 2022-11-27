@@ -177,11 +177,46 @@ const checkUnit = (req, res, next) => {
     }
 };
 
+
+const checkBrand = (req, res, next) => {
+    let brandSchema = {}
+    let headers = {}
+
+    if (req.method == 'POST') {
+        unitSchema = Joi.object().keys({
+            brand_name: Joi.string().min(2).required()
+        })
+    }
+    else if (req.method == 'PUT') {
+        const { brand_id } = req.headers;
+        headers = { brand_id }
+        brandSchema = Joi.object().keys({
+            brand_id: Joi.number().required(),
+            brand_name: Joi.string().min(1).required()
+        })
+    }
+    else if (req.method == 'DELETE') {
+        const { brand_id } = req.headers;
+        headers = { brand_id }
+        brandSchema = Joi.object().keys({
+            brand_id: Joi.number().required(),
+        })
+    }
+
+    const { error } = brandSchema.validate({ ...req.body, ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
 module.exports = {
     checkCategory,
     checkProductList,
     checkModel,
     checkSpecification,
-    checkUnit
+    checkUnit,
+    checkBrand
 }
 
