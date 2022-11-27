@@ -42,6 +42,17 @@ const selectModel = (model_id) =>
         `SELECT * FROM MODELS M LEFT OUTER JOIN SPECIFICATION S ON M.MODEL_ID = S.MODEL_ID WHERE  M.MODEL_ID = ${Number(model_id)}`
     );
 
+// Specifications
+const specifications = () => {
+    return ExecuteIT(
+        `SELECT * FROM SPECIFICATION S LEFT OUTER JOIN MODEL M ON S.MODEL_ID = M.MODEL_ID`
+    );
+};
+const selectSpecification = (specification_id) =>
+    ExecuteIT(
+        `SELECT * FROM SPECIFICATION S LEFT OUTER JOIN MODEL M ON S.MODEL_ID = M.MODEL_ID WHERE  S.ID = ${Number(specification_id)}`
+    );
+
 
 
 /*------------------ Post -------------------*/
@@ -61,6 +72,12 @@ const insertProduct = ({ product_name, category_id }) =>
 const insertModel = ({ model_name }) =>
     ExecuteIT(
         `INSERT INTO MODELS (MODEL_NAME) VALUES ('${model_name}')`
+    );
+
+// Specifications
+const insertSpecification = ({ model_id, name, value }) =>
+    ExecuteIT(
+        `INSERT INTO SPECIFICATION (MODEL_ID, NAME, S_VALUE) VALUES ('${Number(model_id)}', '${name}', '${value}')`
     );
 
 
@@ -84,6 +101,11 @@ const updateModel = ({ MODEL_NAME, MODEL_ID }) =>
         `UPDATE MODELS SET MODEL_NAME = '${MODEL_NAME}' WHERE MODEL_ID = ${Number(MODEL_ID)}`
     );
 
+// Specifications
+const updateSpecification = ({ SPECIFICATION_ID, NAME, VALUE }) =>
+    ExecuteIT(
+        `UPDATE SPECIFICATION SET NAME = '${NAME}', S_VALUE = '${VALUE}', WHERE ID = ${Number(SPECIFICATION_ID)}`
+    );
 
 /*------------------ Delete ----------------*/
 
@@ -99,23 +121,16 @@ const deleteProductLists = ({ PRODUCT_ID }) =>
 const deleteModel = ({ MODEL_ID }) =>
     ExecuteIT(`DELETE FROM MODELS WHERE MODEL_ID = ${Number(MODEL_ID)}`);
 
+// Specifications
+const deleteSpecification = ({ SPECIFICATION_ID }) =>
+    ExecuteIT(`DELETE FROM SPECIFICATION WHERE ID = ${Number(SPECIFICATION_ID)}`);
+
 
 
 module.exports = {
-    categories,
-    selectCategory,
-    insertCategory,
-    updateCategory,
-    deleteCategory,
-    productLists,
-    getCountProductLists,
-    selectProductLists,
-    insertProduct,
-    updateputProductLists,
-    deleteProductLists,
-    models,
-    selectModel,
-    insertModel,
-    updateModel,
-    deleteModel
+    categories, selectCategory, insertCategory, updateCategory, deleteCategory,
+    productLists, getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists,
+    models, selectModel, insertModel, updateModel, deleteModel,
+    specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification,
+
 }

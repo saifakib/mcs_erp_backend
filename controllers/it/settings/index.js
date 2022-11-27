@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { categories, selectCategory, insertCategory, updateCategory, deleteCategory, productLists,
-    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel } = require("../../../services/it/settings")
+    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification } = require("../../../services/it/settings")
 
 
 /*------------- All Get Controllers ---------------*/
@@ -56,7 +56,7 @@ const getProduct = async (req, res, next) => {
 };
 
 // Models
-const getModels = async (req, res, next) => {
+const getModels = async (_, res, next) => {
     try {
         const result = await models();
         res.json(createResponse(result.rows));
@@ -74,6 +74,24 @@ const getModel = async (req, res, next) => {
     }
 };
 
+// Specifications
+const getSpecifications = async (_, res, next) => {
+    try {
+        const result = await specifications();
+        res.json(createResponse(result.rows));
+    } catch (err) {
+        next(err.message)
+    }
+}
+const getSpecification = async (req, res, next) => {
+    try {
+        const { specification_id } = req.params;
+        const result = await selectSpecification(specification_id);
+        res.json(createResponse(result.rows[0]));
+    } catch (err) {
+        next(err.message);
+    }
+};
 
 
 
@@ -107,6 +125,16 @@ const postProductLists = async (req, res, next) => {
 const postModel = async (req, res, next) => {
     try {
         const result = await insertModel(req.body);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Specifications
+const postSpecification = async (req, res, next) => {
+    try {
+        const result = await insertSpecification(req.body);
         res.json(createResponse(result));
     } catch (err) {
         next(err);
@@ -170,6 +198,23 @@ const putModel = async (req, res, next) => {
     }
 };
 
+// Specifications
+const putSpecifications = async (req, res, next) => {
+    try {
+        const { name, value } = req.body;
+        const { specification_id } = req.headers;
+        const data = {
+            SPECIFICATION_ID: specification_id,
+            NAME: name,
+            VALUE: value
+        };
+        const result = await updateSpecification(data);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 
 
@@ -211,21 +256,22 @@ const removeModel = async (req, res, next) => {
     }
 };
 
+// Specifications
+const removeSpecification = async (req, res, next) => {
+    try {
+        const { specification_id } = req.headers;
+        const data = { SPECIFICATION_ID: specification_id };
+        const result = await deleteModel(data);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
 
 module.exports = {
-    getCategories,
-    getCategory,
-    postCategory,
-    putCategory,
-    removeCategory,
-    getProductLists,
-    getProduct,
-    postProductLists,
-    putProductLists,
-    removeProductLists,
-    getModels,
-    getModel,
-    postModel,
-    putModel,
-    removeModel
+    getCategories,getCategory,postCategory,putCategory,removeCategory,
+    getProductLists,getProduct,postProductLists,putProductLists,removeProductLists,
+    getModels,getModel,postModel,putModel,removeModel,
+    getSpecifications,getSpecification,postSpecification,putSpecifications,removeSpecification,
+    
 }

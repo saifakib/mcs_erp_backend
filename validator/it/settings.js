@@ -106,9 +106,47 @@ const checkModel = (req, res, next) => {
     }
 };
 
+
+const checkSpecification = (req, res, next) => {
+    let specificationSchema = {}
+    let headers = {}
+
+    if (req.method == 'POST') {
+        specificationSchema = Joi.object().keys({
+            model_id: Joi.number().required(),
+            name: Joi.string().min(2).required(),
+            value: Joi.string().required(),
+        })
+    }
+    else if (req.method == 'PUT') {
+        const { specification_id } = req.headers;
+        headers = { specification_id }
+        specificationSchema = Joi.object().keys({
+            specification_id: Joi.number().required(),
+            name: Joi.string().min(2).required(),
+            value: Joi.string().required(),
+        })
+    }
+    else if (req.method == 'DELETE') {
+        const { specification_id } = req.headers;
+        headers = { specification_id }
+        specificationSchema = Joi.object().keys({
+            specification_id: Joi.number().required(),
+        })
+    }
+
+    const { error } = specificationSchema.validate({ ...req.body, ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
 module.exports = {
     checkCategory,
     checkProductList,
-    checkModel
+    checkModel,
+    checkSpecification
 }
 
