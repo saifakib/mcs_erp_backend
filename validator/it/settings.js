@@ -4,7 +4,6 @@ const { errorResponse } = require("../../utils/errorRespnose");
 
 
 const checkCategory = (req, res, next) => {
-
     let categorySchema = {}
     let headers = {}
 
@@ -39,7 +38,6 @@ const checkCategory = (req, res, next) => {
 
 
 const checkProductList = (req, res, next) => {
-
     let productSchema = {}
     let headers = {}
 
@@ -74,8 +72,43 @@ const checkProductList = (req, res, next) => {
     }
 };
 
+
+const checkModel = (req, res, next) => {
+    let modelSchema = {}
+    let headers = {}
+
+    if (req.method == 'POST') {
+        modelSchema = Joi.object().keys({
+            model_name: Joi.string().min(2).required(),
+        })
+    }
+    else if (req.method == 'PUT') {
+        const { model_id } = req.headers;
+        headers = { model_id }
+        modelSchema = Joi.object().keys({
+            model_id: Joi.number().required(),
+            model_name: Joi.string().min(2).required(),
+        })
+    }
+    else if (req.method == 'DELETE') {
+        const { model_id } = req.headers;
+        headers = { model_id }
+        modelSchema = Joi.object().keys({
+            model_id: Joi.number().required(),
+        })
+    }
+
+    const { error } = modelSchema.validate({ ...req.body, ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
 module.exports = {
     checkCategory,
-    checkProductList
+    checkProductList,
+    checkModel
 }
 

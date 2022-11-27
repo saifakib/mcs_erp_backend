@@ -1,9 +1,9 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { categories, selectCategory, insertCategory, updateCategory, deleteCategory, productLists,
-    getCountProductLists, getSingleProductLists, insertProduct, updateputProductLists, deleteProductLists } = require("../../../services/it/settings")
+    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel } = require("../../../services/it/settings")
 
 
-/*------------- All Get Routes ---------------*/
+/*------------- All Get Controllers ---------------*/
 
 // Category
 const getCategories = async (req, res) => {
@@ -20,7 +20,6 @@ const getCategories = async (req, res) => {
         next(err.message)
     }
 };
-
 const getCategory = async (req, res) => {
     try {
         const { category_id } = req.params;
@@ -30,8 +29,6 @@ const getCategory = async (req, res) => {
         next(err.message)
     }
 };
-
-
 
 // ProductLists
 const getProductLists = async (req, res, next) => {
@@ -51,7 +48,26 @@ const getProductLists = async (req, res, next) => {
 const getProduct = async (req, res, next) => {
     try {
         const { product_id } = req.params;
-        const result = await getSingleProductLists(product_id);
+        const result = await selectProductLists(product_id);
+        res.json(createResponse(result.rows[0]));
+    } catch (err) {
+        next(err.message);
+    }
+};
+
+// Models
+const getModels = async (req, res, next) => {
+    try {
+        const result = await models();
+        res.json(createResponse(result.rows));
+    } catch (err) {
+        next(err.message)
+    }
+}
+const getModel = async (req, res, next) => {
+    try {
+        const { model_id } = req.params;
+        const result = await selectModel(model_id);
         res.json(createResponse(result.rows[0]));
     } catch (err) {
         next(err.message);
@@ -65,7 +81,8 @@ const getProduct = async (req, res, next) => {
 
 
 
-/*------------- All Post Routes ---------------*/
+
+/*------------- All Post Controllers ---------------*/
 // Category
 const postCategory = async (req, res, next) => {
     try {
@@ -86,12 +103,22 @@ const postProductLists = async (req, res, next) => {
     }
 };
 
+// Models
+const postModel = async (req, res, next) => {
+    try {
+        const result = await insertModel(req.body);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
 
 
 
 
 
-/*------------- All Update Routes ---------------*/
+
+/*------------- All Update Controllers ---------------*/
 // Category
 const putCategory = async (req, res, next) => {
     try {
@@ -127,11 +154,27 @@ const putProductLists = async (req, res, next) => {
     }
 };
 
+// Models
+const putModel = async (req, res, next) => {
+    try {
+        const { model_name } = req.body;
+        const { model_id } = req.headers;
+        const data = {
+            MODEL_ID: model_id,
+            MODEL_NAME: model_name
+        };
+        const result = await updateModel(data);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
 
 
 
 
-/*------------- All Delete Routes ---------------*/
+
+/*------------- All Delete Controllers ---------------*/
 // Category
 const removeCategory = async (req, res, next) => {
     try {
@@ -156,6 +199,18 @@ const removeProductLists = async (req, res, next) => {
     }
 };
 
+// Models
+const removeModel = async (req, res, next) => {
+    try {
+        const { model_id } = req.headers;
+        const data = { MODEL_ID: model_id };
+        const result = await deleteModel(data);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 module.exports = {
     getCategories,
@@ -167,5 +222,10 @@ module.exports = {
     getProduct,
     postProductLists,
     putProductLists,
-    removeProductLists
+    removeProductLists,
+    getModels,
+    getModel,
+    postModel,
+    putModel,
+    removeModel
 }

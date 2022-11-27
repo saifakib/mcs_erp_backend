@@ -21,7 +21,7 @@ const productLists = (search = "%%", page = 0, limit = 1000) => {
         `SELECT PL.PRODUCT_ID, PL.PRODUCTNAME, PL.CATEGORY_ID, C.CATEGORYNAME FROM PRODUCT_LIST PL LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID WHERE LOWER(PRODUCTNAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYNAME) LIKE LOWER('${search}') ORDER BY PRODUCT_ID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
     );
 };
-const getSingleProductLists = (product_id) =>
+const selectProductLists = (product_id) =>
     ExecuteIT(
         `SELECT PL.PRODUCT_ID, PL.PRODUCTNAME, PL.CATEGORY_ID, C.CATEGORYNAME FROM PRODUCT_LIST PL LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID WHERE PL.PRODUCT_ID = ${Number(product_id)}`
     );
@@ -30,6 +30,17 @@ const getCountProductLists = () => {
         `select count(product_id) as total_products from product_list`
     );
 };
+
+// Models
+const models = () => {
+    return ExecuteIT(
+        `SELECT * FROM MODELS`
+    );
+};
+const selectModel = (model_id) =>
+    ExecuteIT(
+        `SELECT * FROM MODELS M LEFT OUTER JOIN SPECIFICATION S ON M.MODEL_ID = S.MODEL_ID WHERE  M.MODEL_ID = ${Number(model_id)}`
+    );
 
 
 
@@ -46,13 +57,19 @@ const insertProduct = ({ product_name, category_id }) =>
         `INSERT INTO PRODUCT_LIST (PRODUCT_NAME, CATEGORY_ID) VALUES ('${product_name}', '${Number(category_id)}')`
     );
 
+// Models
+const insertModel = ({ model_name }) =>
+    ExecuteIT(
+        `INSERT INTO MODELS (MODEL_NAME) VALUES ('${model_name}')`
+    );
+
 
 
 /* --------------- Update -------------------*/
 // Category
 const updateCategory = ({ CATEGORY_NAME, CATEGORY_ID }) =>
     ExecuteIT(
-        `UPDATE CATEGORIES SET CATEGORY_NAME = '${CATEGORY_NAME}' WHERE CATEGORY_ID = ${CATEGORY_ID}`
+        `UPDATE CATEGORIES SET CATEGORY_NAME = '${CATEGORY_NAME}' WHERE CATEGORY_ID = ${Number(CATEGORY_ID)}`
     );
 
 // ProductLists
@@ -61,17 +78,26 @@ const updateputProductLists = ({ PRODUCT_NAME, CATEGORY_ID, PRODUCT_ID }) =>
         `UPDATE PRODUCT_LIST SET PRODUCT_NAME = '${PRODUCT_NAME}', CATEGORY_ID = ${Number(CATEGORY_ID)} WHERE PRODUCT_ID = ${Number(PRODUCT_ID)}`
     );
 
+// Models
+const updateModel = ({ MODEL_NAME, MODEL_ID }) =>
+    ExecuteIT(
+        `UPDATE MODELS SET MODEL_NAME = '${MODEL_NAME}' WHERE MODEL_ID = ${Number(MODEL_ID)}`
+    );
+
 
 /*------------------ Delete ----------------*/
 
 // Category
 const deleteCategory = ({ CATEGORY_ID }) =>
-    ExecuteIT(`DELETE FROM CATEGORIES WHERE CATEGORY_ID = ${CATEGORY_ID}`);
+    ExecuteIT(`DELETE FROM CATEGORIES WHERE CATEGORY_ID = ${Number(CATEGORY_ID)}`);
 
 // ProductLists
 const deleteProductLists = ({ PRODUCT_ID }) =>
-    ExecuteIT(`DELETE FROM PRODUCT_NAME WHERE PRODUCT_ID = ${PRODUCT_ID}`);
+    ExecuteIT(`DELETE FROM PRODUCT_NAME WHERE PRODUCT_ID = ${Number(PRODUCT_ID)}`);
 
+// Models
+const deleteModel = ({ MODEL_ID }) =>
+    ExecuteIT(`DELETE FROM MODELS WHERE MODEL_ID = ${Number(MODEL_ID)}`);
 
 
 
@@ -83,8 +109,13 @@ module.exports = {
     deleteCategory,
     productLists,
     getCountProductLists,
-    getSingleProductLists,
+    selectProductLists,
     insertProduct,
     updateputProductLists,
-    deleteProductLists
+    deleteProductLists,
+    models,
+    selectModel,
+    insertModel,
+    updateModel,
+    deleteModel
 }
