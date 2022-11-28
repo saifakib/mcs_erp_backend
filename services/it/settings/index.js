@@ -71,6 +71,11 @@ const brands = (search = "%%", page = 0, limit = 1000) => {
 };
 const selectBrand = (brand_id) => ExecuteIT(`SELECT * FROM BRAND WHERE BRAND_ID = ${Number(brand_id)}`)
 
+// Suppliers
+const suppliers = () => ExecuteIT(
+    `SELECT * FROM SUPPLIERS ORDER BY SUP_ID DESC`
+);
+const selectSupplier = (supplier_id) => ExecuteIT(`SELECT * FROM SUPPLIERS WHERE SUPPLIER_ID = ${Number(supplier_id)}`)
 
 
 /*------------------ Post -------------------*/
@@ -104,7 +109,11 @@ const insertUnit = ({ unit_name }) =>
 
 // Brands
 const insertBrand = ({ brand_name }) =>
-ExecuteIT(`INSERT INTO BRAND (BRAND_NAME) VALUES ('${brand_name}')`);
+    ExecuteIT(`INSERT INTO BRAND (BRAND_NAME) VALUES ('${brand_name}')`);
+
+// Suppliers
+const insertSupplier = ({ sup_type, sup_name, sup_details }) =>
+    ExecuteIT(`INSERT INTO SUPPLIERS (SUP_TYPE,SUP_NAME,SUPPLIER_DETAILS) VALUES ('${sup_type}', '${sup_name}', '${sup_details}')`);
 
 
 
@@ -140,8 +149,11 @@ const updateUnit = ({ UNIT_NAME, UNIT_ID }) =>
 
 // Brands
 const updateBrand = ({ BRAND_NAME, BRAND_ID }) =>
-ExecuteIT(`UPDATE BRAND SET BRAND_NAME = '${BRAND_NAME}' WHERE BRAND_ID = ${Number(BRAND_ID)}`);
+    ExecuteIT(`UPDATE BRAND SET BRAND_NAME = '${BRAND_NAME}' WHERE BRAND_ID = ${Number(BRAND_ID)}`);
 
+// Suppliers
+const updateSupplier = ({ SUP_ID, SUP_TYPE, SUP_NAME, SUPPLIER_DETAILS }) =>
+    ExecuteIT(`UPDATE SUPPLIERS SET SUP_TYPE = '${SUP_TYPE}', SUP_NAME = '${SUP_NAME}', SUPPLIER_DETAILS = '${SUPPLIER_DETAILS}' WHERE SUPPLIER_ID = ${Number(SUP_ID)}`);
 
 /*------------------ Delete ----------------*/
 
@@ -163,11 +175,15 @@ const deleteSpecification = ({ SPECIFICATION_ID }) =>
 
 // Units
 const deleteUnit = ({ UNIT_ID }) =>
-ExecuteIT(`DELETE FROM UNIT WHERE UNIT_ID = ${Number(UNIT_ID)}`);
+    ExecuteIT(`DELETE FROM UNIT WHERE UNIT_ID = ${Number(UNIT_ID)}`);
 
 // Brands
 const deleteBrand = ({ BRAND_ID }) =>
-ExecuteIT(`DELETE FROM BRAND WHERE BRAND_ID = ${Number(BRAND_ID)}`);
+    ExecuteIT(`DELETE FROM BRAND WHERE BRAND_ID = ${Number(BRAND_ID)}`);
+
+// Suppliers
+const deleteSupplier = ({ SUP_ID }) =>
+ExecuteIT(`DELETE FROM SUPPLIERS WHERE SUPPLIER_ID = ${Number(SUP_ID)}`);
 
 
 
@@ -177,6 +193,7 @@ module.exports = {
     models, selectModel, insertModel, updateModel, deleteModel,
     specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification,
     units, selectUnit, insertUnit, updateUnit, deleteUnit,
-    brands, selectBrand, insertBrand, updateBrand, deleteBrand
+    brands, selectBrand, insertBrand, updateBrand, deleteBrand,
+    suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier,
 
 }

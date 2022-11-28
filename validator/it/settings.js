@@ -211,12 +211,48 @@ const checkBrand = (req, res, next) => {
     }
 };
 
+const checkSupplier = (req, res, next) => {
+    let supplierSchema = {}
+    let headers = {}
+
+    if (req.method == 'POST') {
+        supplierSchema = Joi.object().keys({
+            sup_type: Joi.string().min(1).required(),
+            sup_name: Joi.string().min(5).required()
+        })
+    }
+    else if (req.method == 'PUT') {
+        const { supplier_id } = req.headers;
+        headers = { supplier_id }
+        supplierSchema = Joi.object().keys({
+            supplier_id: Joi.number().required(),
+            sup_type: Joi.string().min(1).required(),
+            sup_name: Joi.string().min(5).required()
+        })
+    }
+    else if (req.method == 'DELETE') {
+        const { supplier_id } = req.headers;
+        headers = { supplier_id }
+        supplierSchema = Joi.object().keys({
+            supplier_id: Joi.number().required(),
+        })
+    }
+
+    const { error } = supplierSchema.validate({ ...req.body, ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
 module.exports = {
     checkCategory,
     checkProductList,
     checkModel,
     checkSpecification,
     checkUnit,
-    checkBrand
+    checkBrand,
+    checkSupplier
 }
 

@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { categories, selectCategory, insertCategory, updateCategory, deleteCategory, productLists,
-    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand } = require("../../../services/it/settings")
+    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand, suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier } = require("../../../services/it/settings")
 
 
 /*------------- All Get Controllers ---------------*/
@@ -143,6 +143,26 @@ const getBrand = async (req, res, next) => {
     }
 };
 
+// Suppliers
+const getSuppliers = async (req, res, next) => {
+    try {
+        const result = await suppliers();
+        res.json(createResponse(result.rows));
+    } catch (err) {
+        next(err.message);
+    }
+};
+const getSupplier = async (req, res, next) => {
+    try {
+        const { supplier_id } = req.params;
+        const result = await selectSupplier(supplier_id);
+        res.json(createResponse(result.rows[0]));
+    } catch (err) {
+        next(err.message);
+    }
+};
+
+
 
 
 
@@ -209,6 +229,18 @@ const postBrand = async (req, res, next) => {
         next(err);
     }
 };
+
+// Suppliers
+const postSupplier = async (req, res, next) => {
+    try {
+        const result = await insertSupplier(req.body);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
+
+
 
 
 
@@ -316,6 +348,23 @@ const putBrand = async (req, res, next) => {
     }
 };
 
+// Suppliers
+const putSupplier = async (req, res, next) => {
+    try {
+        const { sup_type, sup_name, sup_details } = req.body;
+        const { supplier_id } = req.headers;
+        const data = {
+            SUP_ID: supplier_id,
+            SUP_TYPE: sup_type,
+            SUP_NAME: sup_name,
+            SUPPLIER_DETAILS: sup_details
+        };
+        const result = await updateSupplier(data);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
 
 
 
@@ -392,6 +441,18 @@ const removeBrand = async (req, res, next) => {
     }
 };
 
+// Suppliers
+const removeSupplier = async (req, res, next) => {
+    try {
+        const { supplier_id } = req.headers;
+        const data = { SUP_ID: supplier_id };
+        const result = await deleteSupplier(data);
+        res.json(createResponse(result));
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     getCategories, getCategory, postCategory, putCategory, removeCategory,
     getProductLists, getProduct, postProductLists, putProductLists, removeProductLists,
@@ -399,6 +460,6 @@ module.exports = {
     getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification,
     getUnits, getUnit, postUnit, putUnit, removeUnit,
     getBrands, getBrand, postBrand, putBrand, removeBrand,
+    getSuppliers, getSupplier, postSupplier, putSupplier, removeSupplier,
     
-
 }
