@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const morgan = require("morgan");
 const routes = require("./routes/index");
 const device = require("express-device");
 const cookieParser = require("cookie-parser");
@@ -13,6 +14,7 @@ app.use(
     origin: true,
   })
 );
+app.use(morgan());
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/v1", routes);

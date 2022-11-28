@@ -3,10 +3,9 @@ const { ExecuteIT } = require("../../../utils/itDynamicController");
 
 /*------------- Get ------------*/
 // Category
-const categories = (search = "%%", page = 0, limit = 1000) => {
-    let offset = limit * page;
+const categories = () => {
     return ExecuteIT(
-        `SELECT * FROM CATEGORIES WHERE LOWER(CATEGORY_NAME) LIKE LOWER('${search}') ORDER BY CATEGORY_ID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+        `SELECT * FROM CATEGORIES ORDER BY CATEGORY_ID DESC`
     );
 };
 const selectCategory = (category_id) => ExecuteIT(
@@ -15,10 +14,9 @@ const selectCategory = (category_id) => ExecuteIT(
 
 
 // ProductLists
-const productLists = (search = "%%", page = 0, limit = 1000) => {
-    let offset = limit * page;
+const productLists = () => {
     return ExecuteIT(
-        `SELECT PL.PRODUCT_ID, PL.PRODUCTNAME, PL.CATEGORY_ID, C.CATEGORYNAME FROM PRODUCT_LIST PL LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID WHERE LOWER(PRODUCTNAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYNAME) LIKE LOWER('${search}') ORDER BY PRODUCT_ID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+        `SELECT PL.PRODUCT_ID, PL.PRODUCTNAME, PL.CATEGORY_ID, C.CATEGORYNAME FROM PRODUCT_LIST PL LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID ORDER BY PRODUCT_ID DESC`
     );
 };
 const selectProductLists = (product_id) =>
@@ -54,19 +52,17 @@ const selectSpecification = (specification_id) =>
     );
 
 // Units
-const units = (search = "%%", page = 0, limit = 1000) => {
-    let offset = limit * page;
+const units = () => {
     return ExecuteIT(
-        `SELECT * FROM UNIT WHERE LOWER(UNIT_NAME) LIKE LOWER('${search}') ORDER BY UNIT_ID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+        `SELECT * FROM UNIT ORDER BY UNIT_ID DESC`
     );
 };
 const selectUnit = (unit_id) => ExecuteIT(`SELECT * FROM UNIT WHERE UNIT_ID = ${Number(unit_id)}`)
 
 // Brands
-const brands = (search = "%%", page = 0, limit = 1000) => {
-    let offset = limit * page;
+const brands = () => {
     return ExecuteIT(
-        `SELECT * FROM BRAND WHERE LOWER(BRAND_NAME) LIKE LOWER('${search}') ORDER BY BRAND_ID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+        `SELECT * FROM BRANDORDER BY BRAND_ID DESC`
     );
 };
 const selectBrand = (brand_id) => ExecuteIT(`SELECT * FROM BRAND WHERE BRAND_ID = ${Number(brand_id)}`)

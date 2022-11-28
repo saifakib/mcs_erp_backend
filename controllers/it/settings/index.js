@@ -6,16 +6,10 @@ const { categories, selectCategory, insertCategory, updateCategory, deleteCatego
 /*------------- All Get Controllers ---------------*/
 
 // Category
-const getCategories = async (req, res) => {
+const getCategories = async (_, res) => {
     try {
-        const { search } = req.headers;
-        const { page, limit } = req.query;
-        if (!search) {
-            res.json(createResponse(null, "Headers required", true));
-        } else {
-            const result = await categories(search, page, limit);
-            res.json(createResponse(result.rows));
-        }
+        const result = await categories();
+        res.json(createResponse(result.rows));
     } catch (err) {
         next(err.message)
     }
@@ -31,16 +25,10 @@ const getCategory = async (req, res) => {
 };
 
 // ProductLists
-const getProductLists = async (req, res, next) => {
+const getProductLists = async (_, res, next) => {
     try {
-        const { search } = req.headers;
-        const { page, limit } = req.query;
-        if (!search) {
-            res.json(createResponse(null, "Headers required", true));
-        } else {
-            const result = await productLists(search, page, limit);
-            res.json(createResponse(result.rows));
-        }
+        const result = await productLists();
+        res.json(createResponse(result.rows));
     } catch (err) {
         next(err.message)
     }
@@ -94,16 +82,10 @@ const getSpecification = async (req, res, next) => {
 };
 
 // Units
-const getUnits = async (req, res, next) => {
+const getUnits = async (_, res, next) => {
     try {
-        const { search } = req.headers;
-        const { page, limit } = req.query;
-        if (!search) {
-            res.json(createResponse(null, "Header required", true));
-        } else {
-            const result = await units(search, page, limit);
-            res.json(createResponse(result.rows));
-        }
+        const result = await units();
+        res.json(createResponse(result.rows));
     } catch (err) {
         next(err.message);
     }
@@ -119,16 +101,10 @@ const getUnit = async (req, res, next) => {
 };
 
 // Brands
-const getBrands = async (req, res, next) => {
+const getBrands = async (_, res, next) => {
     try {
-        const { search } = req.headers;
-        const { page, limit } = req.query;
-        if (!search) {
-            res.json(createResponse(null, "Header required", true));
-        } else {
-            const result = await brands(search, page, limit);
-            res.json(createResponse(result.rows));
-        }
+        const result = await brands();
+        res.json(createResponse(result.rows));
     } catch (err) {
         next(err.message);
     }
@@ -461,5 +437,5 @@ module.exports = {
     getUnits, getUnit, postUnit, putUnit, removeUnit,
     getBrands, getBrand, postBrand, putBrand, removeBrand,
     getSuppliers, getSupplier, postSupplier, putSupplier, removeSupplier,
-    
+
 }

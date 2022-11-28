@@ -21,6 +21,7 @@
     "express-device": "^0.4.2",
     "joi": "^17.7.0",
     "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
     "oracledb": "^5.4.0"
   },
   "devDependencies": {
