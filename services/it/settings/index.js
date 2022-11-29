@@ -38,7 +38,7 @@ const models = () => {
 };
 const selectModel = (model_id) =>
     ExecuteIT(
-        `SELECT * FROM MODELS M LEFT OUTER JOIN SPECIFICATION S ON M.MODEL_ID = S.MODEL_ID WHERE  M.MODEL_ID = ${Number(model_id)}`
+        `SELECT * FROM MODELS M LEFT OUTER JOIN SPECIFICATION S ON M.MODEL_ID = S.MODEL_ID WHERE M.MODEL_ID = ${Number(model_id)}`
     );
 
 // Specifications
@@ -50,6 +50,10 @@ const specifications = () => {
 const selectSpecification = (specification_id) =>
     ExecuteIT(
         `SELECT * FROM SPECIFICATION S LEFT OUTER JOIN MODELS M ON S.MODEL_ID = M.MODEL_ID WHERE  S.ID = ${Number(specification_id)}`
+    );
+const selectSpecificationsByModelId = (model_id) =>
+    ExecuteIT(
+        `SELECT S.ID, M.MODEL_ID, M.MODEL_NAME, S.NAME, S.S_VALUE AS VALUE FROM SPECIFICATION S LEFT OUTER JOIN MODELS M ON S.MODEL_ID = M.MODEL_ID WHERE  S.MODEL_ID = ${Number(model_id)}`
     );
 
 // Units
@@ -194,6 +198,7 @@ module.exports = {
     productLists, getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists,
     models, selectModel, insertModel, updateModel, deleteModel,
     specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification,
+    selectSpecificationsByModelId,
     insertManySpecification,
     units, selectUnit, insertUnit, updateUnit, deleteUnit,
     brands, selectBrand, insertBrand, updateBrand, deleteBrand,

@@ -150,7 +150,7 @@ const checkModelSpecification = (req, res, next) => {
     if (req.method == 'POST') {
         modelspecificationSchema = Joi.object().keys({
             model_name: Joi.string().min(2).required(),
-            specifications: Joi.array().min(2).items(
+            specifications: Joi.array().min(1).items(
                 Joi.object().keys({
                     name: Joi.string().min(2).required(),
                     value: Joi.string().required(),

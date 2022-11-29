@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { categories, selectCategory, insertCategory, updateCategory, deleteCategory, productLists,
-    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, insertManySpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand, suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier } = require("../../../services/it/settings")
+    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, selectSpecificationsByModelId ,insertManySpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand, suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier } = require("../../../services/it/settings")
 
 
 /*------------- All Get Controllers ---------------*/
@@ -80,6 +80,15 @@ const getSpecification = async (req, res, next) => {
         next(err.message);
     }
 };
+const getSpecificationsByModelId = async (req, res, next) => {
+    try {
+        const { model_id } = req.params;
+        const result = await selectSpecificationsByModelId(model_id);
+        res.json(createResponse(result.rows));
+    } catch (err) {
+        next(err.message);
+    }
+}
 
 // Units
 const getUnits = async (_, res, next) => {
@@ -455,6 +464,7 @@ module.exports = {
     getProductLists, getProduct, postProductLists, putProductLists, removeProductLists,
     getModels, getModel, postModel, putModel, removeModel,
     getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification,
+    getSpecificationsByModelId,
     postModelSpecification,
     getUnits, getUnit, postUnit, putUnit, removeUnit,
     getBrands, getBrand, postBrand, putBrand, removeBrand,

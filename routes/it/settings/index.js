@@ -1,5 +1,6 @@
 const router = require("express").Router();
-const { getCategories, getCategory, postCategory, putCategory, removeCategory, getProductLists, getProduct, postProductLists, putProductLists, removeProductLists, getModels, getModel, postModel, putModel, removeModel, getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification, postModelSpecification, getUnits, getUnit, postUnit, putUnit, removeUnit, getBrands, getBrand, postBrand, putBrand, removeBrand, getSuppliers, getSupplier, postSupplier, putSupplier, removeSupplier } = require("../../../controllers/it/settings");
+const { getCategories, getCategory, postCategory, putCategory, removeCategory, getProductLists, getProduct, postProductLists, putProductLists, removeProductLists, getModels, getModel, postModel, putModel, removeModel, getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification, getSpecificationsByModelId, postModelSpecification, getUnits, getUnit, postUnit, putUnit, removeUnit, getBrands, getBrand, postBrand, putBrand, removeBrand, getSuppliers, getSupplier, postSupplier, putSupplier, removeSupplier } = require("../../../controllers/it/settings");
+const { selectSpecificationsByModelId } = require("../../../services/it/settings");
 
 const { checkCategory, checkProductList, checkModel, checkSpecification, checkModelSpecification, checkUnit, checkBrand, checkSupplier } = require("../../../validator/it/settings");
 
@@ -35,9 +36,8 @@ router.route("/specifications")
     .delete(checkSpecification, removeSpecification)
 router.get("/specifications/:specification_id", getSpecification);
 
-
 router.post("/modelSpecifications", checkModelSpecification, postModelSpecification)
-
+router.get("/modelSpecifications/:model_id", getSpecificationsByModelId)
 
 router.route("/units")
     .get(getUnits)
