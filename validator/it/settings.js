@@ -144,6 +144,29 @@ const checkSpecification = (req, res, next) => {
 };
 
 
+const checkModelSpecification = (req, res, next) => {
+    let modelspecificationSchema = {}
+
+    if (req.method == 'POST') {
+        modelspecificationSchema = Joi.object().keys({
+            model_name: Joi.string().min(2).required(),
+            specifications: Joi.array().min(2).items(
+                Joi.object().keys({
+                    name: Joi.string().min(2).required(),
+                    value: Joi.string().required(),
+                }).required()
+            ).unique((a, b) => a.name === b.name).required()
+        })
+    }
+    const { error } = modelspecificationSchema.validate({ ...req.body });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
+
 const checkUnit = (req, res, next) => {
     let unitSchema = {}
     let headers = {}
@@ -183,7 +206,7 @@ const checkBrand = (req, res, next) => {
     let headers = {}
 
     if (req.method == 'POST') {
-        unitSchema = Joi.object().keys({
+        brandSchema = Joi.object().keys({
             brand_name: Joi.string().min(2).required()
         })
     }
@@ -192,7 +215,7 @@ const checkBrand = (req, res, next) => {
         headers = { brand_id }
         brandSchema = Joi.object().keys({
             brand_id: Joi.number().required(),
-            brand_name: Joi.string().min(1).required()
+            brand_name: Joi.string().min(2).required()
         })
     }
     else if (req.method == 'DELETE') {
@@ -251,6 +274,7 @@ module.exports = {
     checkProductList,
     checkModel,
     checkSpecification,
+    checkModelSpecification,
     checkUnit,
     checkBrand,
     checkSupplier

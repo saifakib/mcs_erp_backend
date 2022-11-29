@@ -1,4 +1,5 @@
-const { ExecuteIT } = require("../../../utils/itDynamicController");
+const { ExecuteIT, ExecuteITMany } = require("../../../utils/itDynamicController");
+const { oracledb } = require("../../../db/db");
 
 
 /*------------- Get ------------*/
@@ -43,12 +44,12 @@ const selectModel = (model_id) =>
 // Specifications
 const specifications = () => {
     return ExecuteIT(
-        `SELECT * FROM SPECIFICATION S LEFT OUTER JOIN MODEL M ON S.MODEL_ID = M.MODEL_ID`
+        `SELECT * FROM SPECIFICATION S LEFT OUTER JOIN MODELS M ON S.MODEL_ID = M.MODEL_ID`
     );
 };
 const selectSpecification = (specification_id) =>
     ExecuteIT(
-        `SELECT * FROM SPECIFICATION S LEFT OUTER JOIN MODEL M ON S.MODEL_ID = M.MODEL_ID WHERE  S.ID = ${Number(specification_id)}`
+        `SELECT * FROM SPECIFICATION S LEFT OUTER JOIN MODELS M ON S.MODEL_ID = M.MODEL_ID WHERE  S.ID = ${Number(specification_id)}`
     );
 
 // Units
@@ -62,7 +63,7 @@ const selectUnit = (unit_id) => ExecuteIT(`SELECT * FROM UNIT WHERE UNIT_ID = ${
 // Brands
 const brands = () => {
     return ExecuteIT(
-        `SELECT * FROM BRANDORDER BY BRAND_ID DESC`
+        `SELECT * FROM BRAND ORDER BY BRAND_ID DESC`
     );
 };
 const selectBrand = (brand_id) => ExecuteIT(`SELECT * FROM BRAND WHERE BRAND_ID = ${Number(brand_id)}`)
@@ -90,7 +91,7 @@ const insertProduct = ({ product_name, category_id }) =>
 // Models
 const insertModel = ({ model_name }) =>
     ExecuteIT(
-        `INSERT INTO MODELS (MODEL_NAME) VALUES ('${model_name}')`
+        `INSERT INTO MODELS (MODEL_NAME) VALUES ('${model_name}') RETURN MODEL_ID INTO :id`, { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
 
 // Specifications
@@ -98,6 +99,11 @@ const insertSpecification = ({ model_id, name, value }) =>
     ExecuteIT(
         `INSERT INTO SPECIFICATION (MODEL_ID, NAME, S_VALUE) VALUES ('${Number(model_id)}', '${name}', '${value}')`
     );
+const insertManySpecification = (model_id, array) => {
+    let newArray = array;
+    const statement = `INSERT INTO SPECIFICATION (MODEL_ID, NAME, S_VALUE) VALUES ('${Number(model_id)}', :name, :value)`;
+    return ExecuteITMany(statement, newArray);
+};
 
 // Units
 const insertUnit = ({ unit_name }) =>
@@ -141,7 +147,7 @@ const updateSpecification = ({ SPECIFICATION_ID, NAME, VALUE }) =>
 
 // Units
 const updateUnit = ({ UNIT_NAME, UNIT_ID }) =>
-    ExecuteIT(`UPDATE UNIT SET UNIT_NAME = '${UNIT_NAME}' WHERE UNIT_IT = ${Number(UNIT_ID)}`);
+    ExecuteIT(`UPDATE UNIT SET UNIT_NAME = '${UNIT_NAME}' WHERE UNIT_ID = ${Number(UNIT_ID)}`);
 
 // Brands
 const updateBrand = ({ BRAND_NAME, BRAND_ID }) =>
@@ -179,7 +185,7 @@ const deleteBrand = ({ BRAND_ID }) =>
 
 // Suppliers
 const deleteSupplier = ({ SUP_ID }) =>
-ExecuteIT(`DELETE FROM SUPPLIERS WHERE SUPPLIER_ID = ${Number(SUP_ID)}`);
+    ExecuteIT(`DELETE FROM SUPPLIERS WHERE SUPPLIER_ID = ${Number(SUP_ID)}`);
 
 
 
@@ -188,6 +194,7 @@ module.exports = {
     productLists, getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists,
     models, selectModel, insertModel, updateModel, deleteModel,
     specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification,
+    insertManySpecification,
     units, selectUnit, insertUnit, updateUnit, deleteUnit,
     brands, selectBrand, insertBrand, updateBrand, deleteBrand,
     suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier,

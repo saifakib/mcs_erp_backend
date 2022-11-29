@@ -1,12 +1,12 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { categories, selectCategory, insertCategory, updateCategory, deleteCategory, productLists,
-    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand, suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier } = require("../../../services/it/settings")
+    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, insertManySpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand, suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier } = require("../../../services/it/settings")
 
 
 /*------------- All Get Controllers ---------------*/
 
 // Category
-const getCategories = async (_, res) => {
+const getCategories = async (_, res, next) => {
     try {
         const result = await categories();
         res.json(createResponse(result.rows));
@@ -14,11 +14,11 @@ const getCategories = async (_, res) => {
         next(err.message)
     }
 };
-const getCategory = async (req, res) => {
+const getCategory = async (req, res, next) => {
     try {
         const { category_id } = req.params;
         const result = await selectCategory(category_id);
-        res.json(createResponse(result.rows));
+        res.json(createResponse(result.rows[0]));
     } catch (err) {
         next(err.message)
     }
@@ -120,7 +120,7 @@ const getBrand = async (req, res, next) => {
 };
 
 // Suppliers
-const getSuppliers = async (req, res, next) => {
+const getSuppliers = async (_, res, next) => {
     try {
         const result = await suppliers();
         res.json(createResponse(result.rows));
@@ -185,6 +185,27 @@ const postSpecification = async (req, res, next) => {
         next(err);
     }
 };
+
+// Model Specifications
+const postModelSpecification = async (req, res, next) => {
+    try {
+        const { model_name, specifications } = req.body;
+        let insertedId = await insertModel({ model_name });
+        if (insertedId["outBinds"]["id"][0]) {
+            let postManySpecifications = await insertManySpecification(insertedId["outBinds"]["id"][0], specifications);
+            if (postManySpecifications.rowsAffected >= 1) {
+                res.json(createResponse(null, "Model Specifications Inserted Successfully!!", false));
+            } else {
+                res.json(createResponse(null, "Something is wrong in Model Specifications Insert!!", true));
+            }
+        } else {
+            res.json(createResponse(null, "Something is wrong in Model Insert!!", true));
+        }
+
+    } catch (err) {
+        next(err.message)
+    }
+}
 
 // Units
 const postUnit = async (req, res, next) => {
@@ -434,6 +455,7 @@ module.exports = {
     getProductLists, getProduct, postProductLists, putProductLists, removeProductLists,
     getModels, getModel, postModel, putModel, removeModel,
     getSpecifications, getSpecification, postSpecification, putSpecifications, removeSpecification,
+    postModelSpecification,
     getUnits, getUnit, postUnit, putUnit, removeUnit,
     getBrands, getBrand, postBrand, putBrand, removeBrand,
     getSuppliers, getSupplier, postSupplier, putSupplier, removeSupplier,
