@@ -74,7 +74,7 @@ const selectBrand = (brand_id) => ExecuteIT(`SELECT * FROM BRAND WHERE BRAND_ID 
 
 // Suppliers
 const suppliers = () => ExecuteIT(
-    `SELECT * FROM SUPPLIERS ORDER BY SUP_ID DESC`
+    `SELECT * FROM SUPPLIERS ORDER BY SUPPLIER_ID DESC`
 );
 const selectSupplier = (supplier_id) => ExecuteIT(`SELECT * FROM SUPPLIERS WHERE SUPPLIER_ID = ${Number(supplier_id)}`)
 
