@@ -146,7 +146,7 @@ const updateModel = ({ MODEL_NAME, MODEL_ID }) =>
 // Specifications
 const updateSpecification = ({ SPECIFICATION_ID, NAME, VALUE }) =>
     ExecuteIT(
-        `UPDATE SPECIFICATION SET NAME = '${NAME}', S_VALUE = '${VALUE}', WHERE ID = ${Number(SPECIFICATION_ID)}`
+        `UPDATE SPECIFICATION SET NAME = '${NAME}', S_VALUE = '${VALUE}' WHERE ID = ${Number(SPECIFICATION_ID)}`
     );
 
 // Units

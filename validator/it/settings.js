@@ -241,7 +241,8 @@ const checkSupplier = (req, res, next) => {
     if (req.method == 'POST') {
         supplierSchema = Joi.object().keys({
             sup_type: Joi.string().min(1).required(),
-            sup_name: Joi.string().min(5).required()
+            sup_name: Joi.string().min(5).required(),
+            sup_details: Joi.string()
         })
     }
     else if (req.method == 'PUT') {
@@ -250,7 +251,8 @@ const checkSupplier = (req, res, next) => {
         supplierSchema = Joi.object().keys({
             supplier_id: Joi.number().required(),
             sup_type: Joi.string().min(1).required(),
-            sup_name: Joi.string().min(5).required()
+            sup_name: Joi.string().min(5).required(),
+            sup_details: Joi.string()
         })
     }
     else if (req.method == 'DELETE') {
