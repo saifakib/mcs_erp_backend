@@ -1,7 +1,8 @@
 const { oracledb } = require("../db/db");
+// oracledb.autoCommit = false;
 
 // execute single query
-module.exports.ExecuteIT = (QuertyString, object = {}) => {
+const ExecuteIT = (QuertyString, object = {}) => {
   console.log(QuertyString)
   return new Promise(async function (resolve, reject) {
     try {
@@ -16,7 +17,7 @@ module.exports.ExecuteIT = (QuertyString, object = {}) => {
   });
 };
 // execute many query
-module.exports.ExecuteITMany = (QuertyString, binds, options = {}) => {
+const ExecuteITMany = (QuertyString, binds, options = {}) => {
   return new Promise(async function (resolve, reject) {
     try {
       let connection = await oracledb.getConnection("it");
@@ -29,3 +30,5 @@ module.exports.ExecuteITMany = (QuertyString, binds, options = {}) => {
     }
   });
 };
+
+module.exports = { ExecuteIT, ExecuteITMany };

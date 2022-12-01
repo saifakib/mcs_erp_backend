@@ -1,8 +1,9 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { format } = require('date-fns');
+const { commitConnect, rollbackConnect, randConnect } = require('../../../utils/dbtransactions');
 
-const { insertMrrLogs, insertStoreProduct, insertProductEntryLists, insertProdSummaries,
- } = require("../../../services/it/product")
+const { insertMrrLogs, insertStoreProduct, insertManyInd_Product,  insertProductEntryLists, insertProdSummaries,
+} = require("../../../services/it/product")
 
 
 /*------------- All Get Controllers ---------------*/
@@ -18,58 +19,52 @@ const postProductEntrilist = async (req, res, next) => {
         supplier_id,
         products,
     } = req.body;
-    console.log(req.body)
-
-    let date = new Date();
-    let currentDate = format(date, "yyyy-MM-dd");
-
     try {
-        const postMrrLogs = await insertMrrLogs(
-            req.body,
-            currentDate
-        );
-        if (postMrrLogs.outBinds.id[0]) {
-            // product should be an object
+        const postMrrLogs = await insertMrrLogs(req.body);
+
+        if (postMrrLogs.rowsAffected === 1) {
             products.forEach(async (product) => {
                 const postStorePro = await insertStoreProduct(product);
 
-                if (postStorePro.outBinds.id[0]) {
+                if (postStorePro.rowsAffected === 1) {
+
+                    let indProducts = [];
+                    for (let i = 0; i < product.qty; i++) {
+                        indProducts.push({
+                            STR_PRO_ID: postStorePro.outBinds.id[0],
+                            STATUS: 0
+                        })
+                    }
+                    
+                    const postManyIndProd = await insertManyInd_Product(indProducts);
+                    console.log("Post Mant Individual Products",postManyIndProd)
+                    
+
                     const postProEnList = await insertProductEntryLists(
                         product,
                         postMrrLogs["outBinds"]["id"][0],
                         supplier_id,
-                        postStorePro.outBinds.id[0],
-                        currentDate
+                        postStorePro.outBinds.id[0]
                     );
-                    // product.qty.reduce((item, ) => {
-
-                    // })
+                
                     const postProSum = await insertProdSummaries(
                         product,
-                        postStorePro.outBinds.id[0],
-                        currentDate
+                        postStorePro.outBinds.id[0]
                     );
 
                     if (!postProEnList.outBinds.id[0] || !postProSum.outBinds.id[0]) {
                         res.json(
-                            createResponse(
-                                null,
-                                "Error Occured In New Product Entry",
-                                true
-                            )
+                            createResponse(null,"Error Occured In New Product Entry",TextTrackCue)
                         );
                     }
                 } else {
                     res.json(
-                        createResponse(
-                            null,
-                            "Some Error Occured In New Product Entry",
-                            true
+                        createResponse(null,"Error Occured In New Product Entry",true
                         )
                     );
                 }
+                // res.json(createResponse(null, "Product Upload Succesfully"));
             });
-            res.json(createResponse(null, "Product Upload Succesfully"));
         } else {
             res.json(
                 createResponse(null, "Error Occured In Product Entry !!", true)
