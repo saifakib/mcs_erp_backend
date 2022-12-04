@@ -169,7 +169,7 @@ const deleteCategory = ({ CATEGORY_ID }) =>
 
 // ProductLists
 const deleteProductLists = ({ PRODUCT_ID }) =>
-    ExecuteIT(`DELETE FROM PRODUCT_NAME WHERE PRODUCT_ID = ${Number(PRODUCT_ID)}`);
+    ExecuteIT(`DELETE FROM PRODUCT_LIST WHERE PRODUCT_ID = ${Number(PRODUCT_ID)}`);
 
 // Models
 const deleteModel = ({ MODEL_ID }) =>
