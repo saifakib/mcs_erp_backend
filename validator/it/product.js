@@ -4,6 +4,7 @@ const { errorResponse } = require("../../utils/errorRespnose");
 
 
 const checkProdEntries = (req, res, next) => {
+    console.log(req.body)
     let checkProdEntriesSchema = {}
 
     if (req.method == 'POST') {
@@ -13,6 +14,7 @@ const checkProdEntries = (req, res, next) => {
             user_id: Joi.number().required(),
             workorder: Joi.string().required(),
             cashmemono: Joi.string().required(),
+            workorderdate: Joi.date().required(),
             suppdate: Joi.date().required(),
             cashmemodate: Joi.date().required(),
             products: Joi.array().min(1).items(
@@ -26,7 +28,8 @@ const checkProdEntries = (req, res, next) => {
                     stock_alert: Joi.number().min(1).required(),
                     remarks: Joi.string(),
                 }).required()
-            ).unique((a, b) => a.pro_id === b.pro_id).required()
+            ).unique((a, b) => a.pro_id === b.pro_id).required(),
+
         })
     }
     else if (req.method == 'PUT') {
@@ -57,6 +60,6 @@ const checkProdEntries = (req, res, next) => {
 
 
 module.exports = {
-    checkPostProdEntries
+    checkProdEntries
 }
 
