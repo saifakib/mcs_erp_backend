@@ -1,7 +1,11 @@
 const { ExecuteIT, ExecuteITMany } = require("../../../utils/itDynamicController");
 const { oracledb } = require("../../../db/db");
 
-/*------------- Get ------------*/
+/*------------- SELECT ------------*/
+const selectNewProductListByCatId = (CAT_ID) =>
+    ExecuteIT(
+        `SELECT * FROM PRODUCT_LIST PL WHERE PL.CATEGORY_ID = ${CAT_ID} AND PL.PRODUCT_ID NOT IN (SELECT SP.PRO_ID FROM STORE_PRODUCTS SP)`
+    );
 
 
 
@@ -12,8 +16,7 @@ const { oracledb } = require("../../../db/db");
 
 
 
-
-/*------------- Post ------------*/
+/*------------- INSERT ------------*/
 // Product Entries
 const insertMrrLogs = (
     {
@@ -66,10 +69,9 @@ const insertManyInd_Product = (array) => {
 
 // Product Entries Lists
 const insertProductEntryLists = (
-    { qty, price },
+    { qty, price, store_pro_id },
     mrr_id,
-    supplier_id,
-    store_pro_id
+    supplier_id
 ) =>
     ExecuteIT(
         `INSERT INTO PRODUCT_ENTRY_LIST (MRR_ID, SUP_ID, STR_PRO_ID, QUANTITES, AMOUNT) VALUES (${Number(
@@ -85,18 +87,43 @@ const insertProdSummaries = (
     store_pro_id
 ) =>
     ExecuteIT(
-        `INSERT INTO PRODUCT_SUMMARIES (STR_PRO_ID, INITIAL_QTY, CURRENT_PRICE, SUM_TYPE, PRESENT_QTY) VALUES (${Number(
+        `INSERT INTO PRODUCT_SUMMARIES (STR_PRO_ID, NEWADD_QTY, CURRENT_PRICE, SUM_TYPE, PRESENT_QTY) VALUES (${Number(
             store_pro_id
         )}, ${Number(qty)}, ${Number(
             price
         )}, 'In',  ${Number(qty)}) RETURN SUMMARY_ID INTO :id`,
         { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
+const insertExProdSummaries = (
+    totalQuantities,
+    { qty, price, store_pro_id }
+) =>
+    ExecuteIT(
+        `INSERT INTO PRODUCT_SUMMARIES (STR_PRO_ID, INITIAL_QTY, NEWADD_QTY, CURRENT_PRICE, SUM_TYPE, PRESENT_QTY) VALUES (${Number(
+            store_pro_id
+        )}, ${Number(totalQuantities)} - ${Number(qty)}, ${Number(qty)}, ${Number(
+            price
+        )}, 'In',  ${Number(totalQuantities)}) RETURN SUMMARY_ID INTO :id`,
+        { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+    );
 
 // 
 
+/*------------ UPDATE ------------*/
+
+const updateStoreProduct = ({ str_pro_id, qty, price }) =>
+    ExecuteIT(
+        `UPDATE STORE_PRODUCTS SET QUANTITY = QUANTITY + ${Number(
+            qty
+        )}, PRICE = ${Number(price)} WHERE STR_PRO_ID = ${Number(str_pro_id)} RETURN QUANTITY INTO :storeQuantity`,
+        { storeQuantity: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+    );
+
 
 module.exports = {
+    selectNewProductListByCatId,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
+    updateStoreProduct,
+    insertExProdSummaries,
 
 }

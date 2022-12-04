@@ -3,11 +3,11 @@ const Joi = require('joi');
 const { errorResponse } = require("../../utils/errorRespnose");
 
 
-const checkPostProdEntries = (req, res, next) => {
-    let postProdEntriesSchema = {}
+const checkProdEntries = (req, res, next) => {
+    let checkProdEntriesSchema = {}
 
     if (req.method == 'POST') {
-        postProdEntriesSchema = Joi.object().keys({
+        checkProdEntriesSchema = Joi.object().keys({
             mrr_no: Joi.number().required(),
             supplier_id: Joi.number().required(),
             user_id: Joi.number().required(),
@@ -28,10 +28,26 @@ const checkPostProdEntries = (req, res, next) => {
                 }).required()
             ).unique((a, b) => a.pro_id === b.pro_id).required()
         })
-    } else {
-        res.json(createResponse(null, "Request method should be POST", true));
     }
-    const { error } = postProdEntriesSchema.validate({ ...req.body });
+    else if (req.method == 'PUT') {
+        checkProdEntriesSchema = Joi.object().keys({
+            mrr_no: Joi.number().required(),
+            supplier_id: Joi.number().required(),
+            user_id: Joi.number().required(),
+            workorder: Joi.string().required(),
+            cashmemono: Joi.string().required(),
+            suppdate: Joi.date().required(),
+            cashmemodate: Joi.date().required(),
+            products: Joi.array().min(1).items(
+                Joi.object().keys({
+                    str_pro_id: Joi.number().required(),
+                    qty: Joi.number().min(0).required(),
+                    price: Joi.number().required(),
+                }).required()
+            ).unique((a, b) => a.str_pro_id === b.str_pro_id).required()
+        })
+    }
+    const { error } = checkProdEntriesSchema.validate({ ...req.body });
     const valid = error == null;
     if (valid) { next() }
     else {

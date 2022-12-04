@@ -1,9 +1,14 @@
 const router = require("express").Router();
-const { postProductEntrilist } = require("../../../controllers/it/product");
+const { newProductList, postProductEntrilist, putProductEntrilist } = require("../../../controllers/it/product");
 
 const { checkPostProdEntries } = require("../../../validator/it/product")
 
-router.post("/strProdEntry", checkPostProdEntries, postProductEntrilist)
+router.get("/newProductList/:category_id", newProductList);
+
+router.route("/strProdEntry", checkPostProdEntries)
+    .post(postProductEntrilist)
+    .put(putProductEntrilist)
+
 
 
 
