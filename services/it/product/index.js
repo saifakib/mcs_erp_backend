@@ -7,6 +7,11 @@ const selectNewProductListByCatId = (CAT_ID) =>
         `SELECT * FROM PRODUCT_LIST PL WHERE PL.CATEGORY_ID = ${CAT_ID} AND PL.PRODUCT_ID NOT IN (SELECT SP.PRO_ID FROM STORE_PRODUCTS SP)`
     );
 
+const selectCategoryWithStoreLength = () =>
+    ExecuteIT(
+        "SELECT distinct(C.CAT_ID), C.CATEGORYBN, C.CATEGORYEN, COUNT(P.PROID) OVER(PARTITION BY P.PROCATE) AS PRODUCTS FROM STR_CATEGORIES C LEFT OUTER JOIN STR_STOREPRODUCTS P ON C.CAT_ID = P.PROCATE ORDER BY CAT_ID DESC"
+    );
+
 
 
 
@@ -121,7 +126,7 @@ const updateStoreProduct = ({ str_pro_id, qty, price }) =>
 
 
 module.exports = {
-    selectNewProductListByCatId,
+    selectNewProductListByCatId, selectCategoryWithStoreLength,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
     updateStoreProduct,
     insertExProdSummaries,
