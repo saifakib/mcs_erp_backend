@@ -4,7 +4,6 @@ const { errorResponse } = require("../../utils/errorRespnose");
 
 
 const checkProdEntries = (req, res, next) => {
-    console.log(req.body)
     let checkProdEntriesSchema = {}
 
     if (req.method == 'POST') {
@@ -24,6 +23,7 @@ const checkProdEntries = (req, res, next) => {
                     brand_id: Joi.number().required(),
                     unit_id: Joi.number().required(),
                     qty: Joi.number().min(0).required(),
+                    non_workable: Joi.number().min(0).required(),
                     price: Joi.number().required(),
                     stock_alert: Joi.number().min(1).required(),
                     remarks: Joi.string(),
