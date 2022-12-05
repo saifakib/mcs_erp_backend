@@ -7,10 +7,27 @@ const selectNewProductListByCatId = (CAT_ID) =>
         `SELECT * FROM PRODUCT_LIST PL WHERE PL.CATEGORY_ID = ${CAT_ID} AND PL.PRODUCT_ID NOT IN (SELECT SP.PRO_ID FROM STORE_PRODUCTS SP)`
     );
 
-const selectCategoryWithStoreLength = () =>
+const selectCategoryWithStore = () =>
     ExecuteIT(
-        "SELECT distinct(C.CAT_ID), C.CATEGORYBN, C.CATEGORYEN, COUNT(P.PROID) OVER(PARTITION BY P.PROCATE) AS PRODUCTS FROM STR_CATEGORIES C LEFT OUTER JOIN STR_STOREPRODUCTS P ON C.CAT_ID = P.PROCATE ORDER BY CAT_ID DESC"
+        `WITH CATEGORY AS (			
+        SELECT  		
+          DISTINCT CATEGORY_NAME, C.CATEGORY_ID,
+          COUNT (PL.PRODUCT_ID) OVER (PARTITION BY C.CATEGORY_NAME) CT,
+          SUM(QUANTITY)  OVER (PARTITION BY PL.CATEGORY_ID),
+          SUM(NON_WORKABLE)  OVER (PARTITION BY PL.CATEGORY_ID)
+        FROM  STORE_PRODUCTS sp left outer join PRODUCT_LIST PL
+          ON PL.PRODUCT_ID = SP.PRO_ID
+          LEFT OUTER JOIN CATEGORIES C
+          ON C.CATEGORY_ID = PL.CATEGORY_ID		
+        )			
+        SELECT * FROM CATEGORY`
     );
+
+const selectStrProductsByCatId = (category_id) =>
+    ExecuteIT(`SELECT * FROM STORE_PRODUCTS SP LEFT OUTER JOIN PRODUCT_LIST PL ON SP.PRO_ID = PL.PRODUCT_ID WHERE PL.CATEGORY_ID=${Number(category_id)}`)
+
+const selectLastMrrNumber = () =>
+    ExecuteIT(`SELECT MAX(MRR_NO) AS MRRNO FROM MRRLOGS`);
 
 
 
@@ -29,17 +46,18 @@ const insertMrrLogs = (
         supplier_id,
         suppdate,
         workorder,
+        workorderdate,
         cashmemono,
         cashmemodate,
         user_id
     }
 ) =>
     ExecuteIT(
-        `INSERT INTO MRRLOGS (MRR_NO, SUP_ID, SUPP_DATE, WORK_ORDER, CASHMEMO_NO, CASHMEMO_DATE, ENTRY_BY) VALUES (${Number(
+        `INSERT INTO MRRLOGS (MRR_NO, SUP_ID, SUPP_DATE, WORK_ORDER, CASHMEMO_NO, CASHMEMO_DATE, ENTRY_BY, WORK_ORDER_DATE) VALUES (${Number(
             mrr_no
         )}, ${Number(
             supplier_id
-        )}, TO_DATE('${suppdate}', 'YYYY-MM-DD'), '${workorder}', '${cashmemono}', TO_DATE('${cashmemodate}', 'YYYY-MM-DD'), ${Number(user_id)}) RETURN MRR_LOG_ID INTO :id`,
+        )}, TO_DATE('${suppdate}', 'YYYY-MM-DD'), '${workorder}', '${cashmemono}', TO_DATE('${cashmemodate}', 'YYYY-MM-DD'), ${Number(user_id)}, TO_DATE('${workorderdate}', 'YYYY-MM-DD')) RETURN MRR_LOG_ID INTO :id`,
         { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
 
@@ -51,14 +69,15 @@ const insertStoreProduct = ({
     brand_id,
     unit_id,
     qty,
+    non_workable,
     price,
     stock_alert,
     remarks
 }) =>
     ExecuteIT(
-        `INSERT INTO STORE_PRODUCTS (MODEL_ID, PRO_ID, BRAND_ID, UNIT_ID, QUANTITY, PRICE, STOCK_ALERT, REMARKS) VALUES (${Number(model_id)}, ${Number(pro_id)}, ${Number(
+        `INSERT INTO STORE_PRODUCTS (MODEL_ID, PRO_ID, BRAND_ID, UNIT_ID, QUANTITY, NON_WORKABLE, PRICE, STOCK_ALERT, REMARKS) VALUES (${Number(model_id)}, ${Number(pro_id)}, ${Number(
             brand_id
-        )}, ${Number(unit_id)}, ${Number(qty)}, ${Number(price)}, ${Number(
+        )}, ${Number(unit_id)}, ${Number(qty)}, ${Number(non_workable)}, ${Number(price)}, ${Number(
             stock_alert
         )}, '${remarks}') RETURN STR_PRO_ID INTO :id`,
         { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
@@ -126,7 +145,7 @@ const updateStoreProduct = ({ str_pro_id, qty, price }) =>
 
 
 module.exports = {
-    selectNewProductListByCatId, selectCategoryWithStoreLength,
+    selectLastMrrNumber, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
     updateStoreProduct,
     insertExProdSummaries,
