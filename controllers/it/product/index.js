@@ -1,7 +1,7 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { commitConnect, rollbackConnect, randConnect } = require('../../../utils/dbtransactions');
 
-const { selectLastMrrNumber, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct,
+const { selectLastMrrNumber, selectStoreProducts, selectStoreProductsById, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct,
 } = require("../../../services/it/product");
 const { number } = require("joi");
 
@@ -43,17 +43,19 @@ const manageProducts = async (_, res, next) => {
                 QUANTITIES: obj['SUM(QUANTITY)OVER(PARTITIONBYPL.CATEGORY_ID)'],
                 NON_WORKABLE: obj['SUM(NON_WORKABLE)OVER(PARTITIONBYPL.CATEGORY_ID)']
             }
-            acc[1] += obj['SUM(QUANTITY)OVER(PARTITIONBYPL.CATEGORY_ID)'];
-            acc[2] += obj['SUM(NON_WORKABLE)OVER(PARTITIONBYPL.CATEGORY_ID)'];
+            acc[1] += obj.CT;
+            acc[2] += obj['SUM(QUANTITY)OVER(PARTITIONBYPL.CATEGORY_ID)'];
+            acc[3] += obj['SUM(NON_WORKABLE)OVER(PARTITIONBYPL.CATEGORY_ID)'];
 
             return acc;
-        }, [[], 0, 0]);
+        }, [[], 0, 0, 0]);
 
 
         let result = {
             categories: redefinedResponse[0],
-            totalProducts: redefinedResponse[1],
+            totalEntries: redefinedResponse[1],
             totalquantites: redefinedResponse[2],
+            totalnonworkable: redefinedResponse[3],
         };
 
         res.json(createResponse(result));
@@ -76,6 +78,36 @@ const getStrProductsbyCategoryId = async (req, res, next) => {
     }
 
 }
+
+const getStoreProducts = async (_, res, next) => {
+    try {
+        const response = await selectStoreProducts();
+        res.json(createResponse(response.rows));
+    } catch (err) {
+        next(err);
+    }
+};
+
+const getStoreProductsById = async (req, res, next) => {
+    try {
+        const { str_pro_id } = req.params;
+        const response = await selectStoreProductsById(str_pro_id);
+        res.json(createResponse(response.rows[0]));
+    } catch (err) {
+        next(err);
+    }
+};
+
+const getIndStoreProductsByStrId = async (req, res, next) => {
+    try {
+        const { str_pro_id } = req.params;
+        const response = await selectStoreProductsById(str_pro_id);
+        res.json(createResponse(response.rows[0]));
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 
 
@@ -170,7 +202,7 @@ const putProductEntrilist = async (req, res, next) => {
                 let count = 0;
                 products.forEach(async (product) => {
                     if (product.str_pro_id) {
-                        const updateStore = await updateStoreProduct(product);
+                        const updateStore = await updateStoreProduct(product, stock_alert = false);
 
                         if (updateStore.rowsAffected === 1) {
                             let indProducts = [];
@@ -228,6 +260,53 @@ const putProductEntrilist = async (req, res, next) => {
     }
 };
 
+const putStoreProductById = async (req, res, next) => {
+    try {
+        const { str_pro_id } = req.headers;
+        const responses = await selectStoreProductsById(str_pro_id);
+        // {
+        //     STR_PRO_ID: 118,
+        //     PRODUCT_NAME: 'demoiq',
+        //     MODEL_NAME: 'fatemastore',
+        //     UNIT_NAME: 'Eden arif',
+        //     BRAND_NAME: 'dell',
+        //     PRICE: 111,
+        //     STOCK_ALERT: 1,
+        //     QUANTITY: 10,
+        //     NON_WORKABLE: 1,
+        //     STOCK_ALERT_1: 1
+        //   }
+        console.log(responses.rows[0])
+        if (response.rows[0].QUANTITY > req.body.qty) {
+
+        } else {
+            let indProducts = [];
+            for (let i = 0; i < product.qty; i++) {
+                if (product.non_workable > i) {
+                    indProducts.push({
+                        STR_PRO_ID: postStorePro.outBinds.id[0],
+                        STATUS: 3   // product inactive
+                    })
+                } else {
+                    indProducts.push({
+                        STR_PRO_ID: postStorePro.outBinds.id[0],
+                        STATUS: 0   // product active
+                    })
+                }
+            }
+        }
+        //res.json(createResponse(response.rows[0]));
+        const response = await updateStoreProduct({ str_pro_id, ...req.body }, store_alert = true, store_alert_number = req.body.stock_alert);
+        console.log(response.rowsAffected === 1)
+        if (response.rowsAffected === 1) {
+            res.json(createResponse(null, "Store Updated"));
+        }
+
+    } catch (err) {
+        next(err);
+    }
+};
+
 
 
 
@@ -238,8 +317,8 @@ const putProductEntrilist = async (req, res, next) => {
 
 
 module.exports = {
-    newProductList,
-    manageProducts,
+    newProductList, getStoreProducts, getStoreProductsById,
+    manageProducts, getStrProductsbyCategoryId,
     postProductEntrilist,
-    putProductEntrilist
+    putProductEntrilist, putStoreProductById
 }

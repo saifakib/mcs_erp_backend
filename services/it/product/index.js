@@ -7,6 +7,7 @@ const selectNewProductListByCatId = (CAT_ID) =>
         `SELECT * FROM PRODUCT_LIST PL WHERE PL.CATEGORY_ID = ${CAT_ID} AND PL.PRODUCT_ID NOT IN (SELECT SP.PRO_ID FROM STORE_PRODUCTS SP)`
     );
 
+
 const selectCategoryWithStore = () =>
     ExecuteIT(
         `WITH CATEGORY AS (			
@@ -24,7 +25,30 @@ const selectCategoryWithStore = () =>
     );
 
 const selectStrProductsByCatId = (category_id) =>
-    ExecuteIT(`SELECT * FROM STORE_PRODUCTS SP LEFT OUTER JOIN PRODUCT_LIST PL ON SP.PRO_ID = PL.PRODUCT_ID WHERE PL.CATEGORY_ID=${Number(category_id)}`)
+    ExecuteIT(`SELECT SP.STR_PRO_ID, PL.PRODUCT_NAME, M.MODEL_NAME, U.UNIT_NAME, B.BRAND_NAME, 
+    SP.PRICE, SP.STOCK_ALERT, SP.QUANTITY, SP.NON_WORKABLE, SP.STOCK_ALERT, C.CATEGORY_NAME, C.CATEGORY_ID FROM STORE_PRODUCTS SP 
+    LEFT OUTER JOIN PRODUCT_LIST PL ON SP.PRO_ID = PL.PRODUCT_ID
+    LEFT OUTER JOIN CATEGORIES C ON PL.CATEGORY_ID = C.CATEGORY_ID
+    LEFT OUTER JOIN MODELS M ON SP.MODEL_ID = M.MODEL_ID
+    LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
+    LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID
+    WHERE PL.CATEGORY_ID=${Number(category_id)}`);
+
+
+const selectStoreProducts = () => ExecuteIT(`SELECT SP.STR_PRO_ID, PL.PRODUCT_NAME, M.MODEL_NAME, U.UNIT_NAME, B.BRAND_NAME, 
+    SP.PRICE, SP.STOCK_ALERT, SP.QUANTITY, SP.NON_WORKABLE, SP.STOCK_ALERT FROM STORE_PRODUCTS SP 
+    LEFT OUTER JOIN PRODUCT_LIST PL ON SP.PRO_ID = PL.PRODUCT_ID
+    LEFT OUTER JOIN MODELS M ON SP.MODEL_ID = M.MODEL_ID
+    LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
+    LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID`);
+
+
+const selectStoreProductsById = (str_pro_id) => ExecuteIT(`SELECT SP.STR_PRO_ID, PL.PRODUCT_NAME, M.MODEL_NAME, U.UNIT_NAME, B.BRAND_NAME, 
+    SP.PRICE, SP.STOCK_ALERT, SP.QUANTITY, SP.NON_WORKABLE, SP.STOCK_ALERT FROM STORE_PRODUCTS SP 
+    LEFT OUTER JOIN PRODUCT_LIST PL ON SP.PRO_ID = PL.PRODUCT_ID
+    LEFT OUTER JOIN MODELS M ON SP.MODEL_ID = M.MODEL_ID
+    LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
+    LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID WHERE SP.STR_PRO_ID = ${Number(str_pro_id)}`);
 
 const selectLastMrrNumber = () =>
     ExecuteIT(`SELECT MAX(MRR_NO) AS MRRNO FROM MRRLOGS`);
@@ -135,17 +159,26 @@ const insertExProdSummaries = (
 
 /*------------ UPDATE ------------*/
 
-const updateStoreProduct = ({ str_pro_id, qty, price }) =>
-    ExecuteIT(
+const updateStoreProduct = ({ str_pro_id, qty, price }, stock_alert=false, stock_alert_number) => 
+    stock_alert ? ExecuteIT(
+        `UPDATE STORE_PRODUCTS SET QUANTITY = ${Number(
+            qty
+        )}, PRICE = ${Number(price)}, STOCK_ALERT = ${Number(stock_alert_number)} WHERE STR_PRO_ID = ${Number(str_pro_id)} RETURN QUANTITY INTO :storeQuantity`,
+        { storeQuantity: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+    ) : ExecuteIT(
         `UPDATE STORE_PRODUCTS SET QUANTITY = QUANTITY + ${Number(
             qty
-        )}, PRICE = ${Number(price)} WHERE STR_PRO_ID = ${Number(str_pro_id)} RETURN QUANTITY INTO :storeQuantity`,
+        )}, PRICE = ${Number(price)}, NON_WORKABLE = NON_WORKABLE + ${Number(non_workable)} WHERE STR_PRO_ID = ${Number(str_pro_id)} RETURN QUANTITY INTO :storeQuantity`,
         { storeQuantity: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
 
 
+
+
 module.exports = {
-    selectLastMrrNumber, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
+    selectLastMrrNumber,
+    selectStoreProducts, selectStoreProductsById,
+    selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
     updateStoreProduct,
     insertExProdSummaries,
