@@ -22,13 +22,19 @@ const productLists = () => {
 };
 const selectProductLists = (product_id) =>
     ExecuteIT(
-        `SELECT PL.PRODUCT_ID, PL.PRODUCTNAME, PL.CATEGORY_ID, C.CATEGORYNAME FROM PRODUCT_LIST PL LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID WHERE PL.PRODUCT_ID = ${Number(product_id)}`
+        `SELECT PL.PRODUCT_ID, PL.PRODUCT_NAME, PL.CATEGORY_ID, C.CATEGORY_NAME FROM PRODUCT_LIST PL LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID WHERE PL.PRODUCT_ID = ${Number(product_id)}`
     );
 const getCountProductLists = () => {
     return ExecuteIT(
         `select count(product_id) as total_products from product_list`
     );
 };
+
+// Category ProductList
+const selectProductListCountByCategories = () => ExecuteIT(`SELECT distinct(C.CATEGORY_ID), C.CATEGORY_NAME, COUNT(P.PRODUCT_ID) OVER(PARTITION BY P.CATEGORY_ID) AS PRODUCT_LISTS FROM CATEGORIES C LEFT OUTER JOIN PRODUCT_LIST P ON C.CATEGORY_ID = P.CATEGORY_ID ORDER BY C.CATEGORY_ID DESC`);
+const selectProductListsByCatId = (category_id) => ExecuteIT(`SELECT * FROM PRODUCT_LIST PL LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID  WHERE C.CATEGORY_ID = ${Number(
+    category_id
+  )}`)
 
 // Models
 const models = () => {
@@ -203,5 +209,7 @@ module.exports = {
     units, selectUnit, insertUnit, updateUnit, deleteUnit,
     brands, selectBrand, insertBrand, updateBrand, deleteBrand,
     suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier,
+
+    selectProductListCountByCategories, selectProductListsByCatId,
 
 }

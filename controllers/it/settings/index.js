@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { categories, selectCategory, insertCategory, updateCategory, deleteCategory, productLists,
-    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, selectSpecificationsByModelId ,insertManySpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand, suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier } = require("../../../services/it/settings")
+    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, selectSpecificationsByModelId ,insertManySpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand, suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier, selectProductListCountByCategories, selectProductListsByCatId } = require("../../../services/it/settings")
 
 
 /*------------- All Get Controllers ---------------*/
@@ -42,6 +42,26 @@ const getProduct = async (req, res, next) => {
         next(err.message);
     }
 };
+
+// Category ProductLists
+const getProductListCountByCategories = async (_, res, next) => {
+    try {
+        const result = await selectProductListCountByCategories();
+        console.log(result)
+        res.json(createResponse(result.rows));
+    } catch (err) {
+        next(err.message);
+    }
+}
+const getProductListByCategoryId = async (req, res, next) => {
+    try {
+        const { category_id } = req.params;
+        const result = await selectProductListsByCatId(category_id);
+        res.json(createResponse(result.rows));
+    } catch (err) {
+        next(err.message);
+    }
+}
 
 // Models
 const getModels = async (_, res, next) => {
@@ -470,4 +490,5 @@ module.exports = {
     getBrands, getBrand, postBrand, putBrand, removeBrand,
     getSuppliers, getSupplier, postSupplier, putSupplier, removeSupplier,
 
+    getProductListCountByCategories, getProductListByCategoryId,
 }

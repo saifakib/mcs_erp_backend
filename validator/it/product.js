@@ -8,7 +8,6 @@ const checkProdEntries = (req, res, next) => {
 
     if (req.method == 'POST') {
         checkProdEntriesSchema = Joi.object().keys({
-            mrr_no: Joi.number().required(),
             supplier_id: Joi.number().required(),
             user_id: Joi.number().required(),
             workorder: Joi.string().required(),
@@ -23,7 +22,7 @@ const checkProdEntries = (req, res, next) => {
                     brand_id: Joi.number().required(),
                     unit_id: Joi.number().required(),
                     qty: Joi.number().min(0).required(),
-                    non_workable: Joi.number().min(0).required(),
+                    non_workable: Joi.number().min(0).default(0).required(),
                     price: Joi.number().required(),
                     stock_alert: Joi.number().min(1).required(),
                     remarks: Joi.string(),
@@ -34,7 +33,6 @@ const checkProdEntries = (req, res, next) => {
     }
     else if (req.method == 'PUT') {
         checkProdEntriesSchema = Joi.object().keys({
-            mrr_no: Joi.number().required(),
             supplier_id: Joi.number().required(),
             user_id: Joi.number().required(),
             workorder: Joi.string().required(),
@@ -45,6 +43,7 @@ const checkProdEntries = (req, res, next) => {
                 Joi.object().keys({
                     str_pro_id: Joi.number().required(),
                     qty: Joi.number().min(0).required(),
+                    non_workable: Joi.number().min(0).default(0).required(),
                     price: Joi.number().required(),
                 }).required()
             ).unique((a, b) => a.str_pro_id === b.str_pro_id).required()
@@ -58,8 +57,31 @@ const checkProdEntries = (req, res, next) => {
     }
 };
 
+const checkStrProdList = async (req, res, next) => {
+    let strProdSchema = {}
+    let headers = {}
+
+    if (req.method == 'PUT') {
+        const { str_pro_id } = req.headers;
+        headers = { str_pro_id }
+        strProdSchema = Joi.object().keys({
+            str_pro_id: Joi.number().required(),
+            qty: Joi.number().required(),
+            price: Joi.number().required(),
+            stock_alert: Joi.number().required(),
+        })
+    }
+    const { error } = strProdSchema.validate({ ...req.body, ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+}
+
 
 module.exports = {
-    checkProdEntries
+    checkProdEntries,
+    checkStrProdList
 }
 
