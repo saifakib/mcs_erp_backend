@@ -31,24 +31,24 @@ const checkProdEntries = (req, res, next) => {
 
         })
     }
-    else if (req.method == 'PUT') {
-        checkProdEntriesSchema = Joi.object().keys({
-            supplier_id: Joi.number().required(),
-            user_id: Joi.number().required(),
-            workorder: Joi.string().required(),
-            cashmemono: Joi.string().required(),
-            suppdate: Joi.date().required(),
-            cashmemodate: Joi.date().required(),
-            products: Joi.array().min(1).items(
-                Joi.object().keys({
-                    str_pro_id: Joi.number().required(),
-                    qty: Joi.number().min(0).required(),
-                    non_workable: Joi.number().min(0).default(0).required(),
-                    price: Joi.number().required(),
-                }).required()
-            ).unique((a, b) => a.str_pro_id === b.str_pro_id).required()
-        })
-    }
+    // else if (req.method == 'PUT') {
+    //     checkProdEntriesSchema = Joi.object().keys({
+    //         supplier_id: Joi.number().required(),
+    //         user_id: Joi.number().required(),
+    //         workorder: Joi.string().required(),
+    //         cashmemono: Joi.string().required(),
+    //         suppdate: Joi.date().required(),
+    //         cashmemodate: Joi.date().required(),
+    //         products: Joi.array().min(1).items(
+    //             Joi.object().keys({
+    //                 str_pro_id: Joi.number().required(),
+    //                 qty: Joi.number().min(0).required(),
+    //                 non_workable: Joi.number().min(0).default(0).required(),
+    //                 price: Joi.number().required(),
+    //             }).required()
+    //         ).unique((a, b) => a.str_pro_id === b.str_pro_id).required()
+    //     })
+    // }
     const { error } = checkProdEntriesSchema.validate({ ...req.body });
     const valid = error == null;
     if (valid) { next() }
