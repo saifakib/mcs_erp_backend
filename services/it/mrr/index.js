@@ -12,12 +12,29 @@ const selectMrrProListBySupplierId = (supplier_id) => ExecuteIT(
     LEFT OUTER JOIN MRRLOGS M
     ON M.MRR_LOG_ID = PEL.MRR_ID
     WHERE PEL.SUP_ID = ${Number(supplier_id)}`
-)
+);
+
+const selectmrrByMrrno = (mrr_no, supplier_id) => ExecuteIT(
+    `SELECT * FROM MRRLOGS WHERE SUP_ID = ${supplier_id} AND MRR_NO= ${mrr_no} FETCH NEXT 1 ROWS ONLY`
+);
+
+const selectProductEntriLists = (supplier_id, mrr_log_id) =>
+    ExecuteIT(
+        `SELECT PL.PRODUCT_NAME, S.STR_PRO_ID, LT.QUANTITES, S.PRICE, U.UNIT_NAME, M.MODEL_NAME, B.BRAND_NAME  FROM PRODUCT_ENTRY_LIST LT 
+        LEFT OUTER JOIN STORE_PRODUCTS S ON LT.STR_PRO_ID = S.STR_PRO_ID 
+        LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = LT.PRO_ID 
+        LEFT OUTER JOIN MODELS M ON M.MODEL_ID = S.MODEL_ID 
+        LEFT OUTER JOIN BRAND B ON B.BRAND_ID = S.BRAND_ID 
+        LEFT OUTER JOIN UNIT U ON S.UNIT_ID = U.UNIT_ID 
+        WHERE SUP_ID = ${supplier_id} AND MRR_ID=${mrr_log_id}`
+    );
 
 
 
 
 module.exports = {
     selectSupplierWithProductEntriesInfo,
-    selectMrrProListBySupplierId
+    selectMrrProListBySupplierId,
+    selectmrrByMrrno,
+    selectProductEntriLists
 }
