@@ -50,6 +50,8 @@ const selectStoreProductsById = (str_pro_id) => ExecuteIT(`SELECT SP.STR_PRO_ID,
     LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
     LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID WHERE SP.STR_PRO_ID = ${Number(str_pro_id)}`);
 
+    
+
 const selectLastMrrNumber = () =>
     ExecuteIT(`SELECT MAX(MRR_NO) AS MRRNO FROM MRRLOGS`);
 
@@ -109,7 +111,7 @@ const insertStoreProduct = ({
 
 const insertManyInd_Product = (array) => {
     let newArray = array;
-    const statement = `INSERT INTO IND_PRODUCT (STR_PRO_ID, STATUS) VALUES (:STR_PRO_ID, :STATUS)`;
+    const statement = `INSERT INTO IND_PRODUCT (STR_PRO_ID, STATUS, UNIQUE_V, PRICE) VALUES (:STR_PRO_ID, :STATUS, :UNIQUE_V, :PRICE)`;
     return ExecuteITMany(statement, newArray);
 };
 
@@ -117,29 +119,29 @@ const insertManyInd_Product = (array) => {
 
 // Product Entries Lists
 const insertProductEntryLists = (
-    { qty, price, store_pro_id },
+    { qty, price, store_pro_id, pro_id },
     mrr_id,
     supplier_id
 ) =>
     ExecuteIT(
-        `INSERT INTO PRODUCT_ENTRY_LIST (MRR_ID, SUP_ID, STR_PRO_ID, QUANTITES, AMOUNT) VALUES (${Number(
+        `INSERT INTO PRODUCT_ENTRY_LIST (MRR_ID, SUP_ID, PRO_ID, STR_PRO_ID, QUANTITES, AMOUNT) VALUES (${Number(
             mrr_id
-        )}, ${Number(supplier_id)}, ${Number(store_pro_id)}, ${Number(qty)}, ${Number(
+        )}, ${Number(supplier_id)}, ${Number(pro_id)}, ${Number(store_pro_id)}, ${Number(qty)}, ${Number(
             price
         )}) RETURN PRO_EN_L_ID INTO :id`,
         { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
 
 const insertProdSummaries = (
-    { qty, price },
+    { qty, price, pro_id },
     store_pro_id
 ) =>
     ExecuteIT(
-        `INSERT INTO PRODUCT_SUMMARIES (STR_PRO_ID, NEWADD_QTY, CURRENT_PRICE, SUM_TYPE, PRESENT_QTY) VALUES (${Number(
+        `INSERT INTO PRODUCT_SUMMARIES (STR_PRO_ID, NEWADD_QTY, CURRENT_PRICE, SUM_TYPE, PRESENT_QTY, PRO_ID) VALUES (${Number(
             store_pro_id
         )}, ${Number(qty)}, ${Number(
             price
-        )}, 'In',  ${Number(qty)}) RETURN SUMMARY_ID INTO :id`,
+        )}, 'In',  ${Number(qty)}, ${Number(pro_id)}) RETURN SUMMARY_ID INTO :id`,
         { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
 const insertExProdSummaries = (
