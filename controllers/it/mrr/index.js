@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectSupplierWithProductEntriesInfo, selectMrrProListBySupplierId, selectmrrByMrrno, selectProductEntriLists} = require("../../../services/it/mrr");
+const { selectSupplierWithProductEntriesInfo, selectMrrProListBySupplierId, selectmrrByMrrno, selectProductEntriLists } = require("../../../services/it/mrr");
 const { selectSupplier } = require("../../../services/it/settings")
 const { format } = require("date-fns")
 
@@ -7,15 +7,15 @@ const { format } = require("date-fns")
  * Manage Supplier Conrtoller
  */
 const manageSupplier = async (req, res, next) => {
-    try {
-        const suppliersWithEntriesInfo = await selectSupplierWithProductEntriesInfo();
-        const response = {
-            suppliersWithEntriesInfo: suppliersWithEntriesInfo.rows
-        };
-        res.json(createResponse(response));
-    } catch (err) {
-        next(err);
-    }
+  try {
+    const suppliersWithEntriesInfo = await selectSupplierWithProductEntriesInfo();
+    const response = {
+      suppliersWithEntriesInfo: suppliersWithEntriesInfo.rows
+    };
+    res.json(createResponse(response));
+  } catch (err) {
+    next(err);
+  }
 };
 
 
@@ -24,51 +24,50 @@ const manageSupplier = async (req, res, next) => {
  * @param {Number} supplier_id
  */
 const mrrProListBySupId = async (req, res, next) => {
-    const { supplier_id } = req.params;
-    try {
-      if (!supplier_id) {
-        res.json(createResponse(null, "Required Parameter Missing", true));
-      } else {
-        let response = await selectMrrProListBySupplierId(supplier_id);
-  
-        let result = {};
-  
-        if (response.rows.length > 0) {
-          result = response.rows.reduce((acc, val) => {
-            const da = new Date(val.ENTRY_DATE);
-            const entrydate = da.toLocaleDateString("es-CL");
-            let obj = {
-              SUP_ID: val.SUP_ID,
-              MRRID: val.MRR_ID,
-              MRRNUMBER: val.MRR_NO,
-            };
-            if (acc[entrydate]) {
-              acc[entrydate].push(obj);
-            } else {
-              acc[entrydate] = [];
-              acc[entrydate].push(obj);
-            }
-            return acc;
-          }, {});
-        }
+  const { supplier_id } = req.params;
+  try {
+    if (!supplier_id) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    } else {
+      let response = await selectMrrProListBySupplierId(supplier_id);
 
-        console.log(result)
-  
-        let result2 = Object.keys(result).reduce((acc, key) => {
-          let createObj = {
-            ENTRY_DATE: key,
-            MRR: result[key],
+      let result = {};
+
+      if (response.rows.length > 0) {
+        result = response.rows.reduce((acc, val) => {
+          const da = new Date(val.ENTRY_DATE);
+          const entrydate = da.toLocaleDateString("es-CL");
+          let obj = {
+            SUP_ID: val.SUP_ID,
+            MRRID: val.MRR_ID,
+            MRRNUMBER: val.MRR_NO,
           };
-          acc.push({ ...createObj });
+          if (acc[entrydate]) {
+            acc[entrydate].push(obj);
+          } else {
+            acc[entrydate] = [];
+            acc[entrydate].push(obj);
+          }
           return acc;
-        }, []);
-  
-        res.json(createResponse(result2));
+        }, {});
       }
-    } catch (err) {
-      next(err);
+
+      let result2 = Object.keys(result).reduce((acc, key, index) => {
+        let createObj = {
+          ENTRY_DATE: key,
+          SERIAL: ++index,
+          MRR: result[key],
+        };
+        acc.push({ ...createObj });
+        return acc;
+      }, []);
+
+      res.json(createResponse(result2));
     }
-  };
+  } catch (err) {
+    next(err);
+  }
+};
 
 
 /**
@@ -76,7 +75,7 @@ const mrrProListBySupId = async (req, res, next) => {
  * @param {Number} supplier_id
  * @param {Number} mrr_no
  */
- const viewProductReceptBySupIdMrr = async (req, res, next) => {
+const viewProductReceptBySupIdMrr = async (req, res, next) => {
   const { supplier_id, mrr_no } = req.params;
 
   try {
@@ -120,7 +119,7 @@ const mrrProListBySupId = async (req, res, next) => {
 
 
 module.exports = {
-    manageSupplier,
-    mrrProListBySupId,
-    viewProductReceptBySupIdMrr
+  manageSupplier,
+  mrrProListBySupId,
+  viewProductReceptBySupIdMrr
 }
