@@ -28,7 +28,6 @@ const insertManyProRequisition = (array) => {
 };
 
 const insertManyIndProRequisition = (pro_req_id, array) => {
-  console.log("Array: ", array)
   const newArray = array.reduce((acc, obj) => {
     acc.push({
       PRO_REQ_ID: Number(pro_req_id),
@@ -81,7 +80,6 @@ const updateManyIndProduct = (array) => {
     });
     return acc;
   }, []);
-  console.log(newArray)
   const statement = `UPDATE IND_PRODUCT SET (STATUS) = (:STATUS) WHERE (IND_PRODUCT_ID) = (:IND_PRODUCT_ID)`;
   return ExecuteITMany(statement, newArray)
 }

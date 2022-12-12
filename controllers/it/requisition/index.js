@@ -1,5 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { selectIndProductList, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
+const { closestind, indexTo } = require("date-fns/fp");
 
 
 /*------------- post ------------*/
@@ -44,56 +45,79 @@ const putReqByItStoreOfficer = async (req, res, next) => {
     try {
         const { req_id, products, str_remarks } = req.body;
 
-        products.forEach(async (product) => {
+        let reqProdCount = products.length;
+        for (let i = 0; i < products.length; i++) {
+            let product = products[i];
+            let ind = i;
+            // }
+            // products.forEach(async (product, ind) => {
+
             let totalAprQty = 0;
-            product.store.forEach(async (item) => {
+            let strCount = product.store.length;
+            for (let j = 0; j < product.store.length; j++) {
+                let item = product.store[j];
+                let index = j;
+                // }
+                // product.store.forEach(async (item, index) => {
+                if (item.qty > 0) {
+                    const updateStoreBanalce = await updateStrBalance(item.str_pro_id, item.qty);
+                    totalAprQty += item.qty;
 
-                const updateStoreBanalce = await updateStrBalance(item.str_pro_id, item.qty);
-                totalAprQty += item.qty;
+                    if (updateStoreBanalce.rowsAffected === 1) {
+                        const indProdLists = await selectIndProductList(item.str_pro_id, 0);
 
-                console.log(updateStrBalance)
+                        if (indProdLists.rows.length > 0) {
+                            const updatedIndProdLists = indProdLists.rows.slice(0, item.qty);
 
-                const indProdLists = await selectIndProductList(item.str_pro_id, 0);
+                            const updateIndStoreProd = await updateManyIndProduct(updatedIndProdLists);
 
-                console.log(indProdLists)
+                            if (updateIndStoreProd.rowsAffected >= 1) {
+                                const postIndProReq = await insertManyIndProRequisition(product.pro_req_id, updatedIndProdLists)
 
-                const updatedIndProdLists = indProdLists.rows.slice(0, item.qty);
-
-                console.log(updatedIndProdLists)
-
-                const updateIndStoreProd = await updateManyIndProduct(updatedIndProdLists);
-
-                console.log(updateIndStoreProd)
-
-                const postIndProReq = await insertManyIndProRequisition(product.pro_req_id, updatedIndProdLists)
-
-                console.log(postIndProReq)
-
-                if (postIndProReq.rowAffected >= 1) {
-                    const dataToInsertSummaries = {
-                        PRO_ID: product.pro_id,
-                        STR_PRO_ID: item.str_pro_id,
-                        TOTAL_OUT: item.qty,
-                        SUM_TYPE: "Out"
-                    };
-                    await insertSummaries(dataToInsertSummaries);
+                                if (postIndProReq.rowsAffected >= 1) {
+                                    const dataToInsertSummaries = {
+                                        PRO_ID: product.pro_id,
+                                        STR_PRO_ID: item.str_pro_id,
+                                        TOTAL_OUT: item.qty,
+                                        SUM_TYPE: "Out"
+                                    };
+                                    let insertSumm = await insertSummaries(dataToInsertSummaries);
+                                    if (insertSumm.rowsAffected >= 1) {
+                                        strCount -= 1;
+                                    }
+                                }
+                            } 
+                        } 
+                    } 
+                } else {
+                    strCount -= 1;
                 }
-            })
+            }
+            //)
 
             // Update pro requisition apr_qty
-            const putProRequsition = await updateProRequisition(product.pro_req_id, totalAprQty);
-        });
-
-        const updateObj = {
-            REQ_STATUS: 1,
-            STR_REMARKS: str_remarks,
-            REQ_ID: Number(req_id),
-        };
-
-        const requistionUpdate = await updateRequisition(updateObj);
-        if (requistionUpdate.rowAffected === 1) {
-            res.json(createResponse(null, "Requisition Approved"));
+            if (strCount === 0) {
+                const putProRequsition = await updateProRequisition(product.pro_req_id, totalAprQty);
+                if (putProRequsition.rowsAffected === 1) {
+                    reqProdCount -= 1;
+                }
+            }
         }
+        //);
+
+        if (reqProdCount === 0) {
+            const updateObj = {
+                REQ_STATUS: 1,
+                STR_REMARKS: str_remarks,
+                REQ_ID: Number(req_id),
+            };
+
+            const requistionUpdate = await updateRequisition(updateObj);
+            if (requistionUpdate.rowsAffected === 1) {
+                res.json(createResponse(null, "Requisition Approved"));
+            }
+        }
+
     } catch (error) {
         next(error.message);
     }
