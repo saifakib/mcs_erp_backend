@@ -7,6 +7,26 @@ const { oracledb } = require("../../../db/db");
 
 const selectIndProductList = (str_pro_id, status) => ExecuteIT(`SELECT * FROM IND_PRODUCT WHERE STR_PRO_ID = ${Number(str_pro_id)} AND STATUS = ${Number(status)}`);
 
+const selectUserRequisitions = (user_id) =>
+  ExecuteIT(`SELECT distinct(R.REQ_ID), R.HR_ID, R.USER_REMARKS, R.STR_REMARKS, D.DEPARTEMENT, DE.DESIGNATION,
+  case
+    when R.REQ_STATUS = 0 then 'Pending'
+    when R.REQ_STATUS = 1 then 'Approve'
+    when R.REQ_STATUS = 2 then 'Accept'
+    when R.REQ_STATUS = 3 then 'Deny'
+  end Status,
+  sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQQUNTITY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY
+  FROM REQUISITION R 
+  LEFT OUTER JOIN PRO_REQUISITION PR
+ON R.REQ_ID = PR.REQ_ID
+  LEFT OUTER JOIN  hrm.EMPLOYEE E 
+  ON E.EMPLOYE_ID = R.HR_ID 
+  LEFT OUTER JOIN hrm.DEPARTMENT_LIST D 
+  ON E.DEPARTEMENT_ID = D.DEPARTEMENT_ID 
+  LEFT OUTER JOIN hrm.DESIGNATION DE
+  ON DE.DESIGNATION_ID = E.DESIGNATION_ID 
+  WHERE R.HR_ID=${Number(user_id)}`);
+
 
 
 /*------------- INSERT ------------*/
@@ -86,6 +106,7 @@ const updateManyIndProduct = (array) => {
 
 module.exports = {
   // selectProductBalance,
+  selectUserRequisitions,
   selectIndProductList,
   insertRequisitionInfo,
   insertManyProRequisition,

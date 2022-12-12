@@ -3,6 +3,24 @@ const Joi = require('joi');
 const { errorResponse } = require("../../utils/errorRespnose");
 
 
+const checkUserRequisition = (req, res, next) => {
+    let checkUserRequisitionSchema = {}
+
+    if (req.method == 'GET') {
+        const { user_id } = req.headers;
+        headers = { user_id }
+        checkUserRequisitionSchema = Joi.object().keys({
+            user_id: Joi.number().required(),
+        })
+    }
+    const { error } = checkUserRequisitionSchema.validate({ ...req.body, ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
 const checkPostRequisition = (req, res, next) => {
     let checkUserRequisitionSchema = {}
 
@@ -30,6 +48,7 @@ const checkPostRequisition = (req, res, next) => {
 
 
 module.exports = {
+    checkUserRequisition,
     checkPostRequisition
 }
 

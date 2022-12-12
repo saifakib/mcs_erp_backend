@@ -1,6 +1,18 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectIndProductList, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
-const { closestind, indexTo } = require("date-fns/fp");
+const {selectUserRequisitions,  selectIndProductList, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
+
+
+/*------------- get ------------*/
+const getUserRequitions = async (req, res, next) => {
+    try {
+        const { user_id } = req.headers;
+        const userRequisitions = await selectUserRequisitions(user_id);
+        res.json(createResponse(userRequisitions.rows, "All User Requisition"));
+    } catch(err) {
+        next(err.message);
+    }
+}
+
 
 
 /*------------- post ------------*/
@@ -145,6 +157,7 @@ const denyRequisition = async (req, res, next) => {
 
 
 module.exports = {
+    getUserRequitions,
     postRequisition,
     putReqByItStoreOfficer,
     denyRequisition
