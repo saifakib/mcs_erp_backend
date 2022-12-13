@@ -8,7 +8,7 @@ const { oracledb } = require("../../../db/db");
 const selectIndProductList = (str_pro_id, status) => ExecuteIT(`SELECT * FROM IND_PRODUCT WHERE STR_PRO_ID = ${Number(str_pro_id)} AND STATUS = ${Number(status)}`);
 
 const selectUserRequisitions = (user_id) =>
-  ExecuteIT(`SELECT distinct(R.REQ_ID), R.HR_ID, R.USER_REMARKS, R.STR_REMARKS, D.DEPARTEMENT, DE.DESIGNATION,
+  ExecuteIT(`SELECT distinct(R.REQ_ID), R.HR_ID, R.USER_REMARKS, R.STR_REMARKS, TO_CHAR(R.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, D.DEPARTEMENT, DE.DESIGNATION,
   case
     when R.REQ_STATUS = 0 then 'Pending'
     when R.REQ_STATUS = 1 then 'Approve'
@@ -20,7 +20,7 @@ const selectUserRequisitions = (user_id) =>
   LEFT OUTER JOIN PRO_REQUISITION PR
 ON R.REQ_ID = PR.REQ_ID
   LEFT OUTER JOIN  hrm.EMPLOYEE E 
-  ON E.EMPLOYE_ID = R.HR_ID 
+  ON E.EMPLOYE_ID = R.HR_ID
   LEFT OUTER JOIN hrm.DEPARTMENT_LIST D 
   ON E.DEPARTEMENT_ID = D.DEPARTEMENT_ID 
   LEFT OUTER JOIN hrm.DESIGNATION DE
@@ -29,13 +29,14 @@ ON R.REQ_ID = PR.REQ_ID
 
 
 // get pending requisitions
-const selectStatusRequisitions = (status) => ExecuteIT(`SELECT DISTINCT(R.REQ_ID), R.REQ_DATE , E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, 
+const selectStatusRequisitions = (status) => ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
+TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, 
 sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 
 LEFT OUTER JOIN PRO_REQUISITION PR ON R.REQ_ID = PR.REQ_ID 
 LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.HR_ID 
 LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID 
 LEFT OUTER JOIN HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
-WHERE R.REQ_STATUS = ${Number( status )}`)
+WHERE R.REQ_STATUS = ${Number(status)}`)
 
 
 

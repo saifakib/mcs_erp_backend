@@ -25,7 +25,7 @@ const selectCategoryWithStore = () =>
     );
 
 const selectStrProductsByCatId = (category_id) =>
-    ExecuteIT(`SELECT SP.STR_PRO_ID, PL.PRODUCT_NAME, M.MODEL_NAME, U.UNIT_NAME, B.BRAND_NAME, 
+    ExecuteIT(`SELECT SP.STR_PRO_ID, PL.PRODUCT_ID, PL.PRODUCT_NAME, M.MODEL_NAME, U.UNIT_NAME, B.BRAND_NAME, 
     SP.PRICE, SP.STOCK_ALERT, SP.QUANTITY, SP.NON_WORKABLE, SP.STOCK_ALERT, C.CATEGORY_NAME, C.CATEGORY_ID FROM STORE_PRODUCTS SP 
     LEFT OUTER JOIN PRODUCT_LIST PL ON SP.PRO_ID = PL.PRODUCT_ID
     LEFT OUTER JOIN CATEGORIES C ON PL.CATEGORY_ID = C.CATEGORY_ID
@@ -50,19 +50,20 @@ const selectStoreProductsById = (str_pro_id) => ExecuteIT(`SELECT SP.STR_PRO_ID,
     LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
     LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID WHERE SP.STR_PRO_ID = ${Number(str_pro_id)}`);
 
-    
+const selectProductWithSup = (product_id) => ExecuteIT(`SELECT DISTINCT S.SUP_NAME, PL.PRODUCT_NAME, TO_CHAR(PEL.ENTRY_DATE, 'DD-MM-YYYY') AS STR_DATE, COUNT(IND_PRODUCT_ID) OVER(PARTITION BY  S.SUP_NAME) AS TOTAL_QTY
+FROM IND_PRODUCT IP LEFT OUTER JOIN STORE_PRODUCTS SP  ON  SP.STR_PRO_ID = IP.STR_PRO_ID
+LEFT OUTER  JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID
+LEFT OUTER JOIN PRODUCT_ENTRY_LIST PEL ON PEL.STR_PRO_ID = SP.STR_PRO_ID
+LEFT OUTER JOIN SUPPLIERS S ON S.SUPPLIER_ID = PEL.SUP_ID
+where PL.PRODUCT_ID = ${Number(product_id)} ORDER BY  S.SUP_NAME`);
+
+
 
 const selectLastMrrNumber = () =>
     ExecuteIT(`SELECT MAX(MRR_NO) AS MRRNO FROM MRRLOGS`);
 
 
-
-
-
-
-
-
-
+    
 
 /*------------- INSERT ------------*/
 // Product Entries
@@ -161,7 +162,7 @@ const insertExProdSummaries = (
 
 /*------------ UPDATE ------------*/
 
-const updateStoreProduct = ({ str_pro_id, qty, price }, stock_alert=false, stock_alert_number) => 
+const updateStoreProduct = ({ str_pro_id, qty, price }, stock_alert = false, stock_alert_number) =>
     stock_alert ? ExecuteIT(
         `UPDATE STORE_PRODUCTS SET QUANTITY = ${Number(
             qty
@@ -181,6 +182,7 @@ module.exports = {
     selectLastMrrNumber,
     selectStoreProducts, selectStoreProductsById,
     selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
+    selectProductWithSup,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
     updateStoreProduct,
     insertExProdSummaries,

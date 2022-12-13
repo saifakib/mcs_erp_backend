@@ -1,7 +1,7 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { commitConnect, rollbackConnect, randConnect } = require('../../../utils/dbtransactions');
 
-const { selectLastMrrNumber, selectStoreProducts, selectStoreProductsById, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct,
+const { selectLastMrrNumber, selectStoreProducts, selectStoreProductsById, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct,
 } = require("../../../services/it/product");
 const { selectProductLists } = require("../../../services/it/settings")
 const { number } = require("joi");
@@ -73,6 +73,21 @@ const getStrProductsbyCategoryId = async (req, res, next) => {
             res.json(createResponse(null, "Something went wrong", true))
         } else {
             const response = await selectStrProductsByCatId(category_id);
+            res.json(createResponse(response.rows));
+        }
+    } catch (err) {
+        next(err.message)
+    }
+
+}
+
+const getStrProductsbyCatIdProdId = async (req, res, next) => {
+    try {
+        const { category_id, product_id } = req.params;
+        if ((typeof (category_id) !== number && !category_id ) && (typeof (product_id) !== number && !product_id )){
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const response = await selectProductWithSup(product_id);
             res.json(createResponse(response.rows));
         }
     } catch (err) {
@@ -327,6 +342,6 @@ const postProductEntrilist = async (req, res, next) => {
 
 module.exports = {
     newProductList, getStoreProducts, getStoreProductsById,
-    manageProducts, getStrProductsbyCategoryId,
+    manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId, 
     postProductEntrilist
 }
