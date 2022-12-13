@@ -7,13 +7,13 @@ const checkUserRequisition = (req, res, next) => {
     let checkUserRequisitionSchema = {}
 
     if (req.method == 'GET') {
-        const { user_id } = req.headers;
-        headers = { user_id }
+        const { user_id } = req.params;
+        params = { user_id }
         checkUserRequisitionSchema = Joi.object().keys({
             user_id: Joi.number().required(),
         })
     }
-    const { error } = checkUserRequisitionSchema.validate({ ...req.body, ...headers });
+    const { error } = checkUserRequisitionSchema.validate({ ...req.body, ...params });
     const valid = error == null;
     if (valid) { next() }
     else {

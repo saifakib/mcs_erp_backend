@@ -28,6 +28,17 @@ ON R.REQ_ID = PR.REQ_ID
   WHERE R.HR_ID=${Number(user_id)}`);
 
 
+// get pending requisitions
+const selectStatusRequisitions = (status) => ExecuteIT(`SELECT DISTINCT(R.REQ_ID), R.REQ_DATE , E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, 
+sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 
+LEFT OUTER JOIN PRO_REQUISITION PR ON R.REQ_ID = PR.REQ_ID 
+LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.HR_ID 
+LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID 
+LEFT OUTER JOIN HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
+WHERE R.REQ_STATUS = ${Number( status )}`)
+
+
+
 
 /*------------- INSERT ------------*/
 // INSERT requisition information
@@ -107,6 +118,7 @@ const updateManyIndProduct = (array) => {
 module.exports = {
   // selectProductBalance,
   selectUserRequisitions,
+  selectStatusRequisitions,
   selectIndProductList,
   insertRequisitionInfo,
   insertManyProRequisition,

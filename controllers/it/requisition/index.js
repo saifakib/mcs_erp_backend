@@ -1,17 +1,34 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const {selectUserRequisitions,  selectIndProductList, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
+const { selectUserRequisitions, selectStatusRequisitions, selectIndProductList, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
 
 
 /*------------- get ------------*/
 const getUserRequitions = async (req, res, next) => {
     try {
-        const { user_id } = req.headers;
+        const { user_id } = req.params;
         const userRequisitions = await selectUserRequisitions(user_id);
         res.json(createResponse(userRequisitions.rows, "All User Requisition"));
-    } catch(err) {
+    } catch (err) {
         next(err.message);
     }
 }
+
+const getAdminRequisitions = async (req, res, next) => {
+    const { status } = req.query;
+    try {
+        const allPendingRequitions = await selectStatusRequisitions(status);
+        let msg = status == 0 ? "Pending" : status == 1 ? "Approve" : status == 2 ? "Accept" : "Deny";
+        if (status >= 0 && status <= 3) {
+            res.json(createResponse(allPendingRequitions.rows, `All ${msg} Requisition`));
+        } else {
+            res.json(createResponse(null, "Invalid Requisition Status", true));
+        }
+    } catch (err) {
+        next(err.message)
+    }
+}
+
+
 
 
 
@@ -98,9 +115,9 @@ const putReqByItStoreOfficer = async (req, res, next) => {
                                         strCount -= 1;
                                     }
                                 }
-                            } 
-                        } 
-                    } 
+                            }
+                        }
+                    }
                 } else {
                     strCount -= 1;
                 }
@@ -158,6 +175,7 @@ const denyRequisition = async (req, res, next) => {
 
 module.exports = {
     getUserRequitions,
+    getAdminRequisitions,
     postRequisition,
     putReqByItStoreOfficer,
     denyRequisition
