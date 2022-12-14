@@ -79,9 +79,29 @@ const checkStrProdList = async (req, res, next) => {
     }
 }
 
+const checkIndProdList = async (req, res, next) => {
+    let indProdSchema = {}
+    let headers = {}
+
+    if (req.method == 'PUT') {
+        const { ind_product_id } = req.headers;
+        headers = { ind_product_id }
+        indProdSchema = Joi.object().keys({
+            ind_product_id: Joi.number().required()
+        })
+    }
+    const { error } = indProdSchema.validate({ ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+}
+
 
 module.exports = {
     checkProdEntries,
-    checkStrProdList
+    checkStrProdList,
+    checkIndProdList
 }
 

@@ -7,26 +7,30 @@ const selectNewProductListByCatId = (CAT_ID) =>
         `SELECT * FROM PRODUCT_LIST PL WHERE PL.CATEGORY_ID = ${CAT_ID} AND PL.PRODUCT_ID NOT IN (SELECT SP.PRO_ID FROM STORE_PRODUCTS SP)`
     );
 
+const selectIndProduct = (id) => ExecuteIT(`SELECT * FROM IND_PRODUCT WHERE IND_PRODUCT_ID = ${Number(id)}`)
+
 
 const selectCategoryWithStore = () =>
     ExecuteIT(
-        `WITH CATEGORY AS (			
-        SELECT  		
-          DISTINCT CATEGORY_NAME, C.CATEGORY_ID,
-          COUNT (PL.PRODUCT_ID) OVER (PARTITION BY C.CATEGORY_NAME) CT,
-          SUM(QUANTITY)  OVER (PARTITION BY PL.CATEGORY_ID),
-          SUM(NON_WORKABLE)  OVER (PARTITION BY PL.CATEGORY_ID)
-        FROM  STORE_PRODUCTS sp left outer join PRODUCT_LIST PL
-          ON PL.PRODUCT_ID = SP.PRO_ID
-          LEFT OUTER JOIN CATEGORIES C
-          ON C.CATEGORY_ID = PL.CATEGORY_ID		
-        )			
-        SELECT * FROM CATEGORY`
+        `WITH CATEGORY AS (
+            SELECT
+              DISTINCT CATEGORY_NAME, C.CATEGORY_ID,
+              COUNT (PL.PRODUCT_ID) OVER (PARTITION BY C.CATEGORY_NAME) as  CT,
+              COUNT (DISTINCT sp.PRO_ID) OVER (partition by C.CATEGORY_ID) as  product,
+              SUM(QUANTITY)  OVER (PARTITION BY PL.CATEGORY_ID) as qty,
+              SUM(NON_WORKABLE)  OVER (PARTITION BY PL.CATEGORY_ID) as non_qty
+            FROM  STORE_PRODUCTS sp left outer join PRODUCT_LIST PL
+              ON PL.PRODUCT_ID = SP.PRO_ID
+              LEFT OUTER JOIN CATEGORIES C
+              ON C.CATEGORY_ID = PL.CATEGORY_ID
+            )
+            SELECT * FROM CATEGORY`
     );
 
 const selectStrProductsByCatId = (category_id) =>
-    ExecuteIT(`SELECT SP.STR_PRO_ID, PL.PRODUCT_ID, PL.PRODUCT_NAME, M.MODEL_NAME, U.UNIT_NAME, B.BRAND_NAME, 
-    SP.PRICE, SP.STOCK_ALERT, SP.QUANTITY, SP.NON_WORKABLE, SP.STOCK_ALERT, C.CATEGORY_NAME, C.CATEGORY_ID FROM STORE_PRODUCTS SP 
+    ExecuteIT(`SELECT DISTINCT(PL.PRODUCT_ID), PL.PRODUCT_NAME, C.CATEGORY_NAME, C.CATEGORY_ID,
+    sum(SP.QUANTITY) over(partition by (SP.PRO_ID)) as QUANTITY, sum(SP.NON_WORKABLE) over(partition by (SP.PRO_ID)) as NON_WORKABLE
+    FROM STORE_PRODUCTS SP 
     LEFT OUTER JOIN PRODUCT_LIST PL ON SP.PRO_ID = PL.PRODUCT_ID
     LEFT OUTER JOIN CATEGORIES C ON PL.CATEGORY_ID = C.CATEGORY_ID
     LEFT OUTER JOIN MODELS M ON SP.MODEL_ID = M.MODEL_ID
@@ -34,13 +38,29 @@ const selectStrProductsByCatId = (category_id) =>
     LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID
     WHERE PL.CATEGORY_ID=${Number(category_id)}`);
 
+const selectIndStrProductsByProId = (product_id, supplier_id) =>
+    ExecuteIT(`SELECT  
+    S.SUPPLIER_ID,S.SUP_NAME, PL.PRODUCT_NAME, IP.IND_PRODUCT_ID, IP.STR_PRO_ID, IP.UNIQUE_V,
+    case 
+    when ip.status = 0 then 'Active'
+    when ip.status = 1 then 'Requisition'
+    when ip.status = 2 then 'Maintanance'
+    when ip.status = 3 then 'Inactive'
+    when ip.status = 4 then 'Dead'
+    end STATUS       
+ FROM IND_PRODUCT IP LEFT OUTER JOIN STORE_PRODUCTS SP ON  SP.STR_PRO_ID = IP.STR_PRO_ID
+  LEFT OUTER  JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID
+  LEFT OUTER JOIN PRODUCT_ENTRY_LIST PEL ON PEL.STR_PRO_ID = SP.STR_PRO_ID
+  LEFT OUTER JOIN SUPPLIERS S ON S.SUPPLIER_ID = PEL.SUP_ID
+  where pl.product_id = ${Number(product_id)} and S.SUPPLIER_ID = ${Number(supplier_id)}
+    ORDER BY  S.SUP_NAME`);
 
-const selectStoreProducts = () => ExecuteIT(`SELECT SP.STR_PRO_ID, PL.PRODUCT_NAME, M.MODEL_NAME, U.UNIT_NAME, B.BRAND_NAME, 
-    SP.PRICE, SP.STOCK_ALERT, SP.QUANTITY, SP.NON_WORKABLE, SP.STOCK_ALERT FROM STORE_PRODUCTS SP 
+
+const selectStoreProducts = () => ExecuteIT(`SELECT DISTINCT SP.PRO_ID, PL.PRODUCT_NAME, C.CATEGORY_ID, C.CATEGORY_NAME,
+SUM(SP.QUANTITY) OVER (PARTITION BY (SP.PRO_ID)) AS QUANTITY, SUM(SP.NON_WORKABLE) OVER (PARTITION BY (SP.PRO_ID)) AS NON_WORKABLE
+FROM STORE_PRODUCTS SP 
     LEFT OUTER JOIN PRODUCT_LIST PL ON SP.PRO_ID = PL.PRODUCT_ID
-    LEFT OUTER JOIN MODELS M ON SP.MODEL_ID = M.MODEL_ID
-    LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
-    LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID`);
+    LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID`);
 
 
 const selectStoreProductsById = (str_pro_id) => ExecuteIT(`SELECT SP.STR_PRO_ID, PL.PRODUCT_NAME, M.MODEL_NAME, U.UNIT_NAME, B.BRAND_NAME, 
@@ -50,7 +70,8 @@ const selectStoreProductsById = (str_pro_id) => ExecuteIT(`SELECT SP.STR_PRO_ID,
     LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
     LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID WHERE SP.STR_PRO_ID = ${Number(str_pro_id)}`);
 
-const selectProductWithSup = (product_id) => ExecuteIT(`SELECT DISTINCT S.SUP_NAME, PL.PRODUCT_NAME, TO_CHAR(PEL.ENTRY_DATE, 'DD-MM-YYYY') AS STR_DATE, COUNT(IND_PRODUCT_ID) OVER(PARTITION BY  S.SUP_NAME) AS TOTAL_QTY
+
+const selectProductWithSup = (product_id) => ExecuteIT(`SELECT DISTINCT S.SUPPLIER_ID, S.SUP_NAME, PL.PRODUCT_ID, PL.PRODUCT_NAME, TO_CHAR(PEL.ENTRY_DATE, 'DD-MM-YYYY') AS STR_DATE, COUNT(IND_PRODUCT_ID) OVER(PARTITION BY  S.SUP_NAME) AS TOTAL_QTY
 FROM IND_PRODUCT IP LEFT OUTER JOIN STORE_PRODUCTS SP  ON  SP.STR_PRO_ID = IP.STR_PRO_ID
 LEFT OUTER  JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID
 LEFT OUTER JOIN PRODUCT_ENTRY_LIST PEL ON PEL.STR_PRO_ID = SP.STR_PRO_ID
@@ -63,7 +84,7 @@ const selectLastMrrNumber = () =>
     ExecuteIT(`SELECT MAX(MRR_NO) AS MRRNO FROM MRRLOGS`);
 
 
-    
+
 
 /*------------- INSERT ------------*/
 // Product Entries
@@ -174,17 +195,18 @@ const updateStoreProduct = ({ str_pro_id, qty, price }, stock_alert = false, sto
         )}, PRICE = ${Number(price)}, NON_WORKABLE = NON_WORKABLE + ${Number(non_workable)} WHERE STR_PRO_ID = ${Number(str_pro_id)} RETURN QUANTITY INTO :storeQuantity`,
         { storeQuantity: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
-
+const updateIndProduct = (id) => ExecuteIT(`UPDATE IND_PRODUCT SET STATUS = ${Number(0)} WHERE IND_PRODUCT_ID = ${Number(id)}`);
+const updateStrProNonWCount = (str_pro_id) => ExecuteIT(`UPDATE STORE_PRODUCTS SET NON_WORKABLE = NON_WORKABLE - ${Number(1)} WHERE STR_PRO_ID = ${Number(str_pro_id)}`)
 
 
 
 module.exports = {
-    selectLastMrrNumber,
+    selectLastMrrNumber, selectIndProduct,
     selectStoreProducts, selectStoreProductsById,
     selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
-    selectProductWithSup,
+    selectProductWithSup, selectIndStrProductsByProId,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
-    updateStoreProduct,
+    updateStoreProduct, updateIndProduct, updateStrProNonWCount,
     insertExProdSummaries,
 
 }

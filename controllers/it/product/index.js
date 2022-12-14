@@ -1,8 +1,7 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { commitConnect, rollbackConnect, randConnect } = require('../../../utils/dbtransactions');
 
-const { selectLastMrrNumber, selectStoreProducts, selectStoreProductsById, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct,
-} = require("../../../services/it/product");
+const { selectLastMrrNumber, selectIndProduct, selectStoreProducts, selectStoreProductsById, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, selectIndStrProductsByProId, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct, updateIndProduct, updateStrProNonWCount } = require("../../../services/it/product");
 const { selectProductLists } = require("../../../services/it/settings")
 const { number } = require("joi");
 const shortid = require('shortid');
@@ -41,20 +40,22 @@ const manageProducts = async (_, res, next) => {
             acc[0][index] = {
                 CATEGORY_ID: obj.CATEGORY_ID,
                 CATEGORY_NAME: obj.CATEGORY_NAME,
+                PRODUCT: obj.PRODUCT,
                 ENTRIES: obj.CT,
-                QUANTITIES: obj['SUM(QUANTITY)OVER(PARTITIONBYPL.CATEGORY_ID)'],
-                NON_WORKABLE: obj['SUM(NON_WORKABLE)OVER(PARTITIONBYPL.CATEGORY_ID)']
+                QUANTITIES: obj.QTY,
+                NON_WORKABLE: obj.NON_QTY
             }
             acc[1] += obj.CT;
-            acc[2] += obj['SUM(QUANTITY)OVER(PARTITIONBYPL.CATEGORY_ID)'];
-            acc[3] += obj['SUM(NON_WORKABLE)OVER(PARTITIONBYPL.CATEGORY_ID)'];
-
+            acc[2] += obj.QTY,
+            acc[3] += obj.NON_QTY,
+            acc[4] += obj.PRODUCT
             return acc;
-        }, [[], 0, 0, 0]);
+        }, [[], 0, 0, 0, 0]);
 
 
         let result = {
             categories: redefinedResponse[0],
+            totalProducts: redefinedResponse[4],
             totalEntries: redefinedResponse[1],
             totalquantites: redefinedResponse[2],
             totalnonworkable: redefinedResponse[3],
@@ -88,6 +89,21 @@ const getStrProductsbyCatIdProdId = async (req, res, next) => {
             res.json(createResponse(null, "Something went wrong", true))
         } else {
             const response = await selectProductWithSup(product_id);
+            res.json(createResponse(response.rows));
+        }
+    } catch (err) {
+        next(err.message)
+    }
+
+}
+
+const getIndStrProductsbyProId = async (req, res, next) => {
+    try {
+        const { supplier_id, product_id } = req.params;
+        if ((typeof (product_id) !== number && !product_id) && typeof (supplier_id) !== number && !supplier_id) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const response = await selectIndStrProductsByProId(product_id, supplier_id);
             res.json(createResponse(response.rows));
         }
     } catch (err) {
@@ -211,6 +227,31 @@ const postProductEntrilist = async (req, res, next) => {
 
 
 /*------------- All Update Controllers ---------------*/
+
+// Update Individual Product Status
+const putIndProduct = async ( req, res, next ) => {
+    try {
+        const { ind_product_id } = req.headers;
+        const indProdInfo = await selectIndProduct(ind_product_id);
+        if(indProdInfo.rows[0].STATUS === 3) {
+            const changeIndProd =  await updateIndProduct(ind_product_id);
+
+            if(changeIndProd.rowsAffected === 1) {
+                const changeStrProById = await updateStrProNonWCount(indProdInfo.rows[0].STR_PRO_ID); 
+                console.log(changeStrProById)
+                if(changeStrProById.rowsAffected === 1) {
+                    indProdInfo.rows[0].STATUS = 'Active'
+                    res.json(createResponse(indProdInfo.rows[0], "Individual Product update Succesfully", false));
+                }
+            }
+        } 
+        else {
+            res.json(createResponse(indProdInfo.rows[0], "You are hitting a wrong product to change status", true))
+        }
+    } catch (err) {
+        next(err.message)
+    }
+}
 
 // const putProductEntrilist = async (req, res, next) => {
 //     const {
@@ -341,7 +382,8 @@ const postProductEntrilist = async (req, res, next) => {
 
 
 module.exports = {
-    newProductList, getStoreProducts, getStoreProductsById,
+    newProductList, getStoreProducts, getStoreProductsById, getIndStrProductsbyProId,
     manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId, 
-    postProductEntrilist
+    postProductEntrilist,
+    putIndProduct
 }
