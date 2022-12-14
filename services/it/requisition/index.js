@@ -39,6 +39,11 @@ LEFT OUTER JOIN HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
 WHERE R.REQ_STATUS = ${Number(status)}`)
 
 
+const selectRequisitionById = (req_id) => ExecuteIT(`SELECT R.REQ_ID, TO_CHAR(R.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, TO_CHAR(R.REQ_DATE,'HH12:MI AM') AS REQ_TIME, R.USER_REMARKS, PR.PRO_REQ_ID, PR.QUNTITY, PR.APR_QTY, PL.PRODUCT_ID, PL.PRODUCT_NAME FROM REQUISITION R
+LEFT OUTER JOIN PRO_REQUISITION PR ON R.REQ_ID = PR.REQ_ID
+LEFT OUTER JOIN PRODUCT_LIST PL ON PR.PRO_ID = PL.PRODUCT_ID
+WHERE R.REQ_ID = ${Number(req_id)} AND R.REQ_STATUS = 0`);
+
 
 
 /*------------- INSERT ------------*/
@@ -121,6 +126,7 @@ module.exports = {
   selectUserRequisitions,
   selectStatusRequisitions,
   selectIndProductList,
+  selectRequisitionById,
   insertRequisitionInfo,
   insertManyProRequisition,
   insertManyIndProRequisition,

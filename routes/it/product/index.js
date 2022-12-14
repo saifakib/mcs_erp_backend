@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const { newProductList, getStoreProducts, getStoreProductsById, getIndStrProductsbyProId, manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId,postProductEntrilist, putIndProduct } = require("../../../controllers/it/product");
 
-const { checkProdEntries, checkStrProdList, checkIndProdList } = require("../../../validator/it/product")
+const { checkProdEntries, checkStrProdList, checkIndProdList } = require("../../../validator/it/product");
 
 router.get("/newProductList/:category_id", newProductList);
 router.route("/store")

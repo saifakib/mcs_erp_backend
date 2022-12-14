@@ -3,7 +3,8 @@ const router = require("express").Router();
 const settingsRoute = require("./settings");
 const productsRoute = require("./product");
 const mrrRoute = require("./mrr");
-const requisitionRoute = require("./requisition")
+const requisitionRoute = require("./requisition");
+const maintananceRoute = require("./maintanance")
 
 
 router.use("/settings", settingsRoute);

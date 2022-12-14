@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectUserRequisitions, selectStatusRequisitions, selectIndProductList, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
+const { selectUserRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
 
 
 /*------------- get ------------*/
@@ -22,6 +22,37 @@ const getAdminRequisitions = async (req, res, next) => {
             res.json(createResponse(allPendingRequitions.rows, `All ${msg} Requisition`));
         } else {
             res.json(createResponse(null, "Invalid Requisition Status", true));
+        }
+    } catch (err) {
+        next(err.message)
+    }
+}
+
+const getRequsition = async (req, res, next) => {
+    const { req_id } = req.params;
+    try {
+        if (typeof (req_id) !== 'number' && !req_id) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const response = await selectRequisitionById(req_id);
+
+            const changeResponse = response.rows.reduce((acc, val, index) => {
+                acc[index] = {
+                    PRO_REQ_ID: val.PRO_REQ_ID,
+                    QUNTITY: val.QUNTITY,
+                    PRODUCT_ID: val.PRODUCT_ID,
+                    PRODUCT_NAME: val.PRODUCT_NAME
+                }
+                return acc;
+            }, [])
+
+            res.json(createResponse({
+                REQ_ID: response.rows[0].REQ_ID,
+                REQ_DATE: response.rows[0].REQ_DATE,
+                REQ_TIME: response.rows[0].REQ_TIME,
+                USER_REMARKS: response.rows[0].USER_REMARKS,
+                PRO_REQUISITIONS: [ ...changeResponse ]
+            }, "User Request Requisition Details"));
         }
     } catch (err) {
         next(err.message)
@@ -174,6 +205,7 @@ const denyRequisition = async (req, res, next) => {
 
 
 module.exports = {
+    getRequsition,
     getUserRequitions,
     getAdminRequisitions,
     postRequisition,
