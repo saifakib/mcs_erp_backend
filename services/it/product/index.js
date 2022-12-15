@@ -70,6 +70,12 @@ const selectStoreProductsById = (str_pro_id) => ExecuteIT(`SELECT SP.STR_PRO_ID,
     LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
     LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID WHERE SP.STR_PRO_ID = ${Number(str_pro_id)}`);
 
+const selectStoreProdCountByProId = (pro_id) => ExecuteIT(`SELECT sp.str_pro_id, sp.pro_id, pl.product_name , b.brand_name, m.model_name, count(QUANTITY) OVER (PARTITION BY pro_id) quantity FROM  STORE_PRODUCTS SP  
+LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID
+left outer join brand b on b.brand_id = sp.brand_id
+left outer join models m on m.model_id = sp.model_id
+WHERE PL.PRODUCT_ID = ${Number(pro_id)} order by sp.str_pro_id`);
+
 
 const selectProductWithSup = (product_id) => ExecuteIT(`SELECT DISTINCT S.SUPPLIER_ID, S.SUP_NAME, PL.PRODUCT_ID, PL.PRODUCT_NAME, TO_CHAR(PEL.ENTRY_DATE, 'DD-MM-YYYY') AS STR_DATE, COUNT(IND_PRODUCT_ID) OVER(PARTITION BY  S.SUP_NAME) AS TOTAL_QTY
 FROM IND_PRODUCT IP LEFT OUTER JOIN STORE_PRODUCTS SP  ON  SP.STR_PRO_ID = IP.STR_PRO_ID
@@ -202,7 +208,7 @@ const updateStrProNonWCount = (str_pro_id) => ExecuteIT(`UPDATE STORE_PRODUCTS S
 
 module.exports = {
     selectLastMrrNumber, selectIndProduct,
-    selectStoreProducts, selectStoreProductsById,
+    selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId,
     selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
     selectProductWithSup, selectIndStrProductsByProId,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,

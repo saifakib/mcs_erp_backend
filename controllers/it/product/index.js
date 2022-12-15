@@ -1,7 +1,7 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { commitConnect, rollbackConnect, randConnect } = require('../../../utils/dbtransactions');
 
-const { selectLastMrrNumber, selectIndProduct, selectStoreProducts, selectStoreProductsById, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, selectIndStrProductsByProId, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct, updateIndProduct, updateStrProNonWCount } = require("../../../services/it/product");
+const { selectLastMrrNumber, selectIndProduct, selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, selectIndStrProductsByProId, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct, updateIndProduct, updateStrProNonWCount } = require("../../../services/it/product");
 const { selectProductLists } = require("../../../services/it/settings")
 const { number } = require("joi");
 const shortid = require('shortid');
@@ -131,17 +131,20 @@ const getStoreProductsById = async (req, res, next) => {
     }
 };
 
-// const getIndStoreProductsByStrId = async (req, res, next) => {
-//     try {
-//         const { str_pro_id } = req.params;
-//         const response = await selectStoreProductsById(str_pro_id);
-//         res.json(createResponse(response.rows[0]));
-//     } catch (err) {
-//         next(err);
-//     }
-// };
-
-
+const getStoreProdCountByProId = async (req, res, next) => {
+    try {
+        const { pro_id } = req.params;
+        if ((typeof (pro_id) !== number && !pro_id)) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const response = await selectStoreProdCountByProId(pro_id);
+            res.json(createResponse(response.rows, "Store Product By Sub Category"));
+        }
+        
+    } catch (err) {
+        next(err);
+    }
+};
 
 
 
@@ -382,7 +385,7 @@ const putIndProduct = async ( req, res, next ) => {
 
 
 module.exports = {
-    newProductList, getStoreProducts, getStoreProductsById, getIndStrProductsbyProId,
+    newProductList, getStoreProducts, getStoreProductsById, getStoreProdCountByProId, getIndStrProductsbyProId,
     manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId, 
     postProductEntrilist,
     putIndProduct

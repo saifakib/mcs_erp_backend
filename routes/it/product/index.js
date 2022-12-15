@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { newProductList, getStoreProducts, getStoreProductsById, getIndStrProductsbyProId, manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId,postProductEntrilist, putIndProduct } = require("../../../controllers/it/product");
+const { newProductList, getStoreProducts, getStoreProductsById, getStoreProdCountByProId, getIndStrProductsbyProId, manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId,postProductEntrilist, putIndProduct } = require("../../../controllers/it/product");
 
 const { checkProdEntries, checkStrProdList, checkIndProdList } = require("../../../validator/it/product");
 
@@ -8,6 +8,7 @@ router.route("/store")
     .get(getStoreProducts)
     // .put(checkStrProdList, putStoreProductById)
 router.get("/store/:str_pro_id", getStoreProductsById);
+router.get("/sind/:pro_id", getStoreProdCountByProId);
 
 router.get("/manage", manageProducts);
 router.get("/manage/categories/:category_id", getStrProductsbyCategoryId)
