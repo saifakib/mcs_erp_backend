@@ -90,10 +90,18 @@ const insertSummaries = (data) =>
 
 
 /*----------- UPDATE ----------- */
-const updateRequisition = (data) => ExecuteIT(
-  `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)}, 
-    STR_REMARKS = '${data.STR_REMARKS}' WHERE REQ_ID = ${Number(data.REQ_ID)}`
-);
+const updateRequisition = (data) => {
+  if(data.REQ_ID == 1) {
+    return ExecuteIT(
+      `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
+    )
+  } else {
+    return ExecuteIT(
+      `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)}, 
+        STR_REMARKS = '${data.STR_REMARKS}' WHERE REQ_ID = ${Number(data.REQ_ID)}`
+    )
+  }
+};
 
 const updateStrBalance = (str_pro_id, apr_qty) =>
   ExecuteIT(

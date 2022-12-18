@@ -43,23 +43,25 @@ const getEntriesProductReport = async (req, res, next) => {
                     tdate
                 );
 
-                // const Total = response.rows.reduce(
-                //     (acc, obj) => {
-                //         acc[0] += obj.QUANTITIES;
-                //         acc[1] += obj.TOTALAMOUNT;
-                //         return acc;
-                //     },
-                //     [0, 0]
-                // );
+                console.log(response);
 
-                // res.json(
-                //     createResponse({
-                //         products: response.rows,
-                //         totalProduct: response.rows.length,
-                //         TotalListQuantities: Total[0],
-                //         TotalListAmount: Total[1],
-                //     })
-                // );
+                const Total = response.rows.reduce(
+                    (acc, obj) => {
+                        acc[0] += obj.QUANTITES;
+                        acc[1] += obj.TOTAL_AMOUNT;
+                        return acc;
+                    },
+                    [0, 0]
+                );
+
+                res.json(
+                    createResponse({
+                        products: response.rows,
+                        totalProduct: response.rows.length,
+                        TotalListQuantities: Total[0],
+                        TotalListAmount: Total[1]
+                    })
+                );
             }
         } else {
             res.json(createResponse(null, "Invalid Query For", true));

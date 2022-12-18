@@ -51,7 +51,7 @@ const getRequsition = async (req, res, next) => {
                 REQ_DATE: response.rows[0].REQ_DATE,
                 REQ_TIME: response.rows[0].REQ_TIME,
                 USER_REMARKS: response.rows[0].USER_REMARKS,
-                PRO_REQUISITIONS: [ ...changeResponse ]
+                PRO_REQUISITIONS: [...changeResponse]
             }, "User Request Requisition Details"));
         }
     } catch (err) {
@@ -99,85 +99,174 @@ const postRequisition = async (req, res, next) => {
 };
 
 
+
 /*-------------- PUT --------------*/
 // Update requisition by itstore_officer
+// Helper Function 
+const productModification = (products) => {
+    const mod1 = products.reduce((acc, obj) => {
+        if (acc[obj.pro_req_id]) {
+            acc[obj.pro_req_id]["totalAprQty"] = Number(acc[obj.pro_req_id]["totalAprQty"]) + Number(obj.qty),
+                acc[obj.pro_req_id]["store"].push({
+                    str_pro_id: obj.str_pro_id,
+                    qty: obj.qty
+                })
+        } else {
+            acc[obj.pro_req_id] = {
+                pro_req_id: obj.pro_req_id,
+                pro_id: obj.pro_id,
+                reqQty: obj.reqQty,
+                totalAprQty: obj.qty,
+                store: [{
+                    str_pro_id: obj.str_pro_id,
+                    qty: obj.qty
+                }]
+            }
+        }
+        return acc;
+    }, {});
+
+    const mod2 = Object.keys(mod1).reduce((acc, key) => {
+        acc.push(mod1[key])
+        return acc;
+    }, []);
+
+    return mod2;
+}
+
+const quantityChecking = (products) => {
+    let response = true;
+
+    products.forEach((item) => {
+        if (item.reqQty < item.totalAprQty) {
+            response = false;
+        }
+    })
+
+    return response;
+}
 const putReqByItStoreOfficer = async (req, res, next) => {
     try {
-        const { req_id, products, str_remarks } = req.body;
+        let { req_id, products, str_remarks } = req.body;
 
-        let reqProdCount = products.length;
-        for (let i = 0; i < products.length; i++) {
-            let product = products[i];
-            let ind = i;
-            // }
-            // products.forEach(async (product, ind) => {
+        console.log("From Front",products)
 
-            let totalAprQty = 0;
-            let strCount = product.store.length;
-            for (let j = 0; j < product.store.length; j++) {
-                let item = product.store[j];
-                let index = j;
+        // let products = [
+        //     {
+        //         pro_req_id: 1,
+        //         pro_id: 1,
+        //         str_pro_id: 1,
+        //         reqQty: 10,
+        //         qty: 9
+        //     },
+        //     {
+        //         pro_req_id: 1,
+        //         pro_id: 1,
+        //         str_pro_id: 2,
+        //         reqQty: 10,
+        //         qty: 0
+        //     },
+        //     {
+        //         pro_req_id: 2,
+        //         pro_id: 4,
+        //         str_pro_id: 6,
+        //         reqQty: 2,
+        //         qty: 1
+        //     },
+        //     {
+        //         pro_req_id: 3,
+        //         pro_id: 7,
+        //         str_pro_id: 9,
+        //         reqQty: 3,
+        //         qty: 1
+        //     },
+        //     {
+        //         pro_req_id: 3,
+        //         pro_id: 7,
+        //         str_pro_id: 10,
+        //         reqQty: 3,
+        //         qty: 15
+        //     }
+        // ];
+
+        products = productModification(products);
+        console.log(products)
+        let response = quantityChecking(products);
+        if (response) {
+            let reqProdCount = products.length;
+
+            for (let i = 0; i < products.length; i++) {
+                let product = products[i];
+                let ind = i;
                 // }
-                // product.store.forEach(async (item, index) => {
-                if (item.qty > 0) {
-                    const updateStoreBanalce = await updateStrBalance(item.str_pro_id, item.qty);
-                    totalAprQty += item.qty;
+                // products.forEach(async (product, ind) => {
 
-                    if (updateStoreBanalce.rowsAffected === 1) {
-                        const indProdLists = await selectIndProductList(item.str_pro_id, 0);
+                let totalAprQty = 0;
+                let strCount = product.store.length;
+                for (let j = 0; j < product.store.length; j++) {
+                    let item = product.store[j];
+                    let index = j;
+                    // }
+                    // product.store.forEach(async (item, index) => {
+                    if (item.qty > 0) {
+                        const updateStoreBanalce = await updateStrBalance(item.str_pro_id, item.qty);
+                        totalAprQty += item.qty;
 
-                        if (indProdLists.rows.length > 0) {
-                            const updatedIndProdLists = indProdLists.rows.slice(0, item.qty);
+                        if (updateStoreBanalce.rowsAffected === 1) {
+                            const indProdLists = await selectIndProductList(item.str_pro_id, 0);
 
-                            const updateIndStoreProd = await updateManyIndProduct(updatedIndProdLists);
+                            if (indProdLists.rows.length > 0) {
+                                const updatedIndProdLists = indProdLists.rows.slice(0, item.qty);
 
-                            if (updateIndStoreProd.rowsAffected >= 1) {
-                                const postIndProReq = await insertManyIndProRequisition(product.pro_req_id, updatedIndProdLists)
+                                const updateIndStoreProd = await updateManyIndProduct(updatedIndProdLists);
 
-                                if (postIndProReq.rowsAffected >= 1) {
-                                    const dataToInsertSummaries = {
-                                        PRO_ID: product.pro_id,
-                                        STR_PRO_ID: item.str_pro_id,
-                                        TOTAL_OUT: item.qty,
-                                        SUM_TYPE: "Out"
-                                    };
-                                    let insertSumm = await insertSummaries(dataToInsertSummaries);
-                                    if (insertSumm.rowsAffected >= 1) {
-                                        strCount -= 1;
+                                if (updateIndStoreProd.rowsAffected >= 1) {
+                                    const postIndProReq = await insertManyIndProRequisition(product.pro_req_id, updatedIndProdLists)
+
+                                    if (postIndProReq.rowsAffected >= 1) {
+                                        const dataToInsertSummaries = {
+                                            PRO_ID: product.pro_id,
+                                            STR_PRO_ID: item.str_pro_id,
+                                            TOTAL_OUT: item.qty,
+                                            SUM_TYPE: "Out"
+                                        };
+                                        let insertSumm = await insertSummaries(dataToInsertSummaries);
+                                        if (insertSumm.rowsAffected >= 1) {
+                                            strCount -= 1;
+                                        }
                                     }
                                 }
                             }
                         }
+                    } else {
+                        strCount -= 1;
                     }
-                } else {
-                    strCount -= 1;
+                }
+                //)
+                // Update pro requisition apr_qty
+                if (strCount === 0) {
+                    const putProRequsition = await updateProRequisition(product.pro_req_id, totalAprQty);
+                    if (putProRequsition.rowsAffected === 1) {
+                        reqProdCount -= 1;
+                    }
                 }
             }
-            //)
+            //);
+            if (reqProdCount === 0) {
+                const updateObj = {
+                    REQ_STATUS: 1,
+                    STR_REMARKS: str_remarks,
+                    REQ_ID: Number(req_id),
+                };
 
-            // Update pro requisition apr_qty
-            if (strCount === 0) {
-                const putProRequsition = await updateProRequisition(product.pro_req_id, totalAprQty);
-                if (putProRequsition.rowsAffected === 1) {
-                    reqProdCount -= 1;
+                const requistionUpdate = await updateRequisition(updateObj);
+                if (requistionUpdate.rowsAffected === 1) {
+                    res.json(createResponse(null, "Requisition Approved"));
                 }
             }
+        } else {
+            res.json(createResponse("Error Occured", "You have seleted item number which is bigger than user requition", true));
         }
-        //);
-
-        if (reqProdCount === 0) {
-            const updateObj = {
-                REQ_STATUS: 1,
-                STR_REMARKS: str_remarks,
-                REQ_ID: Number(req_id),
-            };
-
-            const requistionUpdate = await updateRequisition(updateObj);
-            if (requistionUpdate.rowsAffected === 1) {
-                res.json(createResponse(null, "Requisition Approved"));
-            }
-        }
-
     } catch (error) {
         next(error.message);
     }
@@ -194,8 +283,26 @@ const denyRequisition = async (req, res, next) => {
 
         const deny = await updateRequisition(data);
 
-        if (deny.rowAffected === 1) {
+        if (deny.rowsAffected === 1) {
             res.json(createResponse(deny, "Requisition has been denied"));
+        }
+    } catch (error) {
+        next(error.message);
+    }
+};
+
+const acceptUserRequisition = async (req, res, next) => {
+    try {
+        const { req_id } = req.body;
+        const data = {
+            REQ_STATUS: 2,
+            REQ_ID: Number(req_id),
+        };
+
+        const accept = await updateRequisition(data);
+
+        if (accept.rowsAffected === 1) {
+            res.json(createResponse(deny, "Requisition has been Accepted"));
         }
     } catch (error) {
         next(error.message);
@@ -210,5 +317,6 @@ module.exports = {
     getAdminRequisitions,
     postRequisition,
     putReqByItStoreOfficer,
-    denyRequisition
+    denyRequisition,
+    acceptUserRequisition
 }
