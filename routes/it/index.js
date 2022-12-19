@@ -13,6 +13,7 @@ router.use("/products", productsRoute);
 router.use("/mrr", mrrRoute);
 router.use("/requisition", requisitionRoute);
 router.use("/reports", reportRoute);
+router.use("/maintanance", maintananceRoute);
 
 
 module.exports = router;

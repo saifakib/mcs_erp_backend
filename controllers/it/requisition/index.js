@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectUserRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
+const { selectUserRequisitions, selectUserAcceptRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
 
 
 /*------------- get ------------*/
@@ -12,6 +12,16 @@ const getUserRequitions = async (req, res, next) => {
         next(err.message);
     }
 }
+
+// const getUserAcceptRequitions = async (req, res, next) => {
+//     try {
+//         const { user_id } = req.headers;
+//         const userRequisitions = await selectUserAcceptRequisitions(user_id);
+//         res.json(createResponse(userRequisitions.rows, "User Accept Product"));
+//     } catch (err) {
+//         next(err.message);
+//     }
+// }
 
 const getAdminRequisitions = async (req, res, next) => {
     const { status } = req.query;
@@ -148,8 +158,6 @@ const quantityChecking = (products) => {
 const putReqByItStoreOfficer = async (req, res, next) => {
     try {
         let { req_id, products, str_remarks } = req.body;
-
-        console.log("From Front",products)
 
         // let products = [
         //     {
@@ -302,7 +310,7 @@ const acceptUserRequisition = async (req, res, next) => {
         const accept = await updateRequisition(data);
 
         if (accept.rowsAffected === 1) {
-            res.json(createResponse(deny, "Requisition has been Accepted"));
+            res.json(createResponse(null, "Requisition has been Accepted"));
         }
     } catch (error) {
         next(error.message);
@@ -314,6 +322,7 @@ const acceptUserRequisition = async (req, res, next) => {
 module.exports = {
     getRequsition,
     getUserRequitions,
+    //getUserAcceptRequitions,
     getAdminRequisitions,
     postRequisition,
     putReqByItStoreOfficer,

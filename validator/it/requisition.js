@@ -21,6 +21,24 @@ const checkUserRequisition = (req, res, next) => {
     }
 };
 
+const checkUserAcceptRequisition = (req, res, next) => {
+    let checkUserAccRequisitionSchema = {}
+
+    if (req.method == 'GET') {
+        const { user_id } = req.headers;
+        headers = { user_id }
+        checkUserAccRequisitionSchema = Joi.object().keys({
+            user_id: Joi.number().required(),
+        })
+    }
+    const { error } = checkUserAccRequisitionSchema.validate({ ...req.body, ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
 const checkPostRequisition = (req, res, next) => {
     let checkUserRequisitionSchema = {}
 
@@ -49,6 +67,7 @@ const checkPostRequisition = (req, res, next) => {
 
 module.exports = {
     checkUserRequisition,
+    checkUserAcceptRequisition,
     checkPostRequisition
 }
 
