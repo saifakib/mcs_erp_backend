@@ -43,6 +43,14 @@ const postMaintanance = async (req, res, next) => {
     }
 };
 
+const postServicing = async (req, res, next) => {
+    try{
+
+    } catch (err) {
+        next(err.message);
+    }
+}
+
 
 /*-------------- PUT --------------*/
 
