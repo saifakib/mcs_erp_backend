@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { insertMaintananceReq } = require("../../../services/it/maintanance");
+const { insertMaintananceReq, updateMaintanance } = require("../../../services/it/maintanance");
 
 
 /*------------- get ------------*/
@@ -30,7 +30,7 @@ const postMaintanance = async (req, res, next) => {
             indProReqId: ind_pro_req_id,
             indProId: ind_pro_id,
             userRemarks: user_remarks,
-            status: 0 
+            status: 0
         };
 
         let maintananceRequestR = await insertMaintananceReq(maintananceRequest);
@@ -38,34 +38,32 @@ const postMaintanance = async (req, res, next) => {
         if (maintananceRequestR.rowsAffected >= 1) {
             res.json(createResponse(null, "Maintanance Request Success", false));
         }
-
     } catch (err) {
         next(err.message);
     }
 };
 
 
-
 /*-------------- PUT --------------*/
 
-// const acceptUserRequisition = async (req, res, next) => {
-//     try {
-//         const { req_id } = req.body;
-//         const data = {
-//             REQ_STATUS: 2,
-//             REQ_ID: Number(req_id),
-//         };
+const putMaintanance = async (req, res, next) => {
+    try {
+        const { status, maintanance_id } = req.body;
+        if (typeof (status) !== 'number' && typeof (maintanance_id) !== 'number') {
+            res.json(createResponse("Error Occured", "Value should be a number", true));
+        }
+        else {
+            const accept = await updateMaintanance(status, maintanance_id);
 
-//         const accept = await updateRequisition(data);
-
-//         if (accept.rowsAffected === 1) {
-//             res.json(createResponse(deny, "Requisition has been Accepted"));
-//         }
-//     } catch (error) {
-//         next(error.message);
-//     }
-// };
-
+            if (accept.rowsAffected === 1) {
+                res.json(createResponse(null, "Maintanance status has been Updated"));
+            }
+        }
+    } catch (error) {
+        next(error.message);
+    }
+};
 
 
-module.exports = { postMaintanance }
+
+module.exports = { postMaintanance, putMaintanance }

@@ -1,7 +1,7 @@
 const router = require("express").Router();
-// const { } = require();
-// const { } = require();
+const { postMaintanance, putMaintanance } = require("../../../controllers/it/maintanance");
 
-// router.get("/");
+router.get("/", postMaintanance);
+router.put("/", putMaintanance);
 
 module.exports = router;

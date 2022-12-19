@@ -21,7 +21,13 @@ const selectUserRequisitions = (user_id) =>
   LEFT OUTER JOIN hrm.DEPARTMENT_LIST D ON E.DEPARTEMENT_ID = D.DEPARTEMENT_ID 
   LEFT OUTER JOIN hrm.DESIGNATION DE ON DE.DESIGNATION_ID = E.DESIGNATION_ID WHERE R.HR_ID=${Number(user_id)}`);
 
-  const selectUserAcceptRequisitions = (user_id) => ExecuteIT(``);
+const selectUserAcceptRequisitions = (user_id) =>
+  ExecuteIT(`SELECT I.IND_PRO_ID AS IND_PRO_REQ_ID, I.STR_PRO_ID, R.HR_ID, IP.IND_PRODUCT_ID, PL.PRODUCT_NAME, IP.UNIQUE_V FROM IND_PRO_REQUISITION I 
+  LEFT OUTER JOIN IND_PRODUCT IP ON IP.IND_PRODUCT_ID = I.IND_PRODUCT_ID 
+  LEFT OUTER JOIN PRO_REQUISITION P ON P.PRO_REQ_ID  = I.PRO_REQ_ID 
+  LEFT OUTER JOIN REQUISITION R ON R.REQ_ID = P.REQ_ID 
+  LEFT OUTER  JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = P.PRO_ID
+  WHERE R.REQ_STATUS = 2 AND R.HR_ID = ${Number(user_id)}`);
 
 
 // get pending requisitions
@@ -87,7 +93,7 @@ const insertSummaries = (data) =>
 
 /*----------- UPDATE ----------- */
 const updateRequisition = (data) => {
-  if(data.REQ_ID == 1) {
+  if (data.REQ_ID == 1) {
     return ExecuteIT(
       `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
     )
@@ -128,7 +134,7 @@ const updateManyIndProduct = (array) => {
 module.exports = {
   // selectProductBalance,
   selectUserRequisitions,
-  //selectUserAcceptRequisitions
+  selectUserAcceptRequisitions,
   selectStatusRequisitions,
   selectIndProductList,
   selectRequisitionById,

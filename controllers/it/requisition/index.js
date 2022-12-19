@@ -13,15 +13,15 @@ const getUserRequitions = async (req, res, next) => {
     }
 }
 
-// const getUserAcceptRequitions = async (req, res, next) => {
-//     try {
-//         const { user_id } = req.headers;
-//         const userRequisitions = await selectUserAcceptRequisitions(user_id);
-//         res.json(createResponse(userRequisitions.rows, "User Accept Product"));
-//     } catch (err) {
-//         next(err.message);
-//     }
-// }
+const getUserAcceptRequitions = async (req, res, next) => {
+    try {
+        const { user_id } = req.headers;
+        const userRequisitions = await selectUserAcceptRequisitions(user_id);
+        res.json(createResponse(userRequisitions.rows, "User Accept Product"));
+    } catch (err) {
+        next(err.message);
+    }
+}
 
 const getAdminRequisitions = async (req, res, next) => {
     const { status } = req.query;
@@ -322,7 +322,7 @@ const acceptUserRequisition = async (req, res, next) => {
 module.exports = {
     getRequsition,
     getUserRequitions,
-    //getUserAcceptRequitions,
+    getUserAcceptRequitions,
     getAdminRequisitions,
     postRequisition,
     putReqByItStoreOfficer,
