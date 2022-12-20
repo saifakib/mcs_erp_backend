@@ -9,11 +9,20 @@ const insertMaintananceReq = (data) =>
         { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
 
+// INSERT servicing request
+const insertServicing = (maintanance_id, problem) =>
+    ExecuteIT(
+        `INSERT INTO SERVICES (PROBLEM, STATUS, MAINTENANCE_ID) VALUES ('${problem}', ${Number(0)}, ${Number(maintanance_id)})`,
+    );
+
 
 /*-------------- UPDATE ---------------*/
 // maintanance statue
 const updateMaintanance = (status, maintanance_id) => ExecuteIT(`UPDATE MAINTENANCE SET STATUS = ${Number(status)} WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
 
+// servicing statue
+const updateServicing = (maintanance_id, remarks) => ExecuteIT(`UPDATE SERVICES SET STATUS = ${Number(1)} WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
+
 module.exports = {
-    insertMaintananceReq, updateMaintanance
+    insertMaintananceReq, insertServicing, updateMaintanance, updateServicing
 }
