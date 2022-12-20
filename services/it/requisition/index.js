@@ -96,6 +96,7 @@ const insertSummaries = (data) =>
 
 
 /*----------- UPDATE ----------- */
+TODO: // working letter, should be modified
 const updateRequisition = (data) => {
   if (data.REQ_ID == 1) {
     return ExecuteIT(
@@ -112,7 +113,7 @@ const updateRequisition = (data) => {
 const updateStrBalance = (str_pro_id, apr_qty) =>
   ExecuteIT(
     `UPDATE STORE_PRODUCTS SET QUANTITY = QUANTITY - ${Number(
-      str_pro_id
+      apr_qty
     )} WHERE STR_PRO_ID = ${Number(str_pro_id)}`
   );
 

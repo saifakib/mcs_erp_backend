@@ -3,20 +3,26 @@ const { insertMaintananceReq, insertServicing, updateMaintanance, updateServicin
 
 
 /*------------- get ------------*/
-// const getAdminRequisitions = async (req, res, next) => {
-//     const { status } = req.query;
-//     try {
-//         const allPendingRequitions = await selectStatusRequisitions(status);
-//         let msg = status == 0 ? "Pending" : status == 1 ? "Approve" : status == 2 ? "Accept" : "Deny";
-//         if (status >= 0 && status <= 3) {
-//             res.json(createResponse(allPendingRequitions.rows, `All ${msg} Requisition`));
-//         } else {
-//             res.json(createResponse(null, "Invalid Requisition Status", true));
-//         }
-//     } catch (err) {
-//         next(err.message)
-//     }
-// }
+const getMaintanances = async (req, res, next) => {
+    const { role, hrid } = req.params;
+    try {
+        if(role == 'admin') {
+            const maintanance = await selectAdminMaintanances()
+        }
+        else if(role == 'user') {
+            //const maintanance = await ();
+        }
+        const maintanances = await selectStatusRequisitions(status);
+        let msg = status == 0 ? "Pending" : status == 1 ? "Approve" : status == 2 ? "Accept" : "Deny";
+        if (status >= 0 && status <= 3) {
+            res.json(createResponse(allPendingRequitions.rows, `All ${msg} Requisition`));
+        } else {
+            res.json(createResponse(null, "Invalid Requisition Status", true));
+        }
+    } catch (err) {
+        next(err.message)
+    }
+}
 
 
 /*------------- post ------------*/
@@ -102,4 +108,4 @@ const putServicing = async (req, res, next) => {
 };
 
 
-module.exports = { postMaintanance, postServicing, putMaintanance, putServicing }
+module.exports = { getMaintanances, postMaintanance, postServicing, putMaintanance, putServicing }

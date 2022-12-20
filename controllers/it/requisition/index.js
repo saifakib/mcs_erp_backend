@@ -159,44 +159,6 @@ const putReqByItStoreOfficer = async (req, res, next) => {
     try {
         let { req_id, products, str_remarks } = req.body;
 
-        // let products = [
-        //     {
-        //         pro_req_id: 1,
-        //         pro_id: 1,
-        //         str_pro_id: 1,
-        //         reqQty: 10,
-        //         qty: 9
-        //     },
-        //     {
-        //         pro_req_id: 1,
-        //         pro_id: 1,
-        //         str_pro_id: 2,
-        //         reqQty: 10,
-        //         qty: 0
-        //     },
-        //     {
-        //         pro_req_id: 2,
-        //         pro_id: 4,
-        //         str_pro_id: 6,
-        //         reqQty: 2,
-        //         qty: 1
-        //     },
-        //     {
-        //         pro_req_id: 3,
-        //         pro_id: 7,
-        //         str_pro_id: 9,
-        //         reqQty: 3,
-        //         qty: 1
-        //     },
-        //     {
-        //         pro_req_id: 3,
-        //         pro_id: 7,
-        //         str_pro_id: 10,
-        //         reqQty: 3,
-        //         qty: 15
-        //     }
-        // ];
-
         products = productModification(products);
         console.log(products)
         let response = quantityChecking(products);
@@ -308,6 +270,8 @@ const acceptUserRequisition = async (req, res, next) => {
         };
 
         const accept = await updateRequisition(data);
+
+        
 
         if (accept.rowsAffected === 1) {
             res.json(createResponse(null, "Requisition has been Accepted"));
