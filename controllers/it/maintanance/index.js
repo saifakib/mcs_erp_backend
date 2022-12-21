@@ -1,19 +1,33 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectMaintanances, insertMaintananceReq, insertServicing, updateMaintanance, updateServicing } = require("../../../services/it/maintanance");
+const { selectMaintanances, selectMaintanance, insertMaintananceReq, insertServicing, updateMaintanance, updateServicing } = require("../../../services/it/maintanance");
+const { updateIndProReq } = require("../../../services/it/requisition");
+const { updateIndProduct } = require("../../../services/it/product")
 
 
 /*------------- get ------------*/
 const getMaintanances = async (req, res, next) => {
     const { role, hrid } = req.query;
     try {
-        if(role == 'admin') {
+        if (role == 'admin') {
             const maintanance = await selectMaintanances();
             res.json(createResponse(maintanance.rows, `All Maintanance Report`));
         }
-        else if(role == 'user') {
+        else if (role == 'user') {
             const maintanance = await selectMaintanances(hrid);
             res.json(createResponse(maintanance.rows, `Single User Maintanance Report`));
         }
+    } catch (err) {
+        next(err.message)
+    }
+}
+
+
+const getMaintanance = async (req, res, next) => {
+    const { maintanance_id } = req.params;
+    try {
+        const maintanance = await selectMaintanance(maintanance_id);
+        res.json(createResponse(maintanance.rows[0], `Single Maintanance Report`));
+
     } catch (err) {
         next(err.message)
     }
@@ -34,9 +48,11 @@ const postMaintanance = async (req, res, next) => {
             status: 0
         };
 
-        let maintananceRequestR = await insertMaintananceReq(maintananceRequest);
+        const maintananceRequestR = await insertMaintananceReq(maintananceRequest);
+        const updateIndProReqU = await updateIndProReq(ind_pro_req_id, 1);
+        const updateIndPro = await updateIndProduct(ind_pro_id, 2);
 
-        if (maintananceRequestR.rowsAffected >= 1) {
+        if (maintananceRequestR.rowsAffected >= 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
             res.json(createResponse(null, "Maintanance Request Success", false));
         }
     } catch (err) {
@@ -45,13 +61,13 @@ const postMaintanance = async (req, res, next) => {
 };
 
 const postServicing = async (req, res, next) => {
-    try{
+    try {
         const { maintanance_id, problem } = req.body;
 
         const postServing = await insertServicing(maintanance_id, problem);
-        const updateMaintanance = await updateMaintanance(Number(4), maintanance_id);
+        const updateMaintanance = await updateMaintanance(Number(3), maintanance_id);
 
-        if(postServing.rowsAffected === 1 && updateMaintanance.rowsAffected === 1) {
+        if (postServing.rowsAffected === 1 && updateMaintanance.rowsAffected === 1) {
             res.json(createResponse(null, "Servicing Posted", false));
         } else {
             res.json(createResponse(null, "Something went wrong", true));
@@ -74,8 +90,30 @@ const putMaintanance = async (req, res, next) => {
         else {
             const accept = await updateMaintanance(status, maintanance_id);
 
-            if (accept.rowsAffected === 1) {
-                res.json(createResponse(null, "Maintanance status has been Updated"));
+            const conStatus = [5, 7];
+            if (conStatus.includes(status)) {
+                const { rows } = await selectMaintanance(maintanance_id);
+                if (status === 5) {      // Maintanace Dead Status 5
+                    const updateIndProReqU = await updateIndProReq(rows[0].IND_PRO_REQ_ID, 2);
+                    const updateIndPro = await updateIndProduct(rows[0].IND_PRO_ID, 4);
+
+                    if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
+                        res.json(createResponse(null, "Maintanance status has been Updated"));
+                    }
+                } 
+                else {
+                    const updateIndProReqU = await updateIndProReq(rows[0].IND_PRO_REQ_ID, 0);
+                    const updateIndPro = await updateIndProduct(rows[0].IND_PRO_ID, 1);
+
+                    if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
+                        res.json(createResponse(null, "Maintanance status has been Updated"));
+                    }
+                }
+            } 
+            else {
+                if (accept.rowsAffected === 1) {
+                    res.json(createResponse(null, "Maintanance status has been Updated"));
+                }
             }
         }
     } catch (error) {
@@ -91,7 +129,7 @@ const putServicing = async (req, res, next) => {
         }
         else {
             const putServing = await updateServicing(maintanance_id, remarks);
-            const updateMaintananceR = await updateMaintanance(Number(5), maintanance_id);
+            const updateMaintananceR = await updateMaintanance(Number(4), maintanance_id);
 
             if (updateMaintananceR.rowsAffected === 1 && putServing.rowsAffected === 1) {
                 res.json(createResponse(null, "Maintanance and Servicing status has been Updated"));
@@ -103,4 +141,4 @@ const putServicing = async (req, res, next) => {
 };
 
 
-module.exports = { getMaintanances, postMaintanance, postServicing, putMaintanance, putServicing }
+module.exports = { getMaintanances, getMaintanance, postMaintanance, postServicing, putMaintanance, putServicing }

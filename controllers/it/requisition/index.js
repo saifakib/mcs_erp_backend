@@ -160,7 +160,6 @@ const putReqByItStoreOfficer = async (req, res, next) => {
         let { req_id, products, str_remarks } = req.body;
 
         products = productModification(products);
-        console.log(products)
         let response = quantityChecking(products);
         if (response) {
             let reqProdCount = products.length;
@@ -270,8 +269,6 @@ const acceptUserRequisition = async (req, res, next) => {
         };
 
         const accept = await updateRequisition(data);
-
-        
 
         if (accept.rowsAffected === 1) {
             res.json(createResponse(null, "Requisition has been Accepted"));

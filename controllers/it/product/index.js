@@ -237,7 +237,7 @@ const putIndProduct = async ( req, res, next ) => {
         const { ind_product_id } = req.headers;
         const indProdInfo = await selectIndProduct(ind_product_id);
         if(indProdInfo.rows[0].STATUS === 3) {
-            const changeIndProd =  await updateIndProduct(ind_product_id);
+            const changeIndProd =  await updateIndProduct(ind_product_id, 0);
 
             if(changeIndProd.rowsAffected === 1) {
                 const changeStrProById = await updateStrProNonWCount(indProdInfo.rows[0].STR_PRO_ID); 

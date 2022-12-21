@@ -201,7 +201,7 @@ const updateStoreProduct = ({ str_pro_id, qty, price }, stock_alert = false, sto
         )}, PRICE = ${Number(price)}, NON_WORKABLE = NON_WORKABLE + ${Number(non_workable)} WHERE STR_PRO_ID = ${Number(str_pro_id)} RETURN QUANTITY INTO :storeQuantity`,
         { storeQuantity: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
-const updateIndProduct = (id) => ExecuteIT(`UPDATE IND_PRODUCT SET STATUS = ${Number(0)} WHERE IND_PRODUCT_ID = ${Number(id)}`);
+const updateIndProduct = (id, status) => ExecuteIT(`UPDATE IND_PRODUCT SET STATUS = ${Number(status)} WHERE IND_PRODUCT_ID = ${Number(id)}`);
 const updateStrProNonWCount = (str_pro_id) => ExecuteIT(`UPDATE STORE_PRODUCTS SET NON_WORKABLE = NON_WORKABLE - ${Number(1)} WHERE STR_PRO_ID = ${Number(str_pro_id)}`)
 
 

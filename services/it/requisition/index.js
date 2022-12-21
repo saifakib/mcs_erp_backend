@@ -136,6 +136,9 @@ const updateManyIndProduct = (array) => {
   return ExecuteITMany(statement, newArray)
 }
 
+const updateIndProReq = (ind_pro_req_id, status) =>
+  ExecuteIT(`UPDATE IND_PRO_REQUISITION SET STATUS = ${Number(status)} WHERE IND_PRO_ID = ${Number(ind_pro_req_id)}`)
+
 module.exports = {
   // selectProductBalance,
   selectUserRequisitions,
@@ -150,6 +153,6 @@ module.exports = {
   updateRequisition,
   updateStrBalance,
   updateProRequisition,
-  updateManyIndProduct
-
+  updateManyIndProduct,
+  updateIndProReq
 }
