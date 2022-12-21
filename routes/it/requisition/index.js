@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { getUserRequitions, getUserAcceptRequitions, getAdminRequisitions, getRequsition, postRequisition, putReqByItStoreOfficer, denyRequisition, acceptUserRequisition } = require("../../../controllers/it/requisition");
+const { getUserRequitions, getUserAcceptRequitions, getUserAcceptActiveRequitions, getAdminRequisitions, getRequsition, postRequisition, putReqByItStoreOfficer, denyRequisition, acceptUserRequisition } = require("../../../controllers/it/requisition");
 const { checkUserRequisition, checkUserAcceptRequisition, checkPostRequisition } = require("../../../validator/it/requisition");
 
 // post route
@@ -10,6 +10,7 @@ router.put("/deny", denyRequisition);
 router.put("/accept", acceptUserRequisition);
 
 router.get("/user/accReq", checkUserAcceptRequisition, getUserAcceptRequitions);
+router.get("/user/accReq/active", checkUserAcceptRequisition, getUserAcceptActiveRequitions);
 router.get("/user/:user_id", checkUserRequisition, getUserRequitions);
 
 router.get("/admin", getAdminRequisitions);

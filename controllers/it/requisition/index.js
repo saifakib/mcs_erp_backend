@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectUserRequisitions, selectUserAcceptRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
+const { selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
 
 
 /*------------- get ------------*/
@@ -17,6 +17,16 @@ const getUserAcceptRequitions = async (req, res, next) => {
     try {
         const { user_id } = req.headers;
         const userRequisitions = await selectUserAcceptRequisitions(user_id);
+        res.json(createResponse(userRequisitions.rows, "User Accept Product"));
+    } catch (err) {
+        next(err.message);
+    }
+}
+
+const getUserAcceptActiveRequitions = async (req, res, next) => {
+    try {
+        const { user_id } = req.headers;
+        const userRequisitions = await selectUserAcceptActiveRequisitions(user_id);
         res.json(createResponse(userRequisitions.rows, "User Accept Product"));
     } catch (err) {
         next(err.message);
@@ -284,6 +294,7 @@ module.exports = {
     getRequsition,
     getUserRequitions,
     getUserAcceptRequitions,
+    getUserAcceptActiveRequitions,
     getAdminRequisitions,
     postRequisition,
     putReqByItStoreOfficer,

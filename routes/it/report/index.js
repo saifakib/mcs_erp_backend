@@ -6,5 +6,7 @@ const {
 
 // get route
 router.get("/entries", getEntriesProductReport);
+router.get("/requisitions", getEntriesProductReport);
+
 
 module.exports = router;

@@ -33,6 +33,17 @@ const selectUserAcceptRequisitions = (user_id) =>
   LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID
   WHERE R.REQ_STATUS = 2 AND R.HR_ID =  ${Number(user_id)}`);
 
+  const selectUserAcceptActiveRequisitions = (user_id) =>
+  ExecuteIT(`SELECT I.IND_PRO_ID AS IND_PRO_REQ_ID, I.STR_PRO_ID, R.HR_ID, IP.IND_PRODUCT_ID, PL.PRODUCT_NAME, IP.UNIQUE_V, B.BRAND_NAME, M.MODEL_NAME, C.CATEGORY_NAME, I.STATUS FROM IND_PRO_REQUISITION I 
+  LEFT OUTER JOIN IND_PRODUCT IP ON IP.IND_PRODUCT_ID = I.IND_PRODUCT_ID 
+  LEFT OUTER JOIN PRO_REQUISITION P ON P.PRO_REQ_ID  = I.PRO_REQ_ID 
+  LEFT OUTER JOIN REQUISITION R ON R.REQ_ID = P.REQ_ID 
+  LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = P.PRO_ID
+  LEFT OUTER JOIN STORE_PRODUCTS SP ON SP.STR_PRO_ID = I.STR_PRO_ID
+  LEFT OUTER JOIN BRAND B ON B.BRAND_ID = SP.BRAND_ID
+  LEFT OUTER JOIN MODELS M ON M.MODEL_ID = SP.MODEL_ID
+  LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID
+  WHERE R.REQ_STATUS = 2 AND R.HR_ID =  ${Number(user_id)} AND I.STATUS = ${Number(0)}`);
 
 // get pending requisitions
 const selectStatusRequisitions = (status) => ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
@@ -143,6 +154,7 @@ module.exports = {
   // selectProductBalance,
   selectUserRequisitions,
   selectUserAcceptRequisitions,
+  selectUserAcceptActiveRequisitions,
   selectStatusRequisitions,
   selectIndProductList,
   selectRequisitionById,
