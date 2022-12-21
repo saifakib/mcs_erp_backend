@@ -1,10 +1,13 @@
 const router = require("express").Router();
-const { postMaintanance, postServicing, putMaintanance, putServicing } = require("../../../controllers/it/maintanance");
+const { getMaintanances, postMaintanance, postServicing, putMaintanance, putServicing } = require("../../../controllers/it/maintanance");
 
-router.post("/", postMaintanance);
-router.put("/", putMaintanance);
+router.route("/")
+    .get(getMaintanances)
+    .post(postMaintanance)
+    .put(putMaintanance)
 
-router.post("/servicing", postServicing);
-router.put("/servicing", putServicing);
+router.route("/servicing")
+    .post(postServicing)
+    .put(putServicing)
 
 module.exports = router;

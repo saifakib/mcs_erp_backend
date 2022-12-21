@@ -1,23 +1,18 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { insertMaintananceReq, insertServicing, updateMaintanance, updateServicing } = require("../../../services/it/maintanance");
+const { selectMaintanances, insertMaintananceReq, insertServicing, updateMaintanance, updateServicing } = require("../../../services/it/maintanance");
 
 
 /*------------- get ------------*/
 const getMaintanances = async (req, res, next) => {
-    const { role, hrid } = req.params;
+    const { role, hrid } = req.query;
     try {
         if(role == 'admin') {
-            const maintanance = await selectAdminMaintanances()
+            const maintanance = await selectMaintanances();
+            res.json(createResponse(maintanance.rows, `All Maintanance Report`));
         }
         else if(role == 'user') {
-            //const maintanance = await ();
-        }
-        const maintanances = await selectStatusRequisitions(status);
-        let msg = status == 0 ? "Pending" : status == 1 ? "Approve" : status == 2 ? "Accept" : "Deny";
-        if (status >= 0 && status <= 3) {
-            res.json(createResponse(allPendingRequitions.rows, `All ${msg} Requisition`));
-        } else {
-            res.json(createResponse(null, "Invalid Requisition Status", true));
+            const maintanance = await selectMaintanances(hrid);
+            res.json(createResponse(maintanance.rows, `Single User Maintanance Report`));
         }
     } catch (err) {
         next(err.message)

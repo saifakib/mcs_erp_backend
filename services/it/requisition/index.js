@@ -96,7 +96,7 @@ const insertSummaries = (data) =>
 
 
 /*----------- UPDATE ----------- */
-TODO: // working letter, should be modified
+// working letter, should be modified TODO:
 const updateRequisition = (data) => {
   if (data.REQ_ID == 1) {
     return ExecuteIT(
