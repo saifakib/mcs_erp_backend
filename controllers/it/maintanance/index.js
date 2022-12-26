@@ -65,9 +65,9 @@ const postServicing = async (req, res, next) => {
         const { maintanance_id, problem } = req.body;
 
         const postServing = await insertServicing(maintanance_id, problem);
-        const updateMaintanance = await updateMaintanance(Number(3), maintanance_id);
+        const updateMaintananceN = await updateMaintanance(Number(3), maintanance_id);
 
-        if (postServing.rowsAffected === 1 && updateMaintanance.rowsAffected === 1) {
+        if (postServing.rowsAffected === 1 && updateMaintananceN.rowsAffected === 1) {
             res.json(createResponse(null, "Servicing Posted", false));
         } else {
             res.json(createResponse(null, "Something went wrong", true));
@@ -100,7 +100,7 @@ const putMaintanance = async (req, res, next) => {
                     if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
                         res.json(createResponse(null, "Maintanance status has been Updated"));
                     }
-                } 
+                }
                 else {
                     const updateIndProReqU = await updateIndProReq(rows[0].IND_PRO_REQ_ID, 0);
                     const updateIndPro = await updateIndProduct(rows[0].IND_PRO_ID, 1);
@@ -109,7 +109,7 @@ const putMaintanance = async (req, res, next) => {
                         res.json(createResponse(null, "Maintanance status has been Updated"));
                     }
                 }
-            } 
+            }
             else {
                 if (accept.rowsAffected === 1) {
                     res.json(createResponse(null, "Maintanance status has been Updated"));
@@ -130,6 +130,9 @@ const putServicing = async (req, res, next) => {
         else {
             const putServing = await updateServicing(maintanance_id, remarks);
             const updateMaintananceR = await updateMaintanance(Number(4), maintanance_id);
+
+            console.log("PostServicing:", putServing);
+            console.log("UpdateMaintananceR:", updateMaintananceR);
 
             if (updateMaintananceR.rowsAffected === 1 && putServing.rowsAffected === 1) {
                 res.json(createResponse(null, "Maintanance and Servicing status has been Updated"));

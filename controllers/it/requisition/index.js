@@ -56,23 +56,34 @@ const getRequsition = async (req, res, next) => {
         } else {
             const response = await selectRequisitionById(req_id);
 
-            const changeResponse = response.rows.reduce((acc, val, index) => {
-                acc[index] = {
-                    PRO_REQ_ID: val.PRO_REQ_ID,
-                    QUNTITY: val.QUNTITY,
-                    PRODUCT_ID: val.PRODUCT_ID,
-                    PRODUCT_NAME: val.PRODUCT_NAME
-                }
-                return acc;
-            }, [])
+            if (response.rows.length === 0) {
+                res.json(createResponse(null, "This requisition doesn't exit", true))
+            }
+            else {
+                const changeResponse = response.rows.reduce((acc, val, index) => {
+                    acc[index] = {
+                        PRO_REQ_ID: val.PRO_REQ_ID,
+                        QUNTITY: val.QUNTITY,
+                        PRODUCT_ID: val.PRODUCT_ID,
+                        PRODUCT_NAME: val.PRODUCT_NAME
+                    }
+                    return acc;
+                }, [])
 
-            res.json(createResponse({
-                REQ_ID: response.rows[0].REQ_ID,
-                REQ_DATE: response.rows[0].REQ_DATE,
-                REQ_TIME: response.rows[0].REQ_TIME,
-                USER_REMARKS: response.rows[0].USER_REMARKS,
-                PRO_REQUISITIONS: [...changeResponse]
-            }, "User Request Requisition Details"));
+                res.json(createResponse({
+                    REQ_ID: response.rows[0].REQ_ID,
+                    REQ_DATE: response.rows[0].REQ_DATE,
+                    REQ_TIME: response.rows[0].REQ_TIME,
+                    USER_REMARKS: response.rows[0].USER_REMARKS,
+                    PRO_REQUISITIONS: [...changeResponse],
+                    USER: {
+                        NAME_ENGLISH: response.rows[0].NAME_ENGLISH,
+                        MOBILE_PHONE: response.rows[0].MOBILE_PHONE,
+                        DEPARTEMENT: response.rows[0].DEPARTEMENT,
+                        DESIGNATION: response.rows[0].DESIGNATION,
+                    }
+                }, "User Request Requisition Details"));
+            }
         }
     } catch (err) {
         next(err.message)

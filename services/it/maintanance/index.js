@@ -90,7 +90,7 @@ const insertServicing = (maintanance_id, problem) =>
 const updateMaintanance = (status, maintanance_id) => ExecuteIT(`UPDATE MAINTENANCE SET STATUS = ${Number(status)} WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
 
 // servicing statue
-const updateServicing = (maintanance_id, remarks) => ExecuteIT(`UPDATE SERVICES SET STATUS = ${Number(1)} WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
+const updateServicing = (maintanance_id, remarks) => ExecuteIT(`UPDATE SERVICES SET STATUS = ${Number(1)}, REMARKS = '${remarks}' WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
 
 module.exports = {
     selectMaintanances, selectMaintanance, insertMaintananceReq, insertServicing, updateMaintanance, updateServicing
