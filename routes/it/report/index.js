@@ -1,12 +1,12 @@
 const router = require("express").Router();
 const {
-    getEntriesProductReport,
+    getEntriesProductReport, getRequisitionReport
 } = require("../../../controllers/it/report");
 
 
 // get route
 router.get("/entries", getEntriesProductReport);
-router.get("/requisitions", getEntriesProductReport);
+router.get("/requisitions", getRequisitionReport);
 
 
 module.exports = router;

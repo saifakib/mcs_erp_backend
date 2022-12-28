@@ -30,6 +30,49 @@ const selectsingleEntriesReports = (productidno, fdate, tdate) =>
     WHERE pel.ENTRY_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6 and
     pel.ENTRY_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6 and pl.PRODUCT_ID = ${Number(productidno)} order by  pel.PRO_EN_L_ID`
   );
+
+const selectRequisitionByDate = (fdate, tdate) =>
+  ExecuteIT(`SELECT PL.PRODUCT_NAME, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION,
+  TO_CHAR(REQ_DATE,'MON DD,YYYY') AS DATES, P.QUNTITY AS REQ_QTY, P.APR_QTY FROM REQUISITION R 
+  LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID
+  LEFT OUTER JOIN VIEW_EMP_DETAILS E ON E.EMPLOYE_ID = R.HR_ID
+  LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = P.PRO_ID
+  WHERE R.REQ_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6  AND R.REQ_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6`);
+
+
+const selectRequisitionByProdDate = (product_id, fdate, tdate) =>
+  ExecuteIT(` SELECT PL.PRODUCT_NAME, E.NAME_ENGLISH , E.DEPARTEMENT, E.DESIGNATION,
+  TO_CHAR(REQ_DATE,'MON DD,YYYY') AS DATES, P.QUNTITY AS REQ_QTY, P.APR_QTY FROM REQUISITION R 
+  LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID
+  LEFT OUTER JOIN VIEW_EMP_DETAILS E ON E.EMPLOYE_ID = R.HR_ID
+  LEFT OUTER JOIN PRODUCT_LIST PL  ON PL.PRODUCT_ID = P.PRO_ID
+  WHERE R.REQ_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6  AND R.REQ_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6
+  AND PL.PRODUCT_ID = ${Number(product_id)}`);
+
+const selectRequisitionByProId = (product_id) =>
+  ExecuteIT(`SELECT PL.PRODUCT_NAME, E.NAME_ENGLISH ,E.DEPARTEMENT, E.DESIGNATION, TO_CHAR(REQ_DATE,'MON DD,YYYY') AS DATES,
+  P.QUNTITY AS REQ_QTY, P.APR_QTY FROM REQUISITION R 
+  LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID
+  LEFT OUTER JOIN VIEW_EMP_DETAILS E ON E.EMPLOYE_ID = R.HR_ID
+  LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = P.PRO_ID
+  WHERE PL.PRODUCT_ID = ${Number(product_id)}`);
+
+const selectRequisitionByHrid = (hrid) =>
+  ExecuteIT(`SELECT PL.PRODUCT_NAME, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION,
+  TO_CHAR(REQ_DATE,'MON DD,YYYY') AS DATES, P.QUNTITY AS REQ_QTY, P.APR_QTY FROM REQUISITION R 
+  LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID
+  LEFT OUTER JOIN VIEW_EMP_DETAILS E ON E.EMPLOYE_ID = R.HR_ID
+  LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = P.PRO_ID WHERE R.HR_ID = ${Number(hrid)}`);
+
+const selectRequisitionByDateHrid = (hrid, fdate, tdate) =>
+  ExecuteIT(`SELECT PL.PRODUCT_NAME, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION,
+  TO_CHAR(REQ_DATE,'MON DD,YYYY') AS DATES, P.QUNTITY AS REQ_QTY, P.APR_QTY FROM REQUISITION R 
+  LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID
+  LEFT OUTER JOIN VIEW_EMP_DETAILS E ON E.EMPLOYE_ID = R.HR_ID
+  LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = P.PRO_ID 
+  WHERE R.REQ_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6  AND R.REQ_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6
+  AND R.HR_ID = ${Number(hrid)}`)
+
 /*--------------------- End Entries Report ----------------- */
 
 
@@ -38,4 +81,9 @@ const selectsingleEntriesReports = (productidno, fdate, tdate) =>
 module.exports = {
   selectAllEntriesReports,
   selectsingleEntriesReports,
+  selectRequisitionByDate,
+  selectRequisitionByProdDate,
+  selectRequisitionByProId,
+  selectRequisitionByHrid,
+  selectRequisitionByDateHrid
 };
