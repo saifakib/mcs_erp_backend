@@ -40,12 +40,12 @@ const checkUserAcceptRequisition = (req, res, next) => {
 };
 
 const checkPostRequisition = (req, res, next) => {
-    let checkUserRequisitionSchema = {}
+    let checkPostRequisitionSchema = {}
 
     if (req.method == 'POST') {
         const { user_id } = req.headers;
         headers = { user_id }
-        checkUserRequisitionSchema = Joi.object().keys({
+        checkPostRequisitionSchema = Joi.object().keys({
             user_id: Joi.number().required(),
             remarks: Joi.string(),
             products: Joi.array().min(1).items(
@@ -56,7 +56,64 @@ const checkPostRequisition = (req, res, next) => {
             ).unique((a, b) => a.pro_id === b.pro_id).required(),
         })
     }
-    const { error } = checkUserRequisitionSchema.validate({ ...req.body, ...headers });
+    const { error } = checkPostRequisitionSchema.validate({ ...req.body, ...headers });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
+const checkApproveRequisition = (req, res, next) => {
+    let checkApproveRequisitionSchema = {}
+
+    if (req.method == 'PUT') {
+        checkApproveRequisitionSchema = Joi.object().keys({
+            req_id: Joi.number().required(),
+            str_remarks: Joi.string(),
+            products: Joi.array().min(1).items(
+                Joi.object().keys({
+                    pro_req_id: Joi.number().required(),
+                    str_pro_id: Joi.number().required(),
+                    qty: Joi.number().required()
+                }).required()
+            )
+        })
+    }
+    const { error } = checkApproveRequisitionSchema.validate({ ...req.body });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
+const checkAcceptRequisition = (req, res, next) => {
+    let checkAcceptRequisitionSchema = {}
+
+    if (req.method == 'PUT') {
+        checkAcceptRequisitionSchema = Joi.object().keys({
+            req_id: Joi.number().required()
+        })
+    }
+    const { error } = checkAcceptRequisitionSchema.validate({ ...req.body });
+    const valid = error == null;
+    if (valid) { next() }
+    else {
+        res.json(createResponse(errorResponse(error), "Error Occured", true));
+    }
+};
+
+const checkDenyRequisition = (req, res, next) => {
+    let checkDenyRequisitionSchema = {}
+
+    if (req.method == 'PUT') {
+        checkDenyRequisitionSchema = Joi.object().keys({
+            req_id: Joi.number().required(),
+            denyRemarks: Joi.string()
+        })
+    }
+    const { error } = checkDenyRequisitionSchema.validate({ ...req.body });
     const valid = error == null;
     if (valid) { next() }
     else {
@@ -68,6 +125,9 @@ const checkPostRequisition = (req, res, next) => {
 module.exports = {
     checkUserRequisition,
     checkUserAcceptRequisition,
-    checkPostRequisition
+    checkPostRequisition,
+    checkApproveRequisition,
+    checkAcceptRequisition,
+    checkDenyRequisition
 }
 

@@ -6,8 +6,12 @@ const { selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptAc
 const getUserRequitions = async (req, res, next) => {
     try {
         const { user_id } = req.params;
-        const userRequisitions = await selectUserRequisitions(user_id);
-        res.json(createResponse(userRequisitions.rows, "All User Requisition"));
+        if (typeof (user_id) !== number && !user_id) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const userRequisitions = await selectUserRequisitions(user_id);
+            res.json(createResponse(userRequisitions.rows, "All User Requisition"));
+        }
     } catch (err) {
         next(err.message);
     }

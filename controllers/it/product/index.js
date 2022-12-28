@@ -25,8 +25,13 @@ const lastMrrNum = async (_, res, next) => {
 const newProductList = async (req, res, next) => {
     const { category_id } = req.params;
     try {
-        const productListForNew = await selectNewProductListByCatId(category_id);
-        res.json(createResponse(productListForNew.rows));
+        if (typeof (category_id) !== number && !category_id) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const productListForNew = await selectNewProductListByCatId(category_id);
+            res.json(createResponse(productListForNew.rows));
+        }
+        
     } catch (err) {
         next(err.message);
     }
@@ -124,8 +129,12 @@ const getStoreProducts = async (_, res, next) => {
 const getStoreProductsById = async (req, res, next) => {
     try {
         const { str_pro_id } = req.params;
-        const response = await selectStoreProductsById(str_pro_id);
-        res.json(createResponse(response.rows[0]));
+        if (typeof (str_pro_id) !== number && !str_pro_id) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const response = await selectStoreProductsById(str_pro_id);
+            res.json(createResponse(response.rows[0]));
+        }
     } catch (err) {
         next(err);
     }
