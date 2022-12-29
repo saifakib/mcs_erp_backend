@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, selectRequisitionByHrid, selectRequisitionByDateHrid } = require("../../../services/it/report");
+const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, selectRequisitionByHrid, selectRequisitionByDateHrid, selectMaintananceByDate, selectMaintananceByProDate, selectMaintananceByProId, selectMaintananceByHrDate, selectMaintananceByHrId} = require("../../../services/it/report");
 const { format } = require('date-fns')
 
 
@@ -78,7 +78,6 @@ const getEntriesProductReport = async (req, res, next) => {
 const getRequisitionReport = async (req, res, next) => {
     const { queryFor, product_id, fdate, tdate, hrid } = req.query;
     try {
-
         let response = {};
 
         if (queryFor == "date") {
@@ -139,7 +138,65 @@ const getRequisitionReport = async (req, res, next) => {
 };
 
 
+/**
+ * Report - Maintanance by date, product and person
+ */
+const getMaintananceReport = async (req, res, next) => {
+    const { queryFor, product_id, fdate, tdate, hrid } = req.query;
+    try {
+        let response = {};
+
+        if (queryFor == "date") {
+            if (!fdate || !tdate) {
+                res.json(createResponse(null, "Required query missing!!", true));
+            } 
+            else {
+                response = await selectMaintananceByDate(fdate, tdate);
+            }
+        } 
+        else if (queryFor === "product") {
+            if (!product_id) {
+                res.json(createResponse(null, "Required query missing", true));
+            }
+            else {
+                if (fdate && tdate) {
+                    response = await selectMaintananceByProDate(product_id, fdate, tdate);
+                }
+                else {
+                    response = await selectMaintananceByProId(product_id);
+                }
+            }
+        } 
+        else if (queryFor === "person") {
+            if (!hrid) {
+                res.json(createResponse(null, "Required query missing", true));
+            }
+            else {
+                if (fdate && tdate) {
+                    response = await selectMaintananceByHrDate(hrid, fdate, tdate);
+                }
+                else {
+                    response = await selectMaintananceByHrId(hrid);
+                }
+            }
+        }
+        else {
+            res.json(createResponse(null, "Invalid Query For", true));
+        }
+
+        if (response.rows) {
+            res.json(createResponse({
+                maintanances: response.rows
+            }));
+        }
+    } catch (err) {
+        next(err);
+    }
+};
+
+
 module.exports = {
     getEntriesProductReport,
-    getRequisitionReport
+    getRequisitionReport,
+    getMaintananceReport
 };

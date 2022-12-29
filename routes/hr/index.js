@@ -5,7 +5,7 @@ const employeeRoute = require("./employee");
 const user = require("./user");
 
 router.use("/department", validateToken, departmentRoute);
-router.use("/employee", validateToken, employeeRoute);
+router.use("/employee", employeeRoute);
 router.use("/user", validateToken, user);
 
 module.exports = router;

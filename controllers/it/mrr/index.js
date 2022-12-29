@@ -26,7 +26,7 @@ const manageSupplier = async (req, res, next) => {
 const mrrProListBySupId = async (req, res, next) => {
   const { supplier_id } = req.params;
   try {
-    if (typeof (supplier_id) !== number && !supplier_id) {
+    if (typeof (supplier_id) !== 'number' && !supplier_id) {
       res.json(createResponse(null, "Required Parameter Missing", true));
     } else {
       let response = await selectMrrProListBySupplierId(supplier_id);
@@ -79,7 +79,7 @@ const viewProductReceptBySupIdMrr = async (req, res, next) => {
   const { supplier_id, mrr_no } = req.params;
 
   try {
-    if ((typeof (supplier_id) !== number && !supplier_id ) && (typeof (mrr_no) !== number && !mrr_no )) {
+    if ((typeof (supplier_id) !== 'number' && !supplier_id ) && (typeof (mrr_no) !== 'number' && !mrr_no )) {
       res.json(createResponse(null, "Required Parameter Missing", true));
     } else {
       const suppliers = await selectSupplier(supplier_id);
