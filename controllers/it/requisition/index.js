@@ -6,7 +6,7 @@ const { selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptAc
 const getUserRequitions = async (req, res, next) => {
     try {
         const { user_id } = req.params;
-        if (typeof (user_id) !== number && !user_id) {
+        if (typeof (user_id) !== 'number' && !user_id) {
             res.json(createResponse(null, "Something went wrong", true))
         } else {
             const userRequisitions = await selectUserRequisitions(user_id);
@@ -22,6 +22,20 @@ const getUserAcceptRequitions = async (req, res, next) => {
         const { user_id } = req.headers;
         const userRequisitions = await selectUserAcceptRequisitions(user_id);
         res.json(createResponse(userRequisitions.rows, "User Accept Product"));
+    } catch (err) {
+        next(err.message);
+    }
+}
+
+const getUserAcceptRequition = async (req, res, next) => {
+    try {
+        const { req_id } = req.params;
+        if (typeof (req_id) !== 'number' && !req_id) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const userRequisition = await selectRequisitionById(req_id, 2)   // 2 -> Accept
+            res.json(createResponse(userRequisition.rows, "User SingleRequisition"));
+        }
     } catch (err) {
         next(err.message);
     }
@@ -58,7 +72,7 @@ const getRequsition = async (req, res, next) => {
         if (typeof (req_id) !== 'number' && !req_id) {
             res.json(createResponse(null, "Something went wrong", true))
         } else {
-            const response = await selectRequisitionById(req_id);
+            const response = await selectRequisitionById(req_id, 0);
 
             if (response.rows.length === 0) {
                 res.json(createResponse(null, "This requisition doesn't exit", true))
@@ -309,6 +323,7 @@ module.exports = {
     getRequsition,
     getUserRequitions,
     getUserAcceptRequitions,
+    getUserAcceptRequition,
     getUserAcceptActiveRequitions,
     getAdminRequisitions,
     postRequisition,
