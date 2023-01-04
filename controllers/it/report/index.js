@@ -77,6 +77,7 @@ const getEntriesProductReport = async (req, res, next) => {
  */
 const getRequisitionReport = async (req, res, next) => {
     const { queryFor, product_id, fdate, tdate, hrid } = req.query;
+
     try {
         let response = {};
 

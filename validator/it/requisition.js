@@ -70,12 +70,14 @@ const checkApproveRequisition = (req, res, next) => {
     if (req.method == 'PUT') {
         checkApproveRequisitionSchema = Joi.object().keys({
             req_id: Joi.number().required(),
-            str_remarks: Joi.string(),
+            str_remarks: Joi.string().allow(null, ''),
             products: Joi.array().min(1).items(
                 Joi.object().keys({
+                    pro_id: Joi.number(),
                     pro_req_id: Joi.number().required(),
                     str_pro_id: Joi.number().required(),
-                    qty: Joi.number().required()
+                    qty: Joi.number().required(),
+                    reqQty: Joi.number()
                 }).required()
             )
         })

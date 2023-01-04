@@ -15,6 +15,7 @@ module.exports.createTokens = (user_id, employe_id) => {
 
 module.exports.validateToken = (req, res, next) => {
   try {
+    console.log(req.cookies["token"])
     const accessToken = req.cookies["token"];
     if (!accessToken) {
       return res.json(createResponse(null, "User not Authenticated!", true));

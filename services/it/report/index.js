@@ -13,8 +13,7 @@ const selectAllEntriesReports = (fdate, tdate) =>
       left outer join SUPPLIERS s on s.SUPPLIER_ID = pel.sup_id
       left outer join brand b on b.brand_id = sp.brand_id
       left outer join models m on m.model_id = sp.model_id
-      WHERE pel.ENTRY_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6   and
-      pel.ENTRY_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6 order by pel.PRO_EN_L_ID`
+      WHERE trunc(pel.ENTRY_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD') ORDER BY pel.PRO_EN_L_ID`
   );
 
 const selectsingleEntriesReports = (productidno, fdate, tdate) =>
@@ -26,9 +25,8 @@ const selectsingleEntriesReports = (productidno, fdate, tdate) =>
     left outer join  CATEGORIES c on c.category_id = pl.category_id
     left outer join SUPPLIERS s on s.SUPPLIER_ID = pel.sup_id
     left outer join brand b on b.brand_id = sp.brand_id
-      left outer join models m on m.model_id = sp.model_id
-    WHERE pel.ENTRY_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6 and
-    pel.ENTRY_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6 and pl.PRODUCT_ID = ${Number(productidno)} order by  pel.PRO_EN_L_ID`
+    left outer join models m on m.model_id = sp.model_id
+    WHERE trunc(pel.ENTRY_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') and TO_DATE('${tdate}','YYYY-MM-DD') and pl.PRODUCT_ID = ${Number(productidno)} order by  pel.PRO_EN_L_ID`
   );
 
 const selectRequisitionByDate = (fdate, tdate) =>
@@ -37,7 +35,7 @@ const selectRequisitionByDate = (fdate, tdate) =>
   LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID
   LEFT OUTER JOIN VIEW_EMP_DETAILS E ON E.EMPLOYE_ID = R.HR_ID
   LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = P.PRO_ID
-  WHERE R.REQ_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6  AND R.REQ_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6`);
+  WHERE trunc(R.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD')`);
 
 
 const selectRequisitionByProdDate = (product_id, fdate, tdate) =>
@@ -46,7 +44,7 @@ const selectRequisitionByProdDate = (product_id, fdate, tdate) =>
   LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID
   LEFT OUTER JOIN VIEW_EMP_DETAILS E ON E.EMPLOYE_ID = R.HR_ID
   LEFT OUTER JOIN PRODUCT_LIST PL  ON PL.PRODUCT_ID = P.PRO_ID
-  WHERE R.REQ_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6  AND R.REQ_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6
+  WHERE trunc(R.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD')
   AND PL.PRODUCT_ID = ${Number(product_id)}`);
 
 const selectRequisitionByProId = (product_id) =>
@@ -70,7 +68,7 @@ const selectRequisitionByDateHrid = (hrid, fdate, tdate) =>
   LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID
   LEFT OUTER JOIN VIEW_EMP_DETAILS E ON E.EMPLOYE_ID = R.HR_ID
   LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = P.PRO_ID 
-  WHERE R.REQ_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6  AND R.REQ_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6
+  WHERE trunc(R.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD')  AND TO_DATE('${tdate}','YYYY-MM-DD')
   AND R.HR_ID = ${Number(hrid)}`);
 
 const selectMaintananceByDate = (fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
@@ -95,7 +93,7 @@ const selectMaintananceByDate = (fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANC
   LEFT OUTER JOIN IND_PRODUCT IP ON IP.IND_PRODUCT_ID = M.IND_PRO_ID
   LEFT OUTER JOIN BRAND B ON B.BRAND_ID = S.BRAND_ID
   LEFT OUTER JOIN UNIT U ON U.UNIT_ID = S.UNIT_ID
-  WHERE M.REQ_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6  AND M.REQ_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6`);
+  WHERE trunc(M.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD')`);
 
 
 const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
@@ -120,7 +118,7 @@ const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELE
   LEFT OUTER JOIN IND_PRODUCT IP ON IP.IND_PRODUCT_ID = M.IND_PRO_ID
   LEFT OUTER JOIN BRAND B ON B.BRAND_ID = S.BRAND_ID
   LEFT OUTER JOIN UNIT U ON U.UNIT_ID = S.UNIT_ID
-  WHERE M.REQ_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6  AND M.REQ_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6 AND PL.PRODUCT_ID=${product_id}`);
+  WHERE trunc(M.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD') AND PL.PRODUCT_ID=${product_id}`);
 
   const selectMaintananceByProId = (product_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
   PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V ,
@@ -169,7 +167,7 @@ const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELE
   LEFT OUTER JOIN IND_PRODUCT IP ON IP.IND_PRODUCT_ID = M.IND_PRO_ID
   LEFT OUTER JOIN BRAND B ON B.BRAND_ID = S.BRAND_ID
   LEFT OUTER JOIN UNIT U ON U.UNIT_ID = S.UNIT_ID
-  WHERE M.REQ_DATE >= TO_DATE('${fdate}','YYYY-MM-DD') + 6  AND M.REQ_DATE <= TO_DATE('${tdate}','YYYY-MM-DD') + 6 AND M.HR_ID=${hrid}`);
+  WHERE trunc(M.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD') AND M.HR_ID=${hrid}`);
 
   const selectMaintananceByHrId = (hrid) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
   PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V ,
