@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
+const { selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, selectAllDetailsRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
 
 
 /*------------- get ------------*/
@@ -140,6 +140,50 @@ const getRequsition = async (req, res, next) => {
     }
 }
 
+const getAllDetailsRequisition = async( req, res, next) => {
+    try {
+        const { req_id } = req.params;
+        if (typeof (req_id) !== 'number' && !req_id) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const userRequisition = await selectAllDetailsRequisitionById(req_id)
+
+            const userRequisitionRearrange = userRequisition.rows.reduce((acc, obj, index) => {
+                const newObj = {
+                    PRODUCT_ID: obj.PRODUCT_ID,
+                    PRODUCT_NAME: obj.PRODUCT_NAME,
+                    UNIQUE_V: obj.UNIQUE_V,
+                    BRAND_NAME: obj.BRAND_NAME,
+                    UNIT_NAME: obj.UNIT_NAME,
+                    REQ_UNTITY: obj.QUNTITY,
+                    APR_QTY: obj.APR_QTY,
+                    USER_REMARKS: obj.USER_REMARKS,
+                    PRO_REQ_ID: obj.PRO_REQ_ID
+                }
+                acc[index] = newObj;
+                return acc;
+            }, []);
+
+            res.json(createResponse({
+                USER: {
+                    NAME_ENGLISH: userRequisition.rows[0].NAME_ENGLISH,
+                    MOBILE_PHONE: userRequisition.rows[0].MOBILE_PHONE,
+                    DEPARTEMENT: userRequisition.rows[0].DEPARTEMENT,
+                    DESIGNATION: userRequisition.rows[0].DESIGNATION,
+                    REQ_ID: userRequisition.rows[0].REQ_ID,
+                    REQ_DATE: userRequisition.rows[0].REQ_DATE,
+                    REQ_TIME: userRequisition.rows[0].REQ_TIME,
+                    T_REQQUNTITY: userRequisition.rows[0].T_REQQUNTITY,
+                    T_APR_QTY: userRequisition.rows[0].T_APR_QTY
+                },
+                REQUISITIONS: userRequisitionRearrange
+
+            }, "User SingleRequisition Details"));
+        }
+    } catch (err) {
+        next(err.message);
+    }
+}
 
 
 
@@ -358,6 +402,7 @@ module.exports = {
     getUserAcceptRequition,
     getUserAcceptActiveRequitions,
     getAdminRequisitions,
+    getAllDetailsRequisition,
     postRequisition,
     putReqByItStoreOfficer,
     denyRequisition,
