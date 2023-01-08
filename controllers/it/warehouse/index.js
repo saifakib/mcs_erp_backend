@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { selectStoreProducts } = require("../../../services/it/product");
-const { selectRequisitionCountWithApprovd, selectRequisitionStatusCount, selectCountStockAlert } = require("../../../services/it/warehouse");
+const { selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert } = require("../../../services/it/warehouse");
 
 
 /**
@@ -44,15 +44,20 @@ const requisitionStatusForAdmin = async (_, res, next) => {
 
         const { rows: totalProducts } = await selectStoreProducts();
         const { rows: totalRequisition } = await selectRequisitionCountWithApprovd();
+        const { rows: totalReqProdAndApprove } = await selectTotalReqQtyAndAprQtyProducts();
 
-        const totalQuantites = totalProducts.reduce((acc, obj) => acc + (obj.QUANTITY - obj.NON_WORKABLE), 0)
+        const totalQuantites = totalProducts.reduce((acc, obj) => acc + (obj.QUANTITY - obj.NON_WORKABLE), 0);
+
+        console.log(totalReqProdAndApprove)
 
         res.json(
             createResponse({
                 totalProducts: totalProducts.length,
                 totalQuantites: totalQuantites,
-                totalrequisitions: totalRequisition[0].TOTALREQUISITIONS,
-                totalAppRequisitions: totalRequisition[0].APPROVEDREQUISITIONS,
+                totalRequisitions: totalRequisition[0].TOTALREQUISITIONS,
+                totalRequisitionProducts: totalReqProdAndApprove[0].REQ_QUANTITY,
+                totalAprRequisitions: totalRequisition[0].APPROVEDREQUISITIONS,
+                totalAprRequisitionProducts: totalReqProdAndApprove[0].APR_QUANTITY
             }, "Admin Dashboad")
         );
 
