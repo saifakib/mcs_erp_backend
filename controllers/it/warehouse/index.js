@@ -1,32 +1,31 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-// const { getRequisitionStatusCount, getStockAlert } = require("../../../services/store/warehouse");
 const { selectStoreProducts } = require("../../../services/it/product");
-const { selectRequisitionCountWithApprovd, selectCountStockAlert } = require("../../../services/it/warehouse");
+const { selectRequisitionCountWithApprovd, selectRequisitionStatusCount, selectCountStockAlert } = require("../../../services/it/warehouse");
 
 
-// /**
-//  * Requisition Info By Status
-//  */
-// const requisitionInfoWithStatusCount = async (_, res, next) => {
-//     try {
-//         const response = await getRequisitionStatusCount();
-//         const stockAlert = await getStockAlert();
+/**
+ * Requisition Info By Status
+ */
+const requisitionInfoWithStatusCount = async (_, res, next) => {
+    try {
+        const response = await selectRequisitionStatusCount();
+        const stockAlert = await selectCountStockAlert();
 
-//         const { PENDINGCOUNT, APPROVEDCOUNT, DENIEDCOUNT, DONECOUNT} = response.rows[0];
-//         res.json(
-//             createResponse({
-//                 TOTALREQUISITION: PENDINGCOUNT + APPROVEDCOUNT + DENIEDCOUNT + DONECOUNT,
-//                 PENDINGCOUNT, 
-//                 APPROVEDCOUNT, 
-//                 DENIEDCOUNT,
-//                 DONECOUNT,
-//                 STOCKALERT: stockAlert.rows.length
-//             })
-//         );
-//     } catch (err) {
-//         next(err);
-//     }
-// };
+        const { PENDINGCOUNT, APPROVEDCOUNT, DENIEDCOUNT, DONECOUNT} = response.rows[0];
+        res.json(
+            createResponse({
+                TOTALREQUISITION: PENDINGCOUNT + APPROVEDCOUNT + DENIEDCOUNT + DONECOUNT,
+                PENDINGCOUNT, 
+                APPROVEDCOUNT, 
+                DENIEDCOUNT,
+                DONECOUNT,
+                STOCKALERT: stockAlert.rows.length
+            })
+        );
+    } catch (err) {
+        next(err);
+    }
+};
 
 const getStockAlertList = async (_, res, next) => {
     try {
@@ -64,7 +63,7 @@ const requisitionStatusForAdmin = async (_, res, next) => {
 
 
 module.exports = {
-    //     requisitionInfoWithStatusCount,
+    requisitionInfoWithStatusCount,
     getStockAlertList,
     requisitionStatusForAdmin
 }

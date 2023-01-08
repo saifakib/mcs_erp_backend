@@ -4,13 +4,12 @@ const { ExecuteIT } = require("../../../utils/itDynamicController");
 
 const selectRequisitionCountWithApprovd = () => ExecuteIT(`SELECT COUNT(REQ_ID) AS TOTALREQUISITIONS, SUM(CASE WHEN REQ_STATUS = 1 OR REQ_STATUS = 2 THEN 1 ELSE 0 END) AS APPROVEDREQUISITIONS FROM REQUISITION`);
 
-// const getRequisitionStatusCount = () => Execute(`SELECT 
-// SUM(CASE WHEN REQUISTATUS = 0 THEN 1 ELSE 0 END) AS PENDINGCOUNT, 
-// SUM(CASE WHEN REQUISTATUS = 1 THEN 1 ELSE 0 END) AS APPROVEDCOUNT,
-// SUM(CASE WHEN REQUISTATUS = 2 THEN 1 ELSE 0 END) AS DENIEDCOUNT,
-// SUM(CASE WHEN REQUISTATUS = 3  THEN 1 ELSE 0 END) AS DONECOUNT
-// FROM STR_REQUISITIONS
-// `);
+const selectRequisitionStatusCount = () => ExecuteIT(`SELECT  
+    SUM(CASE WHEN REQ_STATUS = 0 THEN 1 ELSE 0 END) AS PENDINGCOUNT, 
+    SUM(CASE WHEN REQ_STATUS = 1 THEN 1 ELSE 0 END) AS APPROVEDCOUNT,
+    SUM(CASE WHEN REQ_STATUS = 2 THEN 1 ELSE 0 END) AS DONECOUNT,
+    SUM(CASE WHEN REQ_STATUS = 3  THEN 1 ELSE 0 END) AS DENIEDCOUNT
+    FROM REQUISITION`);
 
 
 const selectCountStockAlert = () => ExecuteIT(`
@@ -26,4 +25,4 @@ FROM STORE_PRODUCTS SP
 /*--------------------------------END SELECT --------------------------------*/
 
 
-module.exports = { selectRequisitionCountWithApprovd, selectCountStockAlert }
+module.exports = { selectRequisitionCountWithApprovd, selectRequisitionStatusCount, selectCountStockAlert }
