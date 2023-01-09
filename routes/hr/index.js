@@ -4,7 +4,7 @@ const departmentRoute = require("./department");
 const employeeRoute = require("./employee");
 const user = require("./user");
 
-router.use("/department", validateToken, departmentRoute);
+router.use("/department", departmentRoute);
 router.use("/employee", employeeRoute);
 router.use("/user", validateToken, user);
 
