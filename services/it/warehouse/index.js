@@ -10,7 +10,7 @@ SUM(CASE WHEN R.REQ_STATUS IN (1, 2) THEN P.APR_QTY ELSE 0 END) AS APR_QUANTITY 
 LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID`);
 
 const selectRequisitionStatusCount = () => ExecuteIT(`SELECT  
-    SUM(CASE WHEN REQ_STATUS = 0  ELSE 0 END) AS PENDINGCOUNT, 
+    SUM(CASE WHEN REQ_STATUS = 0  THEN 1 ELSE 0 END) AS PENDINGCOUNT, 
     SUM(CASE WHEN REQ_STATUS = 1 THEN 1 ELSE 0 END) AS APPROVEDCOUNT,
     SUM(CASE WHEN REQ_STATUS = 2 THEN 1 ELSE 0 END) AS DONECOUNT,
     SUM(CASE WHEN REQ_STATUS = 3  THEN 1 ELSE 0 END) AS DENIEDCOUNT
@@ -27,7 +27,17 @@ FROM STORE_PRODUCTS SP
     WHERE (SP.QUANTITY - SP.NON_WORKABLE) <= SP.STOCK_ALERT AND SP.QUANTITY != ${Number(0)}`);
 
 
+const selectUserRequisitionCount = (hrid) => ExecuteIT(`SELECT
+SUM(CASE WHEN R.REQ_STATUS IN (1, 2) THEN 1 ELSE 0 END) AS APPROVED,
+SUM(CASE WHEN R.REQ_STATUS = 3 THEN 1 ELSE 0 END) AS DENIED FROM REQUISITION R WHERE R.HR_ID = ${Number(hrid)}`);
+
+const selectUserReqQtyAndAprQtyProducts = (hrid) => ExecuteIT(`SELECT 
+SUM(CASE WHEN R.REQ_STATUS IN (0, 1, 2, 3) THEN P.QUNTITY ELSE 0 END) AS REQ_QUANTITY,
+SUM(CASE WHEN R.REQ_STATUS IN (1, 2) THEN P.APR_QTY ELSE 0 END) AS APR_QUANTITY FROM REQUISITION R 
+LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID WHERE R.HR_ID = ${Number(hrid)}`)
+
+
 /*--------------------------------END SELECT --------------------------------*/
 
 
-module.exports = { selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert }
+module.exports = { selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert, selectUserRequisitionCount, selectUserReqQtyAndAprQtyProducts }

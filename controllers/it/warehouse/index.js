@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { selectStoreProducts } = require("../../../services/it/product");
-const { selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert } = require("../../../services/it/warehouse");
+const { selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert, selectUserRequisitionCount, selectUserReqQtyAndAprQtyProducts } = require("../../../services/it/warehouse");
 
 
 /**
@@ -11,12 +11,12 @@ const requisitionInfoWithStatusCount = async (_, res, next) => {
         const response = await selectRequisitionStatusCount();
         const stockAlert = await selectCountStockAlert();
 
-        const { PENDINGCOUNT, APPROVEDCOUNT, DENIEDCOUNT, DONECOUNT} = response.rows[0];
+        const { PENDINGCOUNT, APPROVEDCOUNT, DENIEDCOUNT, DONECOUNT } = response.rows[0];
         res.json(
             createResponse({
                 TOTALREQUISITION: PENDINGCOUNT + APPROVEDCOUNT + DENIEDCOUNT + DONECOUNT,
-                PENDINGCOUNT, 
-                APPROVEDCOUNT, 
+                PENDINGCOUNT,
+                APPROVEDCOUNT,
                 DENIEDCOUNT,
                 DONECOUNT,
                 STOCKALERT: stockAlert.rows.length
@@ -48,8 +48,6 @@ const requisitionStatusForAdmin = async (_, res, next) => {
 
         const totalQuantites = totalProducts.reduce((acc, obj) => acc + (obj.QUANTITY - obj.NON_WORKABLE), 0);
 
-        console.log(totalReqProdAndApprove)
-
         res.json(
             createResponse({
                 totalProducts: totalProducts.length,
@@ -66,9 +64,35 @@ const requisitionStatusForAdmin = async (_, res, next) => {
     }
 };
 
+const userDashboardInfo = async (req, res, next) => {
+    const { hrid } = req.params;
+    try {
+        if (typeof (hrid) !== 'number' && !hrid) {
+            res.json(createResponse(null, "Required Parameter Missing", true));
+        }
+        else {
+            const { rows: requisitions } = await selectUserRequisitionCount(hrid);
+            const { rows: totalReqProdAndApprove } = await selectUserReqQtyAndAprQtyProducts(hrid);
+
+            res.json(
+                createResponse({
+                    Approved: requisitions[0].APPROVED,
+                    Denied: requisitions[0].DENIED,
+                    Products: totalReqProdAndApprove[0].APR_QUANTITY,
+                    Request: totalReqProdAndApprove[0].REQ_QUANTITY
+                }, "User Dashboard")
+            );
+        }
+
+    } catch (err) {
+        next(err)
+    }
+}
+
 
 module.exports = {
     requisitionInfoWithStatusCount,
     getStockAlertList,
-    requisitionStatusForAdmin
+    requisitionStatusForAdmin,
+    userDashboardInfo
 }

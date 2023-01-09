@@ -137,7 +137,7 @@ const insertSummaries = (data) =>
 /*----------- UPDATE ----------- */
 // working letter, should be modified TODO:
 const updateRequisition = (data) => {
-  if (data.REQ_ID == 1) {
+  if (data.REQ_STATUS == 2) {
     return ExecuteIT(
       `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
     )
