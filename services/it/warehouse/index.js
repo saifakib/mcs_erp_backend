@@ -34,10 +34,22 @@ SUM(CASE WHEN R.REQ_STATUS = 3 THEN 1 ELSE 0 END) AS DENIED FROM REQUISITION R W
 const selectUserReqQtyAndAprQtyProducts = (hrid) => ExecuteIT(`SELECT 
 SUM(CASE WHEN R.REQ_STATUS IN (0, 1, 2, 3) THEN P.QUNTITY ELSE 0 END) AS REQ_QUANTITY,
 SUM(CASE WHEN R.REQ_STATUS IN (1, 2) THEN P.APR_QTY ELSE 0 END) AS APR_QUANTITY FROM REQUISITION R 
-LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID WHERE R.HR_ID = ${Number(hrid)}`)
+LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID WHERE R.HR_ID = ${Number(hrid)}`);
+
+
+
+const assetManualDepReport = (dep_id) => ExecuteIT(`SELECT AM.ID, VE.NAME_ENGLISH, ED.DEPARTEMENT_ID, VE.DEPARTEMENT,VE.DESIGNATION,VE.DESIGNATION_BANGLA,VE.MOBILE_PHONE,VE.NAME_BANGLA,
+  AP.P_NAME,AM.DETAILS,AM.YEAR,AM.QUANTITY,AM.SOURCE,AM.FILES,AM.V_FILE,AM.EMP_ID,
+  TO_CHAR(AM.ENTRY_DATE,'DD-MM-YYYY') AS ENTRY_DATE from ASSET_M_ENTRY AM
+  LEFT OUTER JOIN VIEW_EMP_DETAILS VE ON VE.EMPLOYE_ID = AM.EMP_ID
+  LEFT OUTER JOIN VIEW_EMPLOYEE ED ON ED.EMPLOYE_ID = AM.EMP_ID
+  LEFT OUTER JOIN ASSET_PRODUCT AP
+  ON AP.ID=AM.PRODUCT_ID
+  WHERE AM.STATUS=0 AND ED.DEPARTEMENT_ID = ${Number(dep_id)}
+  `);
 
 
 /*--------------------------------END SELECT --------------------------------*/
 
 
-module.exports = { selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert, selectUserRequisitionCount, selectUserReqQtyAndAprQtyProducts }
+module.exports = { selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert, selectUserRequisitionCount, selectUserReqQtyAndAprQtyProducts, assetManualDepReport }

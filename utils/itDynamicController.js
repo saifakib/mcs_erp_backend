@@ -11,7 +11,7 @@ const ExecuteIT = (QuertyString, object = {}) => {
       resolve(result);
       await connection.close();
     } catch (err) {
-      console.log("error", err);
+      //console.log("error", err);
       reject(err);
     }
   });
