@@ -10,7 +10,14 @@ This repository uses a number libraries to work:
 - [OracleDB]
 
 
-###  Using Number For Status
+## Screenshots
+![IT DB Relation Screenshot](./files/IT_DB.jpg);
+
+
+## DRAW.IO Files
+[link](./files/IT_DB.drawio)
+
+###  Using Number For IT Status
 ---
 
 **Product Status**
