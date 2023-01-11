@@ -131,10 +131,10 @@ const getAssetManualDepartmentReport = async (req, res, next) => {
                         ENTRY_DATE: obj.ENTRY_DATE
                     };
                     if (acc["products"]) {
-                        acc["products"][index] = newObj;
+                        acc["products"][Number(obj.PRO_ID)] = newObj;
                     } else {
-                        acc["products"] = [];
-                        acc["products"][index] = newObj;
+                        acc["products"] = {};
+                        acc["products"][Number(obj.PRO_ID)] = newObj;
                     }
                     return acc;
                 }, {});

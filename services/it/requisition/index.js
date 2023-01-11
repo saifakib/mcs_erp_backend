@@ -7,6 +7,14 @@ const { oracledb } = require("../../../db/db");
 
 const selectIndProductList = (str_pro_id, status) => ExecuteIT(`SELECT * FROM IND_PRODUCT WHERE STR_PRO_ID = ${Number(str_pro_id)} AND STATUS = ${Number(status)}`);
 
+// isPending
+const selectUserReqIsPending = (user_id) => ExecuteIT(`SELECT REQ_ID, TO_CHAR(REQ_DATE, 'DD-MM-YYYY') AS LAST_REQ_DATE,
+CASE 
+WHEN REQ_STATUS = 0 OR REQ_STATUS = 1 THEN ${Number(true)}
+WHEN REQ_STATUS = 2 OR  REQ_STATUS = 3 THEN ${Number(false)} END Status
+FROM REQUISITION 
+WHERE REQ_ID=(SELECT max(REQ_ID) FROM REQUISITION WHERE HR_ID = ${Number(user_id)})`);
+
 const selectUserRequisitions = (user_id) =>
   ExecuteIT(`SELECT distinct(R.REQ_ID), R.HR_ID, R.USER_REMARKS, R.STR_REMARKS, TO_CHAR(R.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, D.DEPARTEMENT, DE.DESIGNATION,
   case
@@ -180,6 +188,7 @@ const updateIndProReq = (ind_pro_req_id, status) =>
 
 module.exports = {
   // selectProductBalance,
+  selectUserReqIsPending,
   selectUserRequisitions,
   selectUserAcceptRequisitions,
   selectUserAcceptActiveRequisitions,

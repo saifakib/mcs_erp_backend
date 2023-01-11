@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, selectAllDetailsRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
+const { selectUserReqIsPending, selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, selectAllDetailsRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
 
 
 /*------------- get ------------*/
@@ -14,6 +14,25 @@ const getUserRequitions = async (req, res, next) => {
         }
     } catch (err) {
         next(err.message);
+    }
+}
+
+const getUserReqIsPending = async (req, res, next) => {
+    try {
+        const { user_id } = req.params;
+        if (typeof (user_id) !== 'number' && !user_id) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const { rows } = await selectUserReqIsPending(user_id);
+            const data = rows[0];
+            if (data) {
+                res.json(createResponse(data));
+            } else {
+                res.json(createResponse({}, "No requisition found", true));
+            }
+        }
+    } catch (err) {
+        next(err.message)
     }
 }
 
@@ -140,7 +159,7 @@ const getRequsition = async (req, res, next) => {
     }
 }
 
-const getAllDetailsRequisition = async( req, res, next) => {
+const getAllDetailsRequisition = async (req, res, next) => {
     try {
         const { req_id } = req.params;
         if (typeof (req_id) !== 'number' && !req_id) {
@@ -397,6 +416,7 @@ const acceptUserRequisition = async (req, res, next) => {
 
 module.exports = {
     getRequsition,
+    getUserReqIsPending,
     getUserRequitions,
     getUserAcceptRequitions,
     getUserAcceptRequition,
