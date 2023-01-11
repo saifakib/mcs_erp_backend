@@ -8,14 +8,23 @@ This repository uses a number libraries to work:
 - [ExpressJs]
 - [Cors]
 - [OracleDB]
+- [BcryptJs]
+- [CookieParser]
+- [DateFns]
+- [BcryptJs]
+- [Joi]
+- [jsonwebtoken]
+- [shortid]
+
 
 
 ## Screenshots
+- [IT_DB_Relation_Screenshot]
 ![IT DB Relation Screenshot](./files/IT_DB.jpg);
 
 
 ## DRAW.IO Files
-[link](./files/IT_DB.drawio)
+[IT_DRAW.IO](./files/IT_DB.drawio)
 
 ###  Using Number For IT Status
 ---
@@ -64,3 +73,52 @@ This repository uses a number libraries to work:
 | ------------- | ------------- |
 | 0 | Active  |
 | 1 | Inactive  | 
+
+
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone https://github.com/saifakib/mcs_erp_backend
+```
+
+Go to the project directory
+
+```bash
+  cd mcs_erp_backend
+```
+
+Install dependencies
+
+```bash
+  npm install
+```
+
+Start the server
+
+```bash
+  npm run dev
+```
+
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file
+
+`PORT`
+`NODE_ORACLE_STORE_DB_USER`
+`NODE_ORACLEDB_STORE_PASSWORD`
+`NODE_ORACLE_HR_DB_USER`
+`NODE_ORACLEDB_HR_PASSWORD`
+`NODE_ORACLE_IT_DB_USER`
+`NODE_ORACLEDB_IT_PASSWORD`
+`NODE_ORACLEDB_CONNECTIONSTRING`
+`INSTANTCLIENT`
+
+`JWT_SECRET`
+`COOKIE_SECRET`
+
+
+
+- [@SaifUddin](https://www.github.com/saifakib)
+
