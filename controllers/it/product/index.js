@@ -156,8 +156,6 @@ const getStoreProdCountByProId = async (req, res, next) => {
 };
 
 
-
-
 /*------------- All Post Controllers ---------------*/
 const postProductEntrilist = async (req, res, next) => {
     const {

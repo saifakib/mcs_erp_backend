@@ -37,19 +37,7 @@ SUM(CASE WHEN R.REQ_STATUS IN (1, 2) THEN P.APR_QTY ELSE 0 END) AS APR_QUANTITY 
 LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID WHERE R.HR_ID = ${Number(hrid)}`);
 
 
-
-const assetManualDepReport = (dep_id) => ExecuteIT(`SELECT AM.ID, VE.NAME_ENGLISH, ED.DEPARTEMENT_ID, VE.DEPARTEMENT,VE.DESIGNATION,VE.DESIGNATION_BANGLA,VE.MOBILE_PHONE,VE.NAME_BANGLA,
-  AP.P_NAME,AM.ID AS PRO_ID, AM.DETAILS,AM.YEAR,AM.QUANTITY,AM.SOURCE,AM.FILES,AM.V_FILE,AM.EMP_ID,
-  TO_CHAR(AM.ENTRY_DATE,'DD-MM-YYYY') AS ENTRY_DATE from ASSET_M_ENTRY AM
-  LEFT OUTER JOIN VIEW_EMP_DETAILS VE ON VE.EMPLOYE_ID = AM.EMP_ID
-  LEFT OUTER JOIN VIEW_EMPLOYEE ED ON ED.EMPLOYE_ID = AM.EMP_ID
-  LEFT OUTER JOIN ASSET_PRODUCT AP
-  ON AP.ID=AM.PRODUCT_ID
-  WHERE AM.STATUS=0 AND ED.DEPARTEMENT_ID = ${Number(dep_id)}
-  `);
-
-
 /*--------------------------------END SELECT --------------------------------*/
 
 
-module.exports = { selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert, selectUserRequisitionCount, selectUserReqQtyAndAprQtyProducts, assetManualDepReport }
+module.exports = { selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert, selectUserRequisitionCount, selectUserReqQtyAndAprQtyProducts }

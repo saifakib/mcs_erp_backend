@@ -4,7 +4,10 @@ const cors = require("cors");
 const morgan = require("morgan");
 const routes = require("./routes/index");
 const device = require("express-device");
+const route_lists = require("express-list-endpoints")
+
 const cookieParser = require("cookie-parser");
+
 const { notFoundHandler, errorHandler } = require("./middlewares/error");
 require("dotenv").config();
 app.use(device.capture());
@@ -23,7 +26,10 @@ app.use("/api/v1", routes);
 const port = process.env.PORT || 4000;
 
 app.get("/", (req, res) => {
-  res.json(`Server is running at ${req.protocol}://${req.hostname}:${port}`);
+  res.json({
+    Server: `Server is running at ${req.protocol}://${req.hostname}:${port}`,
+    Routes: route_lists(app)
+  });
 });
 
 // error handling
