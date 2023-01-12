@@ -13,8 +13,8 @@ const checkMaintanance = (req, res, next) => {
             ind_pro_req_id: Joi.number().required(),
             user_remarks: Joi.string().required()
         })
-    } 
-    else if(req.method == 'PUT') {
+    }
+    else if (req.method == 'PUT') {
         checkMaintananceSchema = Joi.object().keys({
             status: Joi.number().required(),
             maintanance_id: Joi.number().required()
@@ -37,8 +37,8 @@ const checkServicing = (req, res, next) => {
             maintanance_id: Joi.number().required(),
             problem: Joi.string().required()
         })
-    } 
-    else if(req.method == 'PUT') {
+    }
+    else if (req.method == 'PUT') {
         checkServicingSchema = Joi.object().keys({
             maintanance_id: Joi.number().required(),
             remarks: Joi.string().required()

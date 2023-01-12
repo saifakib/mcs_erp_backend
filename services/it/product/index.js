@@ -55,6 +55,22 @@ const selectIndStrProductsByProId = (product_id, supplier_id) =>
   where pl.product_id = ${Number(product_id)} and S.SUPPLIER_ID = ${Number(supplier_id)}
     ORDER BY  S.SUP_NAME`);
 
+const selectIndStrProductsByStrId = (product_id, supplier_id, str_pro_id) =>
+    ExecuteIT(`SELECT  
+    S.SUPPLIER_ID,S.SUP_NAME, PL.PRODUCT_NAME, IP.IND_PRODUCT_ID, IP.STR_PRO_ID, IP.UNIQUE_V,
+    CASE 
+    WHEN IP.STATUS = 0 THEN 'Active'
+    WHEN IP.STATUS = 1 THEN 'Requisition'
+    WHEN IP.STATUS = 2 THEN 'Maintanance'
+    WHEN IP.STATUS = 3 THEN 'Inactive'
+    WHEN IP.STATUS = 4 THEN 'Dead'
+    END STATUS       
+    FROM IND_PRODUCT IP LEFT OUTER JOIN STORE_PRODUCTS SP ON  SP.STR_PRO_ID = IP.STR_PRO_ID
+  LEFT OUTER  JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID
+  LEFT OUTER JOIN PRODUCT_ENTRY_LIST PEL ON PEL.STR_PRO_ID = SP.STR_PRO_ID
+  LEFT OUTER JOIN SUPPLIERS S ON S.SUPPLIER_ID = PEL.SUP_ID
+  WHERE PL.PRODUCT_ID = ${Number(product_id)} AND S.SUPPLIER_ID = ${Number(supplier_id)} and SP.STR_PRO_ID = ${Number(str_pro_id)} ORDER BY  S.SUP_NAME`);
+
 
 const selectStoreProducts = () => ExecuteIT(`SELECT DISTINCT SP.PRO_ID, PL.PRODUCT_NAME, C.CATEGORY_ID, C.CATEGORY_NAME,
 SUM(SP.QUANTITY) OVER (PARTITION BY (SP.PRO_ID)) AS QUANTITY, SUM(SP.NON_WORKABLE) OVER (PARTITION BY (SP.PRO_ID)) AS NON_WORKABLE
@@ -70,19 +86,25 @@ const selectStoreProductsById = (str_pro_id) => ExecuteIT(`SELECT SP.STR_PRO_ID,
     LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
     LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID WHERE SP.STR_PRO_ID = ${Number(str_pro_id)}`);
 
-const selectStoreProdCountByProId = (pro_id) => ExecuteIT(`SELECT sp.str_pro_id, sp.pro_id, pl.product_name , b.brand_name, m.model_name, SP.QUANTITY - SP.NON_WORKABLE AS quantity FROM  STORE_PRODUCTS SP  
-LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID
-left outer join brand b on b.brand_id = sp.brand_id
-left outer join models m on m.model_id = sp.model_id
-WHERE PL.PRODUCT_ID = ${Number(pro_id)} order by sp.str_pro_id`);
+const selectStoreProdCountByProId = (pro_id) => ExecuteIT(`
+    SELECT sp.str_pro_id, sp.pro_id, pl.product_name , b.brand_name, m.model_name, SP.QUANTITY - SP.NON_WORKABLE AS quantity FROM  STORE_PRODUCTS SP  
+    LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID
+    left outer join brand b on b.brand_id = sp.brand_id
+    left outer join models m on m.model_id = sp.model_id
+    WHERE PL.PRODUCT_ID = ${Number(pro_id)} order by sp.str_pro_id`);
 
 
-const selectProductWithSup = (product_id) => ExecuteIT(`SELECT DISTINCT S.SUPPLIER_ID, S.SUP_NAME, PL.PRODUCT_ID, PL.PRODUCT_NAME, TO_CHAR(PEL.ENTRY_DATE, 'DD-MM-YYYY') AS STR_DATE, COUNT(IND_PRODUCT_ID) OVER(PARTITION BY  S.SUP_NAME) AS TOTAL_QTY
-FROM IND_PRODUCT IP LEFT OUTER JOIN STORE_PRODUCTS SP  ON  SP.STR_PRO_ID = IP.STR_PRO_ID
-LEFT OUTER  JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID
-LEFT OUTER JOIN PRODUCT_ENTRY_LIST PEL ON PEL.STR_PRO_ID = SP.STR_PRO_ID
-LEFT OUTER JOIN SUPPLIERS S ON S.SUPPLIER_ID = PEL.SUP_ID
-where PL.PRODUCT_ID = ${Number(product_id)} ORDER BY  S.SUP_NAME`);
+const selectProductWithSup = (product_id, category_id) =>
+    ExecuteIT(`SELECT DISTINCT S.SUPPLIER_ID, S.SUP_NAME, PL.PRODUCT_ID, PL.PRODUCT_NAME, SP.STR_PRO_ID, TO_CHAR(PEL.ENTRY_DATE, 'DD-MM-YYYY') AS STR_DATE, COUNT(IND_PRODUCT_ID) OVER(PARTITION BY  IP.STR_PRO_ID) AS TOTAL_QTY,
+    SUM(CASE WHEN IP.STATUS = 3 THEN 1 ELSE 0 END) OVER(PARTITION BY  IP.STR_PRO_ID) AS NON_WORKABLE,
+    SUM(CASE WHEN IP.STATUS = 0 THEN 1 ELSE 0 END) OVER(PARTITION BY  IP.STR_PRO_ID) AS WORKABLE,
+    SUM(CASE WHEN IP.STATUS IN (1, 2, 4) THEN 1 ELSE 0 END) OVER(PARTITION BY  IP.STR_PRO_ID) AS OTHERS
+    FROM IND_PRODUCT IP LEFT OUTER JOIN STORE_PRODUCTS SP  ON  SP.STR_PRO_ID = IP.STR_PRO_ID 
+    LEFT OUTER  JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID
+    LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID
+    LEFT OUTER JOIN PRODUCT_ENTRY_LIST PEL ON PEL.STR_PRO_ID = SP.STR_PRO_ID
+    LEFT OUTER JOIN SUPPLIERS S ON S.SUPPLIER_ID = PEL.SUP_ID
+    WHERE PL.PRODUCT_ID = ${Number(product_id)} AND C.CATEGORY_ID = ${category_id} ORDER BY S.SUP_NAME`);
 
 
 
@@ -208,7 +230,7 @@ const updateStrProNonWCount = (str_pro_id) => ExecuteIT(`UPDATE STORE_PRODUCTS S
 
 module.exports = {
     selectLastMrrNumber, selectIndProduct,
-    selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId,
+    selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId, 
     selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
     selectProductWithSup, selectIndStrProductsByProId,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
