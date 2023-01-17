@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const {
-  getMonths,
+  selectDynamicQuery,
   getCategories,
   getSingleCategory,
   getUnits,
@@ -218,8 +218,13 @@ module.exports.postCategory = async (req, res, next) => {
     if (!categoryen) {
       res.json(createResponse(null, "Category name is required", true));
     } else {
-      const result = await postCategory(req.body);
-      res.json(createResponse(result));
+      const { rows } = await selectDynamicQuery("STR_CATEGORIES", "CATEGORYEN", categoryen);
+      if (rows.length > 0) {
+        res.json(createResponse(null, "This Category Already exits", true));
+      } else {
+        const result = await postCategory(req.body);
+        res.json(createResponse(result));
+      }
     }
   } catch (err) {
     next(err);
@@ -233,8 +238,13 @@ module.exports.postUnits = async (req, res, next) => {
     if (!unit) {
       res.json(createResponse(null, "Unit name is required", true));
     } else {
-      const result = await postUnits(req.body);
-      res.json(createResponse(result));
+      const { rows } = await selectDynamicQuery("STR_UNITS", "UNIT", unit);
+      if (rows.length > 0) {
+        res.json(createResponse(null, "This Unit Already exits", true));
+      } else {
+        const result = await postUnits(req.body);
+        res.json(createResponse(result));
+      }
     }
   } catch (err) {
     next(err);
@@ -248,8 +258,13 @@ module.exports.postSupplier = async (req, res, next) => {
     if (!supplier) {
       res.json(createResponse(null, "Supplier name is required", true));
     } else {
-      const result = await postSupplier(req.body);
-      res.json(createResponse(result));
+      const { rows } = await selectDynamicQuery("STR_SUPPLIERS", "SUPPLIER", supplier);
+      if (rows.length > 0) {
+        res.json(createResponse(null, "This Supplier Already exits", true));
+      } else {
+        const result = await postSupplier(req.body);
+        res.json(createResponse(result));
+      }
     }
   } catch (err) {
     next(err);
@@ -289,8 +304,13 @@ module.exports.updateCategory = async (req, res, next) => {
         CATEGORYBN: categorybn,
         CAT_ID: parseInt(cat_id),
       };
-      const result = await updateCategory(data);
-      res.json(createResponse(result));
+      const { rows } = await selectDynamicQuery("STR_CATEGORIES", "CATEGORYEN", categoryen);
+      if (rows.length > 0) {
+        res.json(createResponse(null, "This Category Already exits", true));
+      } else {
+        const result = await updateCategory(data);
+        res.json(createResponse(result));
+      }
     }
   } catch (err) {
     next(err);
@@ -305,8 +325,13 @@ module.exports.updateUnits = async (req, res, next) => {
       res.json(createResponse(null, "Fields required", true));
     } else {
       const data = { UNIT: unit, UNIT_ID: unit_id };
-      const result = await updateUnits(data);
-      res.json(createResponse(result));
+      const { rows } = await selectDynamicQuery("STR_UNITS", "UNIT", unit);
+      if (rows.length > 0) {
+        res.json(createResponse(null, "This Unit Already exits", true));
+      } else {
+        const result = await updateUnits(data);
+        res.json(createResponse(result));
+      }
     }
   } catch (err) {
     next(err);
@@ -321,8 +346,13 @@ module.exports.updateSupplier = async (req, res, next) => {
       res.json(createResponse(null, "Fields required", true));
     } else {
       const data = { SUPPLIER: supplier, SUP_ID: sup_id };
-      const result = await updateSupplier(data);
-      res.json(createResponse(result));
+      const { rows } = await selectDynamicQuery("STR_SUPPLIERS", "SUPPLIER", supplier);
+      if (rows.length > 0) {
+        res.json(createResponse(null, "This Supplier Already exits", true));
+      } else {
+        const result = await updateSupplier(data);
+        res.json(createResponse(result));
+      }
     }
   } catch (err) {
     next(err);

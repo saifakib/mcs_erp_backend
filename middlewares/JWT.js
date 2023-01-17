@@ -30,7 +30,7 @@ module.exports.validateToken = (req, res, next) => {
           return res.json(createResponse(null, "User not Authenticated!", true));
         } else {
           const validToken = verify(accessToken[1], process.env.JWT_SECRET);
-  
+          
           if (validToken) {
             req.user = validToken.user_id;
             req.employe_id = validToken.employe_id;

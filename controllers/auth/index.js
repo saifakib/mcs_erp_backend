@@ -67,6 +67,7 @@ module.exports.login = async (req, res, next) => {
             res.cookie("Role", rest.ROLE_ID, {
               maxAge: 36000000,
             });
+
             res.json({ status: 200, token: token, user: rest });
           }
         } else {
@@ -93,9 +94,6 @@ module.exports.logout = async (req, res, next) => {
       const token = req.cookies["token"];
 
       await updateAuditLog(token, exitDay, exitTime);
-      // const tokenn = createTokens(
-      //  "demo"
-      // );
 
       res
         .clearCookie("login_time")

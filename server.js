@@ -4,8 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const routes = require("./routes/index");
 const device = require("express-device");
-const route_lists = require("express-list-endpoints")
-
+const route_lists = require("express-list-endpoints");
 const cookieParser = require("cookie-parser");
 
 const { notFoundHandler, errorHandler } = require("./middlewares/error");
