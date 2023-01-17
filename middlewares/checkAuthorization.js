@@ -5,7 +5,6 @@ const { createResponse } = require("../utils/responseGenerator");
 module.exports.checkStoreAdmin = async (req, res, next) => {
   try {
     const { role_id } = req.headers;
-    console.log(role_id);
     if (!role_id) {
       res.json(
         createResponse(

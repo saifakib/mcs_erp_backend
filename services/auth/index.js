@@ -3,7 +3,7 @@ const { ExecuteHR } = require("../../utils/hrDynamicController");
 // get user by user_id
 module.exports.getUserByUserName = (user) =>
   ExecuteHR(
-    `SELECT U.USER_ID, U.PASSWORD, U.EMPLOYE_ID, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, U.ROLE_ID, U.ENABLE FROM USERS U 
+    `SELECT U.USER_ID, U.PASSWORD, U.EMPLOYE_ID, E.NAME_ENGLISH,E.MOBILE_PHONE, D.DEPARTEMENT, DG.DESIGNATION, U.ROLE_ID, U.ENABLE FROM USERS U 
     left outer join HRM.EMPLOYEE E
     ON E.EMPLOYE_ID = U.EMPLOYE_ID
     LEFT OUTER JOIN HRM.DEPARTMENT_LIST D

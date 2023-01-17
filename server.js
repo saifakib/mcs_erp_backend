@@ -17,6 +17,13 @@ app.use(
     origin: true,
   })
 );
+
+// app.use(
+//   cors({
+//     credentials: true,
+//     origin: ["http://192.168.3.8", "http://192.168.168.18:3000", "http://localhost:3000"],
+//   })
+// );
 app.use(morgan());
 app.use(express.json());
 app.use(cookieParser());

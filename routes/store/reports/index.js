@@ -9,7 +9,8 @@ const {
 } = require("../../../controllers/store/reports");
 
 const { checkBoth } = require("../../../middlewares/checkAuthorization");
-const { validateToken } = require("../../../utils/JWT");
+//const { validateToken } = require("../../../utils/JWT");
+const { validateToken } = require("../../../middlewares/JWT");
 
 // get route
 router.get("/entries", checkBoth, entriesProductReport);

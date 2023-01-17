@@ -1,5 +1,5 @@
 const { sign, verify } = require("jsonwebtoken");
-const { createResponse } = require("./responseGenerator");
+const { createResponse } = require("../utils/responseGenerator");
 require("dotenv").config();
 
 module.exports.createTokens = (user_id, employe_id) => {

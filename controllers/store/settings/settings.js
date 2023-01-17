@@ -63,9 +63,10 @@ module.exports.getCategories = async (req, res, next) => {
 module.exports.getSingleCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!id) {
-      res.json(createResponse(null, "Id required", true));
-    } else {
+    if (typeof (id) !== 'number' && !id) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    }
+    else {
       const result = await getSingleCategory({ CAT_ID: id });
       res.json(createResponse(result.rows[0]));
     }
@@ -94,9 +95,10 @@ module.exports.getUnits = async (req, res, next) => {
 module.exports.getSingleUnit = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!id) {
-      res.json(createResponse(null, "Id required", true));
-    } else {
+    if (typeof (id) !== 'number' && !id) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    }
+    else {
       const result = await getSingleUnit({ UNIT_ID: id });
       res.json(createResponse(result.rows[0]));
     }
@@ -126,9 +128,10 @@ module.exports.getSuppliers = async (req, res, next) => {
 module.exports.getSingleSupplier = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!id) {
-      res.json(createResponse(null, "Id required", true));
-    } else {
+    if (typeof (id) !== 'number' && !id) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    }
+    else {
       const result = await getSingleSupplier({ SUP_ID: id });
       res.json(createResponse(result.rows[0]));
     }
@@ -159,9 +162,10 @@ module.exports.getProducts = async (req, res, next) => {
 module.exports.getSingleProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!id) {
-      res.json(createResponse(null, "Id required", true));
-    } else {
+    if (typeof (id) !== 'number' && !id) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    }
+    else {
       const result = await getSingleProduct({ PRODID: id });
       res.json(createResponse(result.rows[0]));
     }
@@ -176,9 +180,10 @@ module.exports.getProductByCatId = async (req, res, next) => {
     const { id } = req.params;
     const { search } = req.headers;
     const { page, limit } = req.query;
-    if (!id) {
-      res.json(createResponse(null, "Id required", true));
-    } else {
+    if (typeof (id) !== 'number' && !id) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    }
+    else {
       const result = await getProductByCatId({
         CAT_ID: id,
         search,

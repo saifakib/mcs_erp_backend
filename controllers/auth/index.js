@@ -1,10 +1,11 @@
 const { getUserByUserName, getMaxEMP } = require("../../services/auth");
 const { createResponse } = require("../../utils/responseGenerator");
 const bcrypt = require("bcryptjs");
-const { createTokens } = require("../../utils/JWT");
+//const { createTokens } = require("../../utils/JWT");
+const { createTokens } = require("../../middlewares/JWT");
 const { loginActivity, updateAuditLog } = require("../../services/audit_log");
 const { addHours, format } = require("date-fns");
-const { sign } = require("jsonwebtoken");
+const { } = require("jsonwebtoken");
 
 // login
 module.exports.login = async (req, res, next) => {
@@ -36,9 +37,6 @@ module.exports.login = async (req, res, next) => {
               mactchedUser.USER_ID,
               mactchedUser.EMPLOYE_ID
             );
-            const jsontoken = sign({ result: mactchedUser.USER_ID }, "b", {
-              expiresIn: "8hr",
-            });
             await loginActivity(
               user,
               "Login",
@@ -69,7 +67,7 @@ module.exports.login = async (req, res, next) => {
             res.cookie("Role", rest.ROLE_ID, {
               maxAge: 36000000,
             });
-            res.json({ status: 200, token: jsontoken, user: rest });
+            res.json({ status: 200, token: token, user: rest });
           }
         } else {
           res.json({ status: 201 });
@@ -95,6 +93,9 @@ module.exports.logout = async (req, res, next) => {
       const token = req.cookies["token"];
 
       await updateAuditLog(token, exitDay, exitTime);
+      // const tokenn = createTokens(
+      //  "demo"
+      // );
 
       res
         .clearCookie("login_time")
@@ -102,6 +103,7 @@ module.exports.logout = async (req, res, next) => {
         .clearCookie("token")
         .clearCookie("Role")
         .json(createResponse(null, "Logged out successfully"));
+
     } else {
       res.json(createResponse(null, "User already logged out", true));
     }
@@ -152,46 +154,24 @@ module.exports.getSingleUserWithVaidation = async (req, res) => {
     const { rows } = await getUserByUserName(userId);
     if (rows.length > 0) {
       const { PASSWORD, ...rest } = rows[0];
-      console.log(rest);
+      console.log(rest)
       const data = {
         user_id: rest.USER_ID,
         role_id: rest.ROLE_ID,
         designation: rest.DESIGNATION,
         employe_id: rest.EMPLOYE_ID,
         name_english: rest.NAME_ENGLISH,
-        enable: rest.ENABLE,
+        enable: rest.ENABLE
       };
       res.json({ status: 200, user: data });
     } else {
       res.json(createResponse(null, "User does not exist", true));
     }
   } catch (error) {
-    res.json({ status: "database connection error" });
+    res.json({ status: 'database connection error' });
   }
-  // try {
-  //     const result = await axios.get(
-  //         `http://192.168.3.8:8085/ords/hrm/use/v_use/id`,
-  //         {
-  //             headers: {
-  //                 id: `${userId}`,
-  //             },
-  //         })
-
-  //     const userInfo = result.data;
-  //     const data = {
-  //         user_id: userInfo.user_id,
-  //         role_id: userInfo.role_id,
-  //         role: userInfo.role,
-  //         employe_id: userInfo.employe_id,
-  //         name_english: userInfo.name_english,
-  //     };
-  //     res.json({ status: 200, user: data });
-  // }
-  // catch {
-  //     res.json({ status: 'User does not exist' });
-
-  // }
 };
+
 // get loggedin user info with validation
 module.exports.getUserWithVaidation = async (req, res, next) => {
   try {
