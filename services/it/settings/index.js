@@ -3,6 +3,11 @@ const { oracledb } = require("../../../db/db");
 
 
 /*------------- Get ------------*/
+
+// Dynamic find individula item
+const selectDynamicQuery = (tableName, columName, findValue) =>
+    ExecuteIT(`SELECT * FROM ${tableName} WHERE ${columName} = '${findValue}'`);
+
 // Category
 const categories = () => {
     return ExecuteIT(
@@ -34,7 +39,7 @@ const getCountProductLists = () => {
 const selectProductListCountByCategories = () => ExecuteIT(`SELECT distinct(C.CATEGORY_ID), C.CATEGORY_NAME, COUNT(P.PRODUCT_ID) OVER(PARTITION BY P.CATEGORY_ID) AS PRODUCT_LISTS FROM CATEGORIES C LEFT OUTER JOIN PRODUCT_LIST P ON C.CATEGORY_ID = P.CATEGORY_ID ORDER BY C.CATEGORY_ID DESC`);
 const selectProductListsByCatId = (category_id) => ExecuteIT(`SELECT * FROM PRODUCT_LIST PL LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID  WHERE C.CATEGORY_ID = ${Number(
     category_id
-  )}`)
+)}`)
 
 // Models
 const models = () => {
@@ -200,6 +205,7 @@ const deleteSupplier = ({ SUP_ID }) =>
 
 
 module.exports = {
+    selectDynamicQuery,
     categories, selectCategory, insertCategory, updateCategory, deleteCategory,
     productLists, getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists,
     models, selectModel, insertModel, updateModel, deleteModel,

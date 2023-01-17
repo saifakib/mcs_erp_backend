@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { categories, selectCategory, insertCategory, updateCategory, deleteCategory, productLists,
-    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, selectSpecificationsByModelId ,insertManySpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand, suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier, selectProductListCountByCategories, selectProductListsByCatId } = require("../../../services/it/settings")
+const { selectDynamicQuery, categories, selectCategory, insertCategory, updateCategory, deleteCategory, productLists,
+    getCountProductLists, selectProductLists, insertProduct, updateputProductLists, deleteProductLists, models, selectModel, insertModel, updateModel, deleteModel, specifications, selectSpecification, insertSpecification, updateSpecification, deleteSpecification, selectSpecificationsByModelId, insertManySpecification, units, selectUnit, insertUnit, updateUnit, deleteUnit, brands, selectBrand, insertBrand, updateBrand, deleteBrand, suppliers, selectSupplier, insertSupplier, updateSupplier, deleteSupplier, selectProductListCountByCategories, selectProductListsByCatId } = require("../../../services/it/settings")
 
 
 /*------------- All Get Controllers ---------------*/
@@ -178,8 +178,14 @@ const getSupplier = async (req, res, next) => {
 // Category
 const postCategory = async (req, res, next) => {
     try {
-        const result = await insertCategory(req.body);
-        res.json(createResponse(result));
+        const { category_name } = req.body;
+        const { rows } = await selectDynamicQuery("CATEGORIES", "CATEGORY_NAME", category_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Category Already exits", true));
+        } else {
+            const result = await insertCategory(req.body);
+            res.json(createResponse(result));
+        }
     } catch (err) {
         next(err);
     }
@@ -188,8 +194,14 @@ const postCategory = async (req, res, next) => {
 // ProductLists
 const postProductLists = async (req, res, next) => {
     try {
-        const result = await insertProduct(req.body);
-        res.json(createResponse(result));
+        const { product_name } = req.body;
+        const { rows } = await selectDynamicQuery("PRODUCT_LIST", "PRODUCT_NAME", product_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Product Already exits", true));
+        } else {
+            const result = await insertProduct(req.body);
+            res.json(createResponse(result));
+        }
     } catch (err) {
         next(err);
     }
@@ -198,8 +210,14 @@ const postProductLists = async (req, res, next) => {
 // Models
 const postModel = async (req, res, next) => {
     try {
-        const result = await insertModel(req.body);
-        res.json(createResponse(result));
+        const { model_name } = req.body;
+        const { rows } = await selectDynamicQuery("MODELS", "MODEL_NAME", model_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Model Already exits", true));
+        } else {
+            const result = await insertModel(req.body);
+            res.json(createResponse(result));
+        }
     } catch (err) {
         next(err);
     }
@@ -219,16 +237,21 @@ const postSpecification = async (req, res, next) => {
 const postModelSpecification = async (req, res, next) => {
     try {
         const { model_name, specifications } = req.body;
-        let insertedId = await insertModel({ model_name });
-        if (insertedId["outBinds"]["id"][0]) {
-            let postManySpecifications = await insertManySpecification(insertedId["outBinds"]["id"][0], specifications);
-            if (postManySpecifications.rowsAffected >= 1) {
-                res.json(createResponse(null, "Model Specifications Inserted Successfully!!", false));
-            } else {
-                res.json(createResponse(null, "Something is wrong in Model Specifications Insert!!", true));
-            }
+        const { rows } = await selectDynamicQuery("MODELS", "MODEL_NAME", model_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Model Already exits", true));
         } else {
-            res.json(createResponse(null, "Something is wrong in Model Insert!!", true));
+            let insertedId = await insertModel({ model_name });
+            if (insertedId["outBinds"]["id"][0]) {
+                let postManySpecifications = await insertManySpecification(insertedId["outBinds"]["id"][0], specifications);
+                if (postManySpecifications.rowsAffected >= 1) {
+                    res.json(createResponse(null, "Model Specifications Inserted Successfully!!", false));
+                } else {
+                    res.json(createResponse(null, "Something is wrong in Model Specifications Insert!!", true));
+                }
+            } else {
+                res.json(createResponse(null, "Something is wrong in Model Insert!!", true));
+            }
         }
 
     } catch (err) {
@@ -239,8 +262,14 @@ const postModelSpecification = async (req, res, next) => {
 // Units
 const postUnit = async (req, res, next) => {
     try {
-        const result = await insertUnit(req.body);
-        res.json(createResponse(result));
+        const { unit_name } = req.body;
+        const { rows } = await selectDynamicQuery("UNIT", "UNIT_NAME", unit_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Unit Already exits", true));
+        } else {
+            const result = await insertUnit(req.body);
+            res.json(createResponse(result));
+        }
     } catch (err) {
         next(err);
     }
@@ -249,8 +278,14 @@ const postUnit = async (req, res, next) => {
 // Brands
 const postBrand = async (req, res, next) => {
     try {
-        const result = await insertBrand(req.body);
-        res.json(createResponse(result));
+        const { brand_name } = req.body;
+        const { rows } = await selectDynamicQuery("BRAND", "BRAND_NAME", brand_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Brand Already exits", true));
+        } else {
+            const result = await insertBrand(req.body);
+            res.json(createResponse(result));
+        }
     } catch (err) {
         next(err);
     }
@@ -259,8 +294,14 @@ const postBrand = async (req, res, next) => {
 // Suppliers
 const postSupplier = async (req, res, next) => {
     try {
-        const result = await insertSupplier(req.body);
-        res.json(createResponse(result));
+        const { sup_name } = req.body;
+        const { rows } = await selectDynamicQuery("SUPPLIERS", "SUP_NAME", sup_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This SUPPLIER Already exits", true));
+        } else {
+            const result = await insertSupplier(req.body);
+            res.json(createResponse(result));
+        }
     } catch (err) {
         next(err);
     }
@@ -284,9 +325,14 @@ const putCategory = async (req, res, next) => {
             CATEGORY_NAME: category_name,
             CATEGORY_ID: parseInt(category_id),
         };
-        const result = await updateCategory(data);
-        res.json(createResponse(result));
+        const { rows } = await selectDynamicQuery("CATEGORIES", "CATEGORY_NAME", category_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Category Already exits", true));
+        } else {
+            const result = await updateCategory(data);
+            res.json(createResponse(result));
 
+        }
     } catch (err) {
         next(err);
     }
@@ -302,8 +348,13 @@ const putProductLists = async (req, res, next) => {
             CATEGORY_ID: category_id,
             PRODUCT_ID: product_id,
         };
-        const result = await updateputProductLists(data);
-        res.json(createResponse(result));
+        const { rows } = await selectDynamicQuery("PRODUCT_LIST", "PRODUCT_NAME", product_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Product Already exits", true));
+        } else {
+            const result = await updateputProductLists(data);
+            res.json(createResponse(result));
+        }
     } catch (err) {
         next(err);
     }
@@ -318,8 +369,13 @@ const putModel = async (req, res, next) => {
             MODEL_ID: model_id,
             MODEL_NAME: model_name
         };
-        const result = await updateModel(data);
-        res.json(createResponse(result));
+        const { rows } = await selectDynamicQuery("MODELS", "MODEL_NAME", model_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Model Already exits", true));
+        } else {
+            const result = await updateModel(data);
+            res.json(createResponse(result));
+        }
     } catch (err) {
         next(err);
     }
@@ -351,8 +407,13 @@ const putUnit = async (req, res, next) => {
             UNIT_ID: unit_id,
             UNIT_NAME: unit_name,
         };
-        const result = await updateUnit(data);
-        res.json(createResponse(result));
+        const { rows } = await selectDynamicQuery("UNIT", "UNIT_NAME", unit_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Unit Already exits", true));
+        } else {
+            const result = await updateUnit(data);
+            res.json(createResponse(result));
+        }
     } catch (err) {
         next(err);
     }
@@ -367,8 +428,14 @@ const putBrand = async (req, res, next) => {
             BRAND_ID: brand_id,
             BRAND_NAME: brand_name,
         };
-        const result = await updateBrand(data);
-        res.json(createResponse(result));
+        const { rows } = await selectDynamicQuery("BRAND", "BRAND_NAME", brand_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This Brand Already exits", true));
+        } else {
+            const result = await updateBrand(data);
+            res.json(createResponse(result));
+        }
+
     } catch (err) {
         next(err);
     }
@@ -385,6 +452,13 @@ const putSupplier = async (req, res, next) => {
             SUP_NAME: sup_name,
             SUPPLIER_DETAILS: sup_details
         };
+        const { rows } = await selectDynamicQuery("SUPPLIERS", "SUP_NAME", sup_name);
+        if (rows.length > 0) {
+            res.json(createResponse(null, "This SUPPLIER Already exits", true));
+        } else {
+            const result = await insertSupplier(req.body);
+            res.json(createResponse(result));
+        }
         const result = await updateSupplier(data);
         res.json(createResponse(result));
     } catch (err) {
@@ -489,6 +563,5 @@ module.exports = {
     getUnits, getUnit, postUnit, putUnit, removeUnit,
     getBrands, getBrand, postBrand, putBrand, removeBrand,
     getSuppliers, getSupplier, postSupplier, putSupplier, removeSupplier,
-
     getProductListCountByCategories, getProductListByCategoryId,
 }
