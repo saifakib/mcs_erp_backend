@@ -5,7 +5,7 @@ const { validateToken } = require("../../middlewares/JWT");
 
 // get route
 router.post("/login", login);
-router.post("/logout", validateToken, logout);
+router.post("/logout", logout);
 router.get("/getLoginUser", getCurrentUser);
 router.post("/getSingleUser", validateToken, getSingleUserWithVaidation);
 

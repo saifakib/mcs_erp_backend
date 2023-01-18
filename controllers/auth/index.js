@@ -114,6 +114,7 @@ module.exports.logout = async (req, res, next) => {
 module.exports.getCurrentUser = async (req, res, next) => {
   try {
     const userId = req.cookies.userId;
+    console.log('userId', userId)
     if (!userId) {
       res.json(
         createResponse(
@@ -132,6 +133,8 @@ module.exports.getCurrentUser = async (req, res, next) => {
           role: rest.ROLE,
           employe_id: rest.EMPLOYE_ID,
           name_english: rest.NAME_ENGLISH,
+          designation: rest.DESIGNATION,
+          mobile: rest.MOBILE_PHONE
         };
         res.json({ status: "successfull", user: data });
       } else {
@@ -144,7 +147,6 @@ module.exports.getCurrentUser = async (req, res, next) => {
     next(error.message);
   }
 };
-
 // get loggedin user info with validation
 module.exports.getSingleUserWithVaidation = async (req, res) => {
   const userId = req.body.userId;

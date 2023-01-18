@@ -1,24 +1,36 @@
-const { oracledb } = require("../db/db");
+const { getConnection } = require("../db/db");
 
 // execute single query
-module.exports.ExecuteHR = (QuertyString, object = {}) => {
+module.exports.ExecuteHR = (QuertyString, object = {}, type) => {
   return new Promise(async function (resolve, reject) {
     try {
-      let connection = await oracledb.getConnection("hr");
+      const connection = await getConnection("hr");
       const result = await connection.execute(QuertyString, object);
-      resolve(result);
+      if (type === 1) {
+        resolve({ data: result, error: null });
+      }
+      else {
+        resolve(result);
+      }
       await connection.close();
     } catch (err) {
-      console.log("error", err);
-      reject(err);
+      console.log("hitting", err);
+      if (type === 1) {
+        resolve({ data: null, error: err });
+      }
+      else {
+        reject(err);
+      }
+      // resolve({ data: null, error: err });    
     }
   });
 };
-// execute many query
+
+// // execute many query
 module.exports.ExecuteHRMany = (QuertyString, binds, options = {}) => {
   return new Promise(async function (resolve, reject) {
     try {
-      let connection = await oracledb.getConnection("hr");
+      let connection = await getConnection("hr");
       const result = await connection.executeMany(QuertyString, binds, options);
       resolve(result);
       await connection.close();
