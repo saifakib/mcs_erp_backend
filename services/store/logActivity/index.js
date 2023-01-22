@@ -1,17 +1,7 @@
 const { Execute } = require("../../../utils/dynamicController");
 
-const condition = {
-  true: 'AND',
-  false: ''
-};
-
 
 /*-------------------------------- SELECT --------------------------------*/
-
-const selectLogActivity = () =>
-  Execute(
-    `SELECT * FROM STR_ACTIVITY_LOGS`
-  );
 
 const selectLogActivityFilter = (query) => Execute(`SELECT * FROM STR_ACTIVITY_LOGS ${query}`)
 
@@ -29,4 +19,4 @@ const insertLogActivity = ({ hrid, action_type, log_detail, module, submodule })
 /*--------------------------------END INSERT --------------------------------*/
 
 
-module.exports = { selectLogActivity, selectLogActivityFilter, insertLogActivity }
+module.exports = { selectLogActivityFilter, insertLogActivity }

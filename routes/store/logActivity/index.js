@@ -5,7 +5,7 @@ const { checkLogActivity } = require("../../../validator/store/logActivity");
 const { validateToken } = require("../../../middlewares/JWT");
 
 // post route
-router.post("/", validateToken, checkLogActivity, postLogActivity);
+router.post("/", validateToken, checkLogActivity, postLogActivity);   // employee_id collect from token
 
 // get route
 router.get('/', getLogActivity);
