@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const { login, logout, getCurrentUser, getSingleUserWithVaidation } = require("../../controllers/auth");
-//const { validateToken } = require("../../utils/JWT");
 const { validateToken } = require("../../middlewares/JWT");
 
 // get route

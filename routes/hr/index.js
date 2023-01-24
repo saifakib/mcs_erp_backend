@@ -1,5 +1,4 @@
 const router = require("express").Router();
-//const { validateToken } = require("../../utils/JWT");
 const { validateToken } = require("../../middlewares/JWT");
 const departmentRoute = require("./department");
 const employeeRoute = require("./employee");

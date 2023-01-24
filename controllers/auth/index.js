@@ -1,7 +1,6 @@
 const { getUserByUserName, getMaxEMP } = require("../../services/auth");
 const { createResponse } = require("../../utils/responseGenerator");
 const bcrypt = require("bcryptjs");
-//const { createTokens } = require("../../utils/JWT");
 const { createTokens } = require("../../middlewares/JWT");
 const { loginActivity, updateAuditLog } = require("../../services/audit_log");
 const { addHours, format } = require("date-fns");

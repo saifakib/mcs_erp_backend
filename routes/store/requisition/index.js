@@ -5,7 +5,6 @@ const {
   checkBoth,
   checkStoreManagers,
 } = require("../../../middlewares/checkAuthorization");
-//const { validateToken } = require("../../../utils/JWT");
 const { validateToken } = require("../../../middlewares/JWT");
 
 // get route

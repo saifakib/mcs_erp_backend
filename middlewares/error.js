@@ -10,7 +10,7 @@ const errorHandler = (error, req, res, next) => {
   if(error.data == 404) {
     res.json(createResponse(null,  error.message, true))
   } else {
-    console.log(error)
+    console.log("Error Form Handler:", error)
     res.json(createResponse(null, "Server Error", true));
   }
 };

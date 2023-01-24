@@ -124,7 +124,7 @@ const postStoreProduct = ({
     )}, ${Number(price)}, ${Number(category)}, ${Number(prod_unit)}, ${Number(
       stock_alert
     )}, ${Number(prod_list_id)}) RETURN proid INTO :id`,
-    { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+    { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }, 1
   );
 
 // Product Entries Lists
@@ -165,22 +165,22 @@ const postProductSummaries = (
     { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
-  const postProductSummariesEntry = (
-    { qty, price, category, proname },
-    storeproid,
-    summdate,
-    entrimonth
-  ) =>
-    Execute(
-      `INSERT INTO STR_PRODUCTSUMMARIES (productid, PRODUCTNAME, INTIALQTY, newaddqty, totalbalance, presentbalance, currentprice, summdate, summmonth, summertype, procat) VALUES (${Number(
-        storeproid
-      )}, '${proname}', ${Number(qty)}, ${Number(qty)}, ${Number(qty)},  ${Number(qty)}, ${Number(
-        price
-      )}, '${summdate}', '${entrimonth}', 'In', ${Number(
-        category
-      )}) RETURN prosumid INTO :id`,
-      { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
-    );
+const postProductSummariesEntry = (
+  { qty, price, category, proname },
+  storeproid,
+  summdate,
+  entrimonth
+) =>
+  Execute(
+    `INSERT INTO STR_PRODUCTSUMMARIES (productid, PRODUCTNAME, INTIALQTY, newaddqty, totalbalance, presentbalance, currentprice, summdate, summmonth, summertype, procat) VALUES (${Number(
+      storeproid
+    )}, '${proname}', ${Number(qty)}, ${Number(qty)}, ${Number(qty)},  ${Number(qty)}, ${Number(
+      price
+    )}, '${summdate}', '${entrimonth}', 'In', ${Number(
+      category
+    )}) RETURN prosumid INTO :id`,
+    { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+  );
 
 /*--------------UPDATE-------------*/
 
