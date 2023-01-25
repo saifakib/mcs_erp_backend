@@ -20,7 +20,8 @@ const {
   getNewProductList,
   updateStoreProductM,
   getTotalEntQuantites,
-  postProductSummariesEntry
+  postProductSummariesEntry,
+  deleteDynamically
 } = require("../../../services/store/product/index");
 const {
   getSingleCategory,
@@ -200,6 +201,7 @@ const saveProductEntrilist = async (req, res, next) => {
   let entrimonth = format(date, "LLLL-yyyy");
   let summdate = format(date, "yyyy-MM-dd");
 
+
   try {
     if (
       !mrrnno || !supplier || !products || !username || !suppdate || !workorder || !workodate || !cashmemono || !cashmemodate || products.length == 0
@@ -207,12 +209,20 @@ const saveProductEntrilist = async (req, res, next) => {
       res.json(createResponse(null, "Missing Body Required!!", true));
     }
     else {
+
+      var temp = {};
+      let storetemp = {};
+
       const postProEntries = await postProductEntries(req.body, entridate, entritime, entrimonth);
       if (postProEntries.outBinds.id[0]) {
+        temp = { postProEntriesId: postProEntries.outBinds.id[0], store: [] }
         let count = 0;
 
         // product should be an object
-        products.forEach(async (product) => {
+        for (let j = 0; j < products.length; j++) {
+          let product = products[j];
+
+          //products.forEach(async (product) => {
           const { proname, pro_name_two, prod_list_id, qty, price, category, prod_unit, stock_alert } = product;
           if (!proname || !pro_name_two || !prod_list_id || !qty || !price || !category || !prod_unit || !stock_alert) {
             res.json(
@@ -222,8 +232,24 @@ const saveProductEntrilist = async (req, res, next) => {
           else {
             const postStorePro = await postStoreProduct(product);
             if (postStorePro.errorNum) {
-              
-              res.json(createResponse(null, "Error Occured In Product Entry !!", true));
+              let i = 0;
+              for (i; i < temp["store"].length; i++) {
+                let item = temp["store"][i];
+                if (item["proSumList"]) {
+                  await deleteDynamically("STR_PRODUCTSUMMARIES", "PROSUMID", item["proSumList"])
+                }
+                if (item["proEntList"]) {
+                  await deleteDynamically("STR_PRODUCTENTRILISTS", "PROLISTID", item["proEntList"])
+                }
+                if (item["postStoreProId"]) {
+                  await deleteDynamically("STR_STOREPRODUCTS", "PROID", item["postStoreProId"])
+                }
+              }
+              if (i == temp["store"].length) {
+                await deleteDynamically("STR_PRODUCTENTRIES", "PROINID", temp["postProEntriesId"]);
+                return res.json(createResponse(null, "Error Occured In Product Entry !!", true));
+              }
+
             } else {
               if (postStorePro.outBinds.id[0]) {
 
@@ -237,9 +263,19 @@ const saveProductEntrilist = async (req, res, next) => {
 
                 count++;
 
+                storetemp["postStoreProId"] = postStorePro.outBinds.id[0];
+
                 if (!postProEnList.outBinds.id[0] || !postProSum.outBinds.id[0]) {
                   res.json(createResponse(null, "Error Occured In New Product Entry", true));
                 }
+                if (postProEnList.outBinds.id[0]) {
+                  storetemp["proEntList"] = postProEnList.outBinds.id[0];
+                }
+                if (postProSum.outBinds.id[0]) {
+                  storetemp["proSumList"] = postProSum.outBinds.id[0];
+                }
+
+                temp = { ...temp, store: [...temp["store"], { ...storetemp }] }
 
               }
               else {
@@ -250,7 +286,8 @@ const saveProductEntrilist = async (req, res, next) => {
               }
             }
           }
-        });
+        }
+        //});
 
       } else {
         res.json(createResponse(null, "Error Occured In Product Entry !!", true));

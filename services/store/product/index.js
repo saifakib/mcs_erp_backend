@@ -213,6 +213,17 @@ const updateStoreProductM = (
   );
 
 
+
+
+  /*--------------DELETE-------------*/
+
+  const deleteDynamically = (
+    tableName, colomName, id
+  ) =>
+    Execute(
+      `DELETE FROM ${tableName} WHERE ${colomName} = ${id}`
+    );
+
 module.exports = {
   getStoreProducts,
   totalQuantites,
@@ -234,5 +245,6 @@ module.exports = {
   postProductSummaries,
   getNewProductList,
   updateStoreProductM,
-  postProductSummariesEntry
+  postProductSummariesEntry,
+  deleteDynamically
 };
