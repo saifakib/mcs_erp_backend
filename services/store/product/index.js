@@ -14,6 +14,11 @@ const getStoreProducts = (search = "%%", page = 0, limit = 1000) => {
     LEFT OUTER JOIN STR_UNITS U ON U.UNIT_ID = PL.PRODUNIT WHERE LOWER(PL.PRONAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYEN) LIKE LOWER('${search}') OR LOWER(C.CATEGORYBN) LIKE LOWER('${search}') OR LOWER(U.UNIT) LIKE LOWER('${search}') OR LOWER(PL.PRONAMETWO) LIKE LOWER('${search}') OR LOWER(PL.PROQTY) LIKE LOWER('${search}') ORDER BY PROID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
   );
 };
+
+const selectProdFromStore = (list_id) =>
+  Execute(`SELECT PROID, PROQTY, STOCKPRICE, STOCKALERT, U.UNIT FROM STR_STOREPRODUCTS SP LEFT OUTER JOIN STR_UNITS U ON SP.PRODUNIT = U.UNIT_ID WHERE PRODLISTID=${Number(list_id)}`);
+
+
 const getTotalStoreProducts = () =>
   Execute("SELECT COUNT(PROID) as TOTAL_PRODUCT FROM STR_STOREPRODUCTS");
 
@@ -215,17 +220,18 @@ const updateStoreProductM = (
 
 
 
-  /*--------------DELETE-------------*/
+/*--------------DELETE-------------*/
 
-  const deleteDynamically = (
-    tableName, colomName, id
-  ) =>
-    Execute(
-      `DELETE FROM ${tableName} WHERE ${colomName} = ${id}`
-    );
+const deleteDynamically = (
+  tableName, colomName, id
+) =>
+  Execute(
+    `DELETE FROM ${tableName} WHERE ${colomName} = ${id}`
+  );
 
 module.exports = {
   getStoreProducts,
+  selectProdFromStore,
   totalQuantites,
   getTotalEntQuantites,
   totalQuantitesByCategoryId,

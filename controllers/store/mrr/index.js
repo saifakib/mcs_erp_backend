@@ -17,7 +17,9 @@ const {
   updateSingleProEntriesByMrrno,
   updateProductEntriListsSupplier,
   getProductEntiresFirsts,
+  getProductEntiresFirstMrr,
   getProductEntriListss,
+  getProductEntriListMrr,
   getCurrentStock,
   getProListById,
 } = require("../../../services/store/mrr");
@@ -139,8 +141,9 @@ const viewProductReceptBySupIdDate = async (req, res, next) => {
 };
 
 /**
- * All Product Lists With Supplier Info with mrrno
+ * All Product Lists With Supplier Info with mrrno , sup_id and date
  * @param {Number} sup_id
+ * @param {Number} mrrno
  * @param {String} date
  */
 const viewProductReceptBySupIdMrrDate = async (req, res, next) => {
@@ -201,6 +204,66 @@ const viewProductReceptBySupIdMrrDate = async (req, res, next) => {
         entriLists: entriLists.rows,
         totalQuantities: total[0],
         totalProAmount: total[1],
+      };
+
+      res.json(createResponse(response));
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * All Product Lists With Supplier Info with mrrno and sup_id
+ * @param {Number} sup_id
+ * @param {Number} mrrno
+ */
+const viewProductReceptBySupIdMrr = async (req, res, next) => {
+  const { sup_id: SUP_ID, mrrno: MRRNO } = req.params;
+
+  try {
+    if (!SUP_ID || !MRRNO) {
+      res.json(createResponse(null, "Required Parameter Missing", true));
+    } else {
+      const suppliers = await getSingleSupplier({ SUP_ID });
+      const entriesInfo = await getProductEntiresFirstMrr(SUP_ID, MRRNO);
+      const entriLists = await getProductEntriListMrr(SUP_ID, MRRNO);
+
+      let entriesInfoEd = {
+        ...entriesInfo.rows[0],
+        SUPPDATE: format(
+          new Date(
+            entriesInfo.rows[0].SUPPDATE.replace(
+              /(\d{2})-(\d{2})-(\d{4})/,
+              "$2/$1/$3"
+            )
+          ),
+          "yyyy-MM-dd"
+        ),
+        WORKODATE: format(
+          new Date(
+            entriesInfo.rows[0].WORKODATE.replace(
+              /(\d{2})-(\d{2})-(\d{4})/,
+              "$2/$1/$3"
+            )
+          ),
+          "yyyy-MM-dd"
+        ),
+        CASHMEMODATE: format(
+          new Date(
+            entriesInfo.rows[0].CASHMEMODATE.replace(
+              /(\d{2})-(\d{2})-(\d{4})/,
+              "$2/$1/$3"
+            )
+          ),
+          "yyyy-MM-dd"
+        ),
+      };
+
+      let response = {
+        suppliers: suppliers.rows[0],
+        entriesInfo: entriesInfoEd,
+        entriLists: entriLists.rows,
       };
 
       res.json(createResponse(response));
@@ -540,6 +603,7 @@ module.exports = {
   mrrProListBySupId,
   viewProductReceptBySupIdDate,
   viewProductReceptBySupIdMrrDate,
+  viewProductReceptBySupIdMrr,
   lastEntryListByProListId,
   updateSingleProductEntriList,
   deleteSingleProductEntriList,

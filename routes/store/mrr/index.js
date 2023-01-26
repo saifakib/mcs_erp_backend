@@ -4,6 +4,7 @@ const {
   mrrProListBySupId,
   viewProductReceptBySupIdDate,
   viewProductReceptBySupIdMrrDate,
+  viewProductReceptBySupIdMrr,
   lastEntryListByProListId,
   updateSingleProductEntriList,
   deleteSingleProductEntriList,
@@ -23,6 +24,8 @@ router.get(
   "/productrecept/:sup_id/:mrrno/:date",
   viewProductReceptBySupIdMrrDate
 );
+router.get("/productReceptBySupIdMrr/:sup_id/:mrrno", viewProductReceptBySupIdMrr);
+
 router.get("/lastEntryListByProListId/:list_id", lastEntryListByProListId);
 router.get("/productEntriesByMrrno/:mrrno", singleProductEntriesBymrrno);
 router.get("/addMoreMrr/:sup_id/:date", addMoreMrr);
