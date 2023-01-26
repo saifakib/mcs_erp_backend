@@ -48,7 +48,7 @@ const { format } = require("date-fns");
 // is pending\
 module.exports.isReqPending = async (req, res, next) => {
   try {
-    const employe_id  = req.employe_id;
+    const employe_id = req.employe_id;
     if (!employe_id) {
       res.json(createResponse(null, "Employee id required", true));
     } else {
@@ -70,7 +70,7 @@ module.exports.getRequisitionById = async (req, res, next) => {
   try {
     const { search } = req.headers;
     const { page, limit } = req.query;
-    const id  = req.employe_id;
+    const id = req.employe_id;
     if (!id) {
       res.json(createResponse(null, "User id missing", true));
     } else if (!search || !page || !limit) {
@@ -441,7 +441,10 @@ module.exports.postRequisition = async (req, res, next) => {
       res.json(createResponse(null, "Product is missing", true));
     } else {
       const { rows: lastReqNo } = await getLastReqNo();
-      const reqNo = parseInt(lastReqNo[0].REQUISITIONNO) + 1;
+      const reqNo = lastReqNo.length === 0 ? 1 : lastReqNo[0].REQUISITIONNO
+        ? parseInt(lastReqNo[0].REQUISITIONNO) + 1
+        : 1;
+      
 
       const requisitionInfo = {
         profilehrId: user_id,

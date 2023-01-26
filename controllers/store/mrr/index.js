@@ -23,6 +23,7 @@ const {
   getCurrentStock,
   getProListById,
 } = require("../../../services/store/mrr");
+const { postStoreProduct, updateStoreProduct, postProductEntriesLists, postProductSummariesEntry, postProductSummaries } = require("../../../services/store/product");
 const { getSingleSupplier } = require("../../../services/store/settings");
 
 /*------------------------------------- All Get Controller ------------------------------------*/
@@ -229,44 +230,48 @@ const viewProductReceptBySupIdMrr = async (req, res, next) => {
       const entriesInfo = await getProductEntiresFirstMrr(SUP_ID, MRRNO);
       const entriLists = await getProductEntriListMrr(SUP_ID, MRRNO);
 
-      let entriesInfoEd = {
-        ...entriesInfo.rows[0],
-        SUPPDATE: format(
-          new Date(
-            entriesInfo.rows[0].SUPPDATE.replace(
-              /(\d{2})-(\d{2})-(\d{4})/,
-              "$2/$1/$3"
-            )
+      if (entriesInfo.rows.length === 0 || entriLists.rows.length === 0) {
+        res.json(createResponse(null, "No mrr found", false))
+      } else {
+        let entriesInfoEd = {
+          ...entriesInfo.rows[0],
+          SUPPDATE: format(
+            new Date(
+              entriesInfo.rows[0].SUPPDATE.replace(
+                /(\d{2})-(\d{2})-(\d{4})/,
+                "$2/$1/$3"
+              )
+            ),
+            "yyyy-MM-dd"
           ),
-          "yyyy-MM-dd"
-        ),
-        WORKODATE: format(
-          new Date(
-            entriesInfo.rows[0].WORKODATE.replace(
-              /(\d{2})-(\d{2})-(\d{4})/,
-              "$2/$1/$3"
-            )
+          WORKODATE: format(
+            new Date(
+              entriesInfo.rows[0].WORKODATE.replace(
+                /(\d{2})-(\d{2})-(\d{4})/,
+                "$2/$1/$3"
+              )
+            ),
+            "yyyy-MM-dd"
           ),
-          "yyyy-MM-dd"
-        ),
-        CASHMEMODATE: format(
-          new Date(
-            entriesInfo.rows[0].CASHMEMODATE.replace(
-              /(\d{2})-(\d{2})-(\d{4})/,
-              "$2/$1/$3"
-            )
+          CASHMEMODATE: format(
+            new Date(
+              entriesInfo.rows[0].CASHMEMODATE.replace(
+                /(\d{2})-(\d{2})-(\d{4})/,
+                "$2/$1/$3"
+              )
+            ),
+            "yyyy-MM-dd"
           ),
-          "yyyy-MM-dd"
-        ),
-      };
+        };
 
-      let response = {
-        suppliers: suppliers.rows[0],
-        entriesInfo: entriesInfoEd,
-        entriLists: entriLists.rows,
-      };
+        let response = {
+          suppliers: suppliers.rows[0],
+          entriesInfo: entriesInfoEd,
+          entriLists: entriLists.rows,
+        };
 
-      res.json(createResponse(response));
+        res.json(createResponse(response));
+      }
     }
   } catch (err) {
     next(err);
@@ -537,6 +542,74 @@ const updateProductEntriesBymrrno = async (req, res, next) => {
   }
 };
 
+/**
+ * Update Update Mrr added product
+ */
+const updateMrrAddedProduct = async (req, res, next) => {
+  const { entryType, productid, mrrno, supplier, mrrdate, mrrmonth, oldprice, username } = req.body;
+  let entrimonth = format(date, "LLLL-yyyy");
+  let summdate = format(date, "yyyy-MM-dd");
+  try {
+    if (entryType === 'New') {
+      const { proname, pronametwo, newqty, newprice, category, unit, stockalert } = req.body;
+
+      const postStorePro = await postStoreProduct({
+        proname: proname,
+        pro_name_two: pronametwo,
+        prod_list_id: productid,
+        qty: newqty,
+        price: newprice,
+        category: category,
+        prod_unit: unit,
+        stock_alert: stockalert,
+      });
+
+      const postEntrilists = await postProductEntriesLists({
+        qty: newqty,
+        price: newprice
+      }, mrrno, supplier, postStorePro.outBinds.id[0], mrrdate, mrrmonth, username);
+
+      const postProSum = await postProductSummariesEntry({
+        qty: newqty,
+        price: newprice,
+        category: category,
+        proname: proname
+      }, postStorePro.outBinds.id[0], summdate, entrimonth);
+
+      if (postEntrilists.rowsAffected === 1 && postProSum.rowsAffected === 1 && postStorePro.rowsAffected === 1) {
+        res.json(createResponse(null, "Product Added Successfully in  MRR"));
+      }
+
+    } else {
+      const { newqty, newprice } = req.body;
+      const updateStorePro = await updateStoreProduct({
+        proid: productid,
+        qty: newqty,
+        price: newprice
+      });
+
+      const postEntrilists = await postProductEntriesLists({
+        qty: newqty,
+        price: newprice
+      }, mrrno, supplier, productid, mrrdate, mrrmonth, username);
+
+      const postProSum = await postProductSummaries(updateStorePro.outBinds.storeQuantity[0] - Number(newqty), {
+        qty: newqty,
+        price: newprice,
+        category: category,
+        proname: proname
+      }, productid, summdate, entrimonth);
+
+      if (postEntrilists.rowsAffected === 1 && postProSum.rowsAffected === 1 && updateStorePro.rowsAffected === 1) {
+        res.json(createResponse(null, "Product Added Successfully in  MRR"));
+      }
+    }
+
+  } catch (err) {
+    next(err)
+  }
+}
+
 /*------------------------------------- End PUT Controller ----------------------------------------*/
 
 /*------------------------------------- All DELETE Controller ----------------------------------------*/
@@ -606,6 +679,7 @@ module.exports = {
   viewProductReceptBySupIdMrr,
   lastEntryListByProListId,
   updateSingleProductEntriList,
+  updateMrrAddedProduct,
   deleteSingleProductEntriList,
   singleProductEntriesBymrrno,
   updateProductEntriesBymrrno,

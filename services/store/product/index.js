@@ -1,5 +1,5 @@
 const { oracledb } = require("../../../db/db");
-const { Execute } = require("../../../utils/dynamicController");
+const { Execute, Executee } = require("../../../utils/dynamicController");
 
 /*------------- Get ------------*/
 
@@ -123,7 +123,7 @@ const postStoreProduct = ({
   prod_unit,
   stock_alert,
 }) =>
-  Execute(
+  Executee(
     `INSERT INTO STR_STOREPRODUCTS (proname, pronametwo, proqty, stockprice, procate, produnit, stockalert, prodlistid) VALUES ('${proname}', '${pro_name_two}', ${Number(
       qty
     )}, ${Number(price)}, ${Number(category)}, ${Number(prod_unit)}, ${Number(

@@ -2,7 +2,23 @@
 const { oracledb } = require("../db/db");
 
 // execute single query
-module.exports.Execute = (QuertyString, object = {}, type=2) => {
+
+module.exports.Execute = (QuertyString, object = {}) => {
+  console.log(QuertyString)
+  return new Promise(async function (resolve, reject) {
+    try {
+      let connection = await oracledb.getConnection("store");
+      const result = await connection.execute(QuertyString, object);
+      resolve(result);
+      await connection.close();
+    } catch (err) {
+      console.log("error", err);
+      reject(err);
+    }
+  });
+};
+
+module.exports.Executee = (QuertyString, object = {}, type=2) => {
   console.log(QuertyString)
   return new Promise(async function (resolve, reject) {
     try {
