@@ -1,5 +1,5 @@
 const { oracledb } = require("../../../db/db");
-const { Execute } = require("../../../utils/dynamicController");
+const { Execute, Executee } = require("../../../utils/dynamicController");
 
 /*------------- Get ------------*/
 
@@ -14,6 +14,11 @@ const getStoreProducts = (search = "%%", page = 0, limit = 1000) => {
     LEFT OUTER JOIN STR_UNITS U ON U.UNIT_ID = PL.PRODUNIT WHERE LOWER(PL.PRONAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYEN) LIKE LOWER('${search}') OR LOWER(C.CATEGORYBN) LIKE LOWER('${search}') OR LOWER(U.UNIT) LIKE LOWER('${search}') OR LOWER(PL.PRONAMETWO) LIKE LOWER('${search}') OR LOWER(PL.PROQTY) LIKE LOWER('${search}') ORDER BY PROID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
   );
 };
+
+const selectProdFromStore = (list_id) =>
+  Execute(`SELECT PROID, PROQTY, STOCKPRICE, STOCKALERT, U.UNIT FROM STR_STOREPRODUCTS SP LEFT OUTER JOIN STR_UNITS U ON SP.PRODUNIT = U.UNIT_ID WHERE PRODLISTID=${Number(list_id)}`);
+
+
 const getTotalStoreProducts = () =>
   Execute("SELECT COUNT(PROID) as TOTAL_PRODUCT FROM STR_STOREPRODUCTS");
 
@@ -118,13 +123,13 @@ const postStoreProduct = ({
   prod_unit,
   stock_alert,
 }) =>
-  Execute(
+  Executee(
     `INSERT INTO STR_STOREPRODUCTS (proname, pronametwo, proqty, stockprice, procate, produnit, stockalert, prodlistid) VALUES ('${proname}', '${pro_name_two}', ${Number(
       qty
     )}, ${Number(price)}, ${Number(category)}, ${Number(prod_unit)}, ${Number(
       stock_alert
     )}, ${Number(prod_list_id)}) RETURN proid INTO :id`,
-    { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+    { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }, 1
   );
 
 // Product Entries Lists
@@ -165,22 +170,22 @@ const postProductSummaries = (
     { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
-  const postProductSummariesEntry = (
-    { qty, price, category, proname },
-    storeproid,
-    summdate,
-    entrimonth
-  ) =>
-    Execute(
-      `INSERT INTO STR_PRODUCTSUMMARIES (productid, PRODUCTNAME, INTIALQTY, newaddqty, totalbalance, presentbalance, currentprice, summdate, summmonth, summertype, procat) VALUES (${Number(
-        storeproid
-      )}, '${proname}', ${Number(qty)}, ${Number(qty)}, ${Number(qty)},  ${Number(qty)}, ${Number(
-        price
-      )}, '${summdate}', '${entrimonth}', 'In', ${Number(
-        category
-      )}) RETURN prosumid INTO :id`,
-      { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
-    );
+const postProductSummariesEntry = (
+  { qty, price, category, proname },
+  storeproid,
+  summdate,
+  entrimonth
+) =>
+  Execute(
+    `INSERT INTO STR_PRODUCTSUMMARIES (productid, PRODUCTNAME, INTIALQTY, newaddqty, totalbalance, presentbalance, currentprice, summdate, summmonth, summertype, procat) VALUES (${Number(
+      storeproid
+    )}, '${proname}', ${Number(qty)}, ${Number(qty)}, ${Number(qty)},  ${Number(qty)}, ${Number(
+      price
+    )}, '${summdate}', '${entrimonth}', 'In', ${Number(
+      category
+    )}) RETURN prosumid INTO :id`,
+    { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+  );
 
 /*--------------UPDATE-------------*/
 
@@ -213,8 +218,20 @@ const updateStoreProductM = (
   );
 
 
+
+
+/*--------------DELETE-------------*/
+
+const deleteDynamically = (
+  tableName, colomName, id
+) =>
+  Execute(
+    `DELETE FROM ${tableName} WHERE ${colomName} = ${id}`
+  );
+
 module.exports = {
   getStoreProducts,
+  selectProdFromStore,
   totalQuantites,
   getTotalEntQuantites,
   totalQuantitesByCategoryId,
@@ -234,5 +251,6 @@ module.exports = {
   postProductSummaries,
   getNewProductList,
   updateStoreProductM,
-  postProductSummariesEntry
+  postProductSummariesEntry,
+  deleteDynamically
 };

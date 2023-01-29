@@ -4,6 +4,7 @@ const {
   checkProductDuplicate,
   getProductlistByCategoryId,
   categoryProductsQuantitiesById,
+  getStorProductByListId,
   saveProductEntrilist,
   getStoreProByCatId,
   getStoreProductByListId,
@@ -19,6 +20,7 @@ const { checkBoth } = require('../../../middlewares/checkAuthorization')
 // Get Routes
 router.get("/manageproducts", checkBoth, manageProducts);
 router.get("/storeProducts", getStockProducts);
+router.get("/storeProducts/:list_id", getStorProductByListId);
 
 router.get("/getStoreProductByCategoryId/:cat_id", checkBoth, getStoreProByCatId);
 router.get("/checkProductDuplicate/:prod_id", checkBoth, checkProductDuplicate);
