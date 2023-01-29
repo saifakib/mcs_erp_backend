@@ -548,6 +548,7 @@ const updateProductEntriesBymrrno = async (req, res, next) => {
 const updateMrrAddedProduct = async (req, res, next) => {
 
   const { entryType, productid, mrrno, supplier, username } = req.body;
+  let date = new Date();
   let entrimonth = format(date, "LLLL-yyyy");
   let summdate = format(date, "yyyy-MM-dd");
 
