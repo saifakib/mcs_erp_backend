@@ -67,7 +67,7 @@ module.exports.login = async (req, res, next) => {
             res.cookie("Role", rest.ROLE_ID, {
               maxAge: 36000000,
             });
-
+            console.log(token)
             res.json({ status: 200, token: token, user: rest });
           }
         } else {
@@ -114,7 +114,6 @@ module.exports.logout = async (req, res, next) => {
 module.exports.getCurrentUser = async (req, res, next) => {
   try {
     const userId = req.cookies.userId;
-    console.log('userId', userId)
     if (!userId) {
       res.json(
         createResponse(

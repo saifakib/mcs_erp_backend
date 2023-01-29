@@ -4,6 +4,6 @@ const { auditReports } = require("../../controllers/audit_log");
 const { validateToken } = require("../../middlewares/JWT");
 
 // get route
-router.get("/", validateToken, auditReports);
+router.get("/", auditReports);
 
 module.exports = router;
