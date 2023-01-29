@@ -30,7 +30,7 @@ router.get("/productReceptBySupIdMrr/:sup_id/:mrrno", viewProductReceptBySupIdMr
 router.get("/lastEntryListByProListId/:list_id", lastEntryListByProListId);
 router.get("/productEntriesByMrrno/:mrrno", singleProductEntriesBymrrno);
 router.get("/addMoreMrr/:sup_id/:date", addMoreMrr);
-router.put("addMoreMrr", updateMrrAddedProduct);
+router.put("/addMoreMrr", updateMrrAddedProduct);
 
 router.get("/getSingleEntry/:proid/:prolistid", getSingleEntry);
 

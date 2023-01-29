@@ -24,7 +24,7 @@ const {
   getProListById,
 } = require("../../../services/store/mrr");
 const { postStoreProduct, updateStoreProduct, postProductEntriesLists, postProductSummariesEntry, postProductSummaries } = require("../../../services/store/product");
-const { getSingleSupplier } = require("../../../services/store/settings");
+const { getSingleSupplier, getSingleProduct } = require("../../../services/store/settings");
 
 /*------------------------------------- All Get Controller ------------------------------------*/
 
@@ -543,45 +543,56 @@ const updateProductEntriesBymrrno = async (req, res, next) => {
 };
 
 /**
- * Update Update Mrr added product
+ * Update Mrr to add product
  */
 const updateMrrAddedProduct = async (req, res, next) => {
-  const { entryType, productid, mrrno, supplier, mrrdate, mrrmonth, oldprice, username } = req.body;
+
+  const { entryType, productid, mrrno, supplier, username } = req.body;
   let entrimonth = format(date, "LLLL-yyyy");
   let summdate = format(date, "yyyy-MM-dd");
+
   try {
+    const entriesInfo = await getProductEntiresFirstMrr(supplier, mrrno);
     if (entryType === 'New') {
-      const { proname, pronametwo, newqty, newprice, category, unit, stockalert } = req.body;
+      const product = await getSingleProduct({ PRODID: productid });
+      
+      if (product.rows.length > 0) {
+        const { newqty, newprice, unit, stockalert } = req.body;
 
-      const postStorePro = await postStoreProduct({
-        proname: proname,
-        pro_name_two: pronametwo,
-        prod_list_id: productid,
-        qty: newqty,
-        price: newprice,
-        category: category,
-        prod_unit: unit,
-        stock_alert: stockalert,
-      });
+        const postStorePro = await postStoreProduct({
+          proname: product.rows[0].PRONAME,
+          pro_name_two: product.rows[0].PRONAMETWO,
+          prod_list_id: productid,
+          qty: newqty,
+          price: newprice,
+          category: Number(product.rows[0].PROCATE),
+          prod_unit: unit,
+          stock_alert: stockalert,
+        });
 
-      const postEntrilists = await postProductEntriesLists({
-        qty: newqty,
-        price: newprice
-      }, mrrno, supplier, postStorePro.outBinds.id[0], mrrdate, mrrmonth, username);
+        const postEntrilists = await postProductEntriesLists({
+          qty: newqty,
+          price: newprice
+        }, mrrno, supplier, postStorePro.outBinds.id[0], entriesInfo.rows[0].ENTRIDATE, entriesInfo.rows[0].ENTRIMONTH, username);
 
-      const postProSum = await postProductSummariesEntry({
-        qty: newqty,
-        price: newprice,
-        category: category,
-        proname: proname
-      }, postStorePro.outBinds.id[0], summdate, entrimonth);
+        const postProSum = await postProductSummariesEntry({
+          qty: newqty,
+          price: newprice,
+          category: Number(product.rows[0].PROCATE),
+          proname: product.rows[0].PRONAME
+        }, postStorePro.outBinds.id[0], summdate, entrimonth);
 
-      if (postEntrilists.rowsAffected === 1 && postProSum.rowsAffected === 1 && postStorePro.rowsAffected === 1) {
-        res.json(createResponse(null, "Product Added Successfully in  MRR"));
+        if (postEntrilists.rowsAffected === 1 && postProSum.rowsAffected === 1 && postStorePro.rowsAffected === 1) {
+          res.json(createResponse(null, "Product Added Successfully in  MRR"));
+        }
+      } else {
+        res.json(createResponse(null, "Product Not Found", true));
       }
 
+      
     } else {
       const { newqty, newprice } = req.body;
+
       const updateStorePro = await updateStoreProduct({
         proid: productid,
         qty: newqty,
@@ -591,7 +602,7 @@ const updateMrrAddedProduct = async (req, res, next) => {
       const postEntrilists = await postProductEntriesLists({
         qty: newqty,
         price: newprice
-      }, mrrno, supplier, productid, mrrdate, mrrmonth, username);
+      }, mrrno, supplier, productid, entriesInfo.rows[0].ENTRIDATE, entriesInfo.rows[0].ENTRIMONTH, username);
 
       const postProSum = await postProductSummaries(updateStorePro.outBinds.storeQuantity[0] - Number(newqty), {
         qty: newqty,

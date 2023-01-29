@@ -191,7 +191,6 @@ const getStockProducts = async (req, res, next) => {
 
 const getStorProductByListId = async (req, res, next) => {
   const { list_id } = req.params;
-  console.log(list_id)
   try {
     const result = await selectProdFromStore(list_id);
     res.json(createResponse(result.rows));
