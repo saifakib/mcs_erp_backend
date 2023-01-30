@@ -14,6 +14,13 @@ const getSingleEntriesReports = (productidno, fdate, tdate) =>
       productidno
     )}`
   );
+
+const getSingleEntriesReportsWHDate = (productidno) =>
+  Execute(
+    `SELECT ST.PRONAME, ST.PRONAMETWO, LT.PROLISTID, LT.PRODATE, LT.MRRNUMBER, S.SUPPLIER, CT.CATEGORYEN, LT.QUANTITIES, LT.PROAMOUNT, LT.PROAMOUNT * LT.QUANTITIES as TOTALAMOUNT, U.UNIT FROM STR_PRODUCTENTRILISTS LT  LEFT OUTER JOIN STR_SUPPLIERS S ON LT.PRODUCTFROM = S.SUP_ID LEFT OUTER JOIN STR_STOREPRODUCTS ST ON ST.PROID = LT.PRODUCTIDNO LEFT OUTER JOIN STR_CATEGORIES CT ON CT.CAT_ID = ST.PROCATE LEFT OUTER JOIN STR_UNITS U ON ST.PRODUNIT = U.UNIT_ID WHERE PRODUCTIDNO = ${Number(
+      productidno
+    )}`
+  );
 /*--------------------- End Entries Report ----------------- */
 
 /*--------------------- Stock Stauts Report ----------------- */
@@ -198,6 +205,7 @@ WHERE RE.PROFILEHRID = ${Number(hrid)} AND PR.REQUIID = ${Number(requestid)}`);
 module.exports = {
   getAllEntriesReports,
   getSingleEntriesReports,
+  getSingleEntriesReportsWHDate,
   stockStatus,
   stockStatusByCatId,
   getProductSummariesByProductid,

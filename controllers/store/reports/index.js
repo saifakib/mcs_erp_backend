@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { getAllEntriesReports, getSingleEntriesReports, stockStatus, stockStatusByCatId, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId, getProductSummariesByCatId, getRequisitionsByDate, getRequisitionsByProduct, getRequisitionsByProductAndDate, getRequisitionsByPerson, getRequisitionsByPersonAndDate, getUserReqReportByDate, getUserReqReportByMonth, getUserReqReportByYear, getUserSingleReqView } = require("../../../services/store/reports");
+const { getAllEntriesReports, getSingleEntriesReports, getSingleEntriesReportsWHDate, stockStatus, stockStatusByCatId, getProductSummariesByProductid, getProductSummariesBySummMonth, getProductSummariesBySummMonthAndCatId, getProductSummariesByCatId, getRequisitionsByDate, getRequisitionsByProduct, getRequisitionsByProductAndDate, getRequisitionsByPerson, getRequisitionsByPersonAndDate, getUserReqReportByDate, getUserReqReportByMonth, getUserReqReportByYear, getUserSingleReqView } = require("../../../services/store/reports");
 const { format } = require('date-fns')
 
 
@@ -34,23 +34,40 @@ const entriesProductReport = async (req, res, next) => {
                 );
             }
         } else if (queryFor == "single") {
-            if (!productidno || !fdate || !tdate) {
+            if (!productidno) {
                 res.json(createResponse(null, "Required query missing", true));
-            } else {
-                const response = await getSingleEntriesReports(
-                    productidno,
-                    fdate,
-                    tdate
-                );
+            }
+            else {
+                let Total = [];
+                let response;
+                if (fdate && tdate) {
+                    response = await getSingleEntriesReports(
+                        productidno,
+                        fdate,
+                        tdate
+                    );
 
-                const Total = response.rows.reduce(
-                    (acc, obj) => {
-                        acc[0] += obj.QUANTITIES;
-                        acc[1] += obj.TOTALAMOUNT;
-                        return acc;
-                    },
-                    [0, 0]
-                );
+                    Total = response.rows.reduce(
+                        (acc, obj) => {
+                            acc[0] += obj.QUANTITIES;
+                            acc[1] += obj.TOTALAMOUNT;
+                            return acc;
+                        },
+                        [0, 0]
+                    );
+                } else {
+                    response = await getSingleEntriesReportsWHDate(productidno);
+
+                    Total = response.rows.reduce(
+                        (acc, obj) => {
+                            acc[0] += obj.QUANTITIES;
+                            acc[1] += obj.TOTALAMOUNT;
+                            return acc;
+                        },
+                        [0, 0]
+                    );
+
+                }
 
                 res.json(
                     createResponse({

@@ -126,13 +126,13 @@ const putMaintanance = async (req, res, next) => {
 
 const putServicing = async (req, res, next) => {
     try {
-        const { maintanance_id, remarks } = req.body;
+        const { maintanance_id, remarks, cost } = req.body;
         if (typeof (maintanance_id) !== 'number') {
             res.json(createResponse("Error Occured", "Value should be a number", true));
         }
         else {
             const putServing = await updateServicing(maintanance_id, remarks);
-            const updateMaintananceR = await updateMaintanance(Number(4), maintanance_id);
+            const updateMaintananceR = await updateMaintanance(Number(4), maintanance_id, cost);
 
             console.log("PostServicing:", putServing);
             console.log("UpdateMaintananceR:", updateMaintananceR);

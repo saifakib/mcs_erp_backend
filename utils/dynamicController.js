@@ -4,7 +4,6 @@ const { oracledb } = require("../db/db");
 // execute single query
 
 module.exports.Execute = (QuertyString, object = {}) => {
-  console.log(QuertyString)
   return new Promise(async function (resolve, reject) {
     try {
       let connection = await oracledb.getConnection("store");
@@ -19,7 +18,6 @@ module.exports.Execute = (QuertyString, object = {}) => {
 };
 
 module.exports.Executee = (QuertyString, object = {}, type=2) => {
-  console.log(QuertyString)
   return new Promise(async function (resolve, reject) {
     try {
       let connection = await oracledb.getConnection("store");
