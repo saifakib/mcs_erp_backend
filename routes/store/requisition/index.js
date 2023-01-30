@@ -92,6 +92,9 @@ router.put(
   requisitionController.updateReqByStoreOfficer
 );
 
+// Given Not Given
+router.put("given/:id", checkStoreManagers, requisitionController.updateRequisitionGivenStatus);
+
 router.put("/acceptByUser", requisitionController.reqAcceptByUser);
 
 // update roles
@@ -100,5 +103,6 @@ router.put(
   checkStoreAdmin,
   requisitionController.updateStoreRoles
 );
+
 
 module.exports = router;

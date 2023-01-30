@@ -46,8 +46,8 @@ module.exports.userInfo = (id, status = 0) => {
     ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
     LEFT OUTER JOIN HRM.DESIGNATION DG ON
     DG.DESIGNATION_ID = E.DESIGNATION_ID WHERE R.REQID = ${Number(
-      id
-    )} AND R.REQUISTATUS = ${Number(status)}`);
+    id
+  )} AND R.REQUISTATUS = ${Number(status)}`);
 };
 
 /*------------- Get ------------*/
@@ -425,15 +425,32 @@ module.exports.updateStoreProduct = (array) => {
   return ExecuteMany(statement, newArray);
 };
 
-module.exports.updateReqByStore = (data) => {
+/*------- update requisition by store ------ */
+module.exports.updateReqByStore = (data, given) => {
+  if (given) {
+    return Execute(
+      `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
+        data.REQUISTATUS
+      )}, STOREACCEPT = ${Number(data.STOREACCEPT)}, APPROVEDBY = '${data.APPROVEDBY
+      }', APROVEDTIME = '${data.APROVEDTIME}', APPROVEDDATE = '${data.APPROVEDDATE
+      }', GIVEN = ${Number(1)} WHERE REQID = ${Number(data.REQID)}`
+    );
+  } else {
+    return Execute(
+      `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
+        data.REQUISTATUS
+      )}, STOREACCEPT = ${Number(data.STOREACCEPT)}, APPROVEDBY = '${data.APPROVEDBY
+      }', APROVEDTIME = '${data.APROVEDTIME}', APPROVEDDATE = '${data.APPROVEDDATE
+      }' WHERE REQID = ${Number(data.REQID)}`
+    );
+  }
+};
+
+
+/*------- update requisition given or notgiven ------ */
+module.exports.updateReqGivenByStore = (id) => {
   return Execute(
-    `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
-      data.REQUISTATUS
-    )}, STOREACCEPT = ${Number(data.STOREACCEPT)}, APPROVEDBY = '${
-      data.APPROVEDBY
-    }', APROVEDTIME = '${data.APROVEDTIME}', APPROVEDDATE = '${
-      data.APPROVEDDATE
-    }' WHERE REQID = ${Number(data.REQID)}`
+    `UPDATE STR_REQUISITIONS SET GIVEN = ${Number(1)} WHERE REQID = ${id}`
   );
 };
 
@@ -442,8 +459,7 @@ module.exports.reqAcceptByUser = (data) => {
   return Execute(
     `UPDATE STR_REQUISITIONS SET PROACCEPT = ${Number(
       data.PROACCEPT
-    )}, PROACCEPTTIME = '${data.PROACCEPTTIME}', PROACCEPTDATE = '${
-      data.PROACCEPTDATE
+    )}, PROACCEPTTIME = '${data.PROACCEPTTIME}', PROACCEPTDATE = '${data.PROACCEPTDATE
     }' WHERE REQID = ${data.REQID}`
   );
 };
@@ -453,10 +469,8 @@ module.exports.denyRequisition = (data) => {
   return Execute(
     `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
       data.REQUISTATUS
-    )}, DENY = ${Number(data.DENY)}, DENYREMARKS = '${
-      data.DENYREMAKRS
-    }', DENYBY = '${data.DENYBY}', DENYTIME = '${data.DENYTIME}', DENYDATE = '${
-      data.DENYDATE
+    )}, DENY = ${Number(data.DENY)}, DENYREMARKS = '${data.DENYREMAKRS
+    }', DENYBY = '${data.DENYBY}', DENYTIME = '${data.DENYTIME}', DENYDATE = '${data.DENYDATE
     }' WHERE REQID = ${Number(data.REQID)}`
   );
 };
