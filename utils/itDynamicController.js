@@ -3,6 +3,7 @@ const { oracledb } = require("../db/db");
 
 // execute single query
 const ExecuteIT = (QuertyString, object = {}) => {
+  console.log(QuertyString)
   return new Promise(async function (resolve, reject) {
     try {
       let connection = await oracledb.getConnection("it");
@@ -10,7 +11,6 @@ const ExecuteIT = (QuertyString, object = {}) => {
       resolve(result);
       await connection.close();
     } catch (err) {
-      //console.log("error", err);
       reject(err);
     }
   });
