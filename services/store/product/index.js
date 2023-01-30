@@ -16,7 +16,10 @@ const getStoreProducts = (search = "%%", page = 0, limit = 1000) => {
 };
 
 const selectProdFromStore = (list_id) =>
-  Execute(`SELECT PROID, PROQTY, STOCKPRICE, STOCKALERT, U.UNIT FROM STR_STOREPRODUCTS SP LEFT OUTER JOIN STR_UNITS U ON SP.PRODUNIT = U.UNIT_ID WHERE PRODLISTID=${Number(list_id)}`);
+  Execute(`SELECT PRONAME, PROCATE, PROID, PROQTY, STOCKPRICE, STOCKALERT, U.UNIT FROM STR_STOREPRODUCTS SP LEFT OUTER JOIN STR_UNITS U ON SP.PRODUNIT = U.UNIT_ID WHERE PRODLISTID=${Number(list_id)}`);
+
+const selectProdFromStoreid = (PROID) =>
+  Execute(`SELECT PRONAME, PROCATE, PROID, PROQTY, STOCKPRICE, STOCKALERT, U.UNIT FROM STR_STOREPRODUCTS SP LEFT OUTER JOIN STR_UNITS U ON SP.PRODUNIT = U.UNIT_ID WHERE PROID=${Number(PROID)}`);
 
 
 const getTotalStoreProducts = () =>
@@ -84,6 +87,8 @@ const getNewProductList = (CAT_ID) =>
   Execute(
     `SELECT * FROM STR_PRODUCTLISTS PL WHERE PL.PROCATE = ${CAT_ID} AND PL.PRODID NOT IN (SELECT SP.PRODLISTID FROM STR_STOREPRODUCTS SP)`
   );
+
+const getSingleEntrylistByPrdId = (prodid, mrrno) => Execute(`SELECT PROLISTID FROM STR_PRODUCTENTRILISTS WHERE MRRNUMBER=${Number(mrrno)} AND PRODUCTIDNO=${Number(prodid)}`);
 
 /*-------------- Post -------------------*/
 
@@ -158,17 +163,17 @@ const postProductSummaries = (
   storeproid,
   summdate,
   entrimonth
-) =>
-  Execute(
-    `INSERT INTO STR_PRODUCTSUMMARIES (productid, PRODUCTNAME, INTIALQTY, newaddqty, totalbalance, presentbalance, currentprice, summdate, summmonth, summertype, procat) VALUES (${Number(
-      storeproid
-    )}, '${proname}', ${Number(initialQuantities)}, ${Number(qty)}, ${Number(initialQuantities) + Number(qty)}, ${Number(initialQuantities) + Number(qty)}, ${Number(
-      price
-    )}, '${summdate}', '${entrimonth}', 'In', ${Number(
-      category
-    )}) RETURN prosumid INTO :id`,
-    { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
-  );
+) => Execute(
+  `INSERT INTO STR_PRODUCTSUMMARIES (productid, PRODUCTNAME, INTIALQTY, newaddqty, totalbalance, presentbalance, currentprice, summdate, summmonth, summertype, procat) VALUES (${Number(
+    storeproid
+  )}, '${proname}', ${Number(initialQuantities)}, ${Number(qty)}, ${Number(initialQuantities) + Number(qty)}, ${Number(initialQuantities) + Number(qty)}, ${Number(
+    price
+  )}, '${summdate}', '${entrimonth}', 'In', ${Number(
+    category
+  )}) RETURN prosumid INTO :id`,
+  { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+);
+
 
 const postProductSummariesEntry = (
   { qty, price, category, proname },
@@ -218,6 +223,7 @@ const updateStoreProductM = (
   );
 
 
+const updateSingleEntrylistByPrdId = (prodid, mrrno, newqty, newPrice) => Execute(`UPDATE STR_PRODUCTENTRILISTS SET QUANTITIES = QUANTITIES + ${Number(newqty)}, PROAMOUNT = ${Number(newPrice)} WHERE MRRNUMBER=${Number(mrrno)} AND PRODUCTIDNO=${Number(prodid)}`);
 
 
 /*--------------DELETE-------------*/
@@ -236,6 +242,7 @@ module.exports = {
   getTotalEntQuantites,
   totalQuantitesByCategoryId,
   getProducListById,
+  selectProdFromStoreid,
   getTotalStoreProducts,
   getStoreProductByProdListId,
   getStoreProductByCategoryId,
@@ -244,9 +251,11 @@ module.exports = {
   getCategoryWithStoreLength,
   getTotalStoreProdQty,
   getExStoreProductByProdListId,
+  getSingleEntrylistByPrdId,
   postProductEntries,
   postStoreProduct,
   updateStoreProduct,
+  updateSingleEntrylistByPrdId,
   postProductEntriesLists,
   postProductSummaries,
   getNewProductList,

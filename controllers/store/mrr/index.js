@@ -23,7 +23,7 @@ const {
   getCurrentStock,
   getProListById,
 } = require("../../../services/store/mrr");
-const { postStoreProduct, updateStoreProduct, postProductEntriesLists, postProductSummariesEntry, postProductSummaries } = require("../../../services/store/product");
+const { selectProdFromStoreid, getSingleEntrylistByPrdId, postStoreProduct, updateStoreProduct, updateSingleEntrylistByPrdId, postProductEntriesLists, postProductSummariesEntry, postProductSummaries } = require("../../../services/store/product");
 const { getSingleSupplier, getSingleProduct } = require("../../../services/store/settings");
 
 /*------------------------------------- All Get Controller ------------------------------------*/
@@ -556,7 +556,7 @@ const updateMrrAddedProduct = async (req, res, next) => {
     const entriesInfo = await getProductEntiresFirstMrr(supplier, mrrno);
     if (entryType === 'New') {
       const product = await getSingleProduct({ PRODID: productid });
-      
+
       if (product.rows.length > 0) {
         const { newqty, newprice, unit, stockalert } = req.body;
 
@@ -589,10 +589,11 @@ const updateMrrAddedProduct = async (req, res, next) => {
       } else {
         res.json(createResponse(null, "Product Not Found", true));
       }
-
-      
-    } else {
+    } 
+    else {
+      const plistid = await getSingleEntrylistByPrdId(productid, mrrno);
       const { newqty, newprice } = req.body;
+      const storeProd = await selectProdFromStoreid(productid);
 
       const updateStorePro = await updateStoreProduct({
         proid: productid,
@@ -600,20 +601,29 @@ const updateMrrAddedProduct = async (req, res, next) => {
         price: newprice
       });
 
-      const postEntrilists = await postProductEntriesLists({
-        qty: newqty,
-        price: newprice
-      }, mrrno, supplier, productid, entriesInfo.rows[0].ENTRIDATE, entriesInfo.rows[0].ENTRIMONTH, username);
+      if (plistid.rows.length > 0) {
+        const updateEntrilists = await updateSingleEntrylistByPrdId(productid, mrrno, newqty, newprice);
+        const postProSum = await postProductSummaries(updateStorePro.outBinds.storeQuantity[0] - Number(newqty), {
+          qty: newqty,
+          price: newprice,
+          category: storeProd.rows[0].PROCATE,
+          proname: storeProd.rows[0].PRONAME
+        }, productid, summdate, entrimonth);
 
-      const postProSum = await postProductSummaries(updateStorePro.outBinds.storeQuantity[0] - Number(newqty), {
-        qty: newqty,
-        price: newprice,
-        category: category,
-        proname: proname
-      }, productid, summdate, entrimonth);
+        if (updateEntrilists.rowsAffected === 1 && postProSum.rowsAffected === 1 && updateStorePro.rowsAffected === 1) {
+          res.json(createResponse(null, "Product Added Successfully in  MRR"));
+        }
+      }
+      else {
+        const postEntrilists = await postProductEntriesLists({
+          qty: newqty,
+          price: newprice
+        }, mrrno, supplier, productid, entriesInfo.rows[0].ENTRIDATE, entriesInfo.rows[0].ENTRIMONTH, username);
 
-      if (postEntrilists.rowsAffected === 1 && postProSum.rowsAffected === 1 && updateStorePro.rowsAffected === 1) {
-        res.json(createResponse(null, "Product Added Successfully in  MRR"));
+
+        if (postEntrilists.rowsAffected === 1 && postProSum.rowsAffected === 1 && updateStorePro.rowsAffected === 1) {
+          res.json(createResponse(null, "Product Added Successfully in  MRR"));
+        }
       }
     }
 
