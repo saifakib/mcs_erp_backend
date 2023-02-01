@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, selectRequisitionByHrid, selectRequisitionByDateHrid, selectMaintananceByDate, selectMaintananceByProDate, selectMaintananceByProId, selectMaintananceByHrDate, selectMaintananceByHrId} = require("../../../services/it/report");
+const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, selectRequisitionByHrid, selectRequisitionByDateHrid, selectMaintananceByDate, selectMaintananceByProDate, selectMaintananceByProId, selectMaintananceByHrDate, selectMaintananceByHrId } = require("../../../services/it/report");
 const { format } = require('date-fns')
 
 
@@ -43,7 +43,7 @@ const getEntriesProductReport = async (req, res, next) => {
                     tdate
                 );
 
-                console.log(response);
+
 
                 const Total = response.rows.reduce(
                     (acc, obj) => {
@@ -84,11 +84,11 @@ const getRequisitionReport = async (req, res, next) => {
         if (queryFor == "date") {
             if (!fdate || !tdate) {
                 res.json(createResponse(null, "Required query missing", true));
-            } 
+            }
             else {
                 response = await selectRequisitionByDate(fdate, tdate);
             }
-        } 
+        }
         else if (queryFor === "product") {
             if (!product_id) {
                 res.json(createResponse(null, "Required query missing", true));
@@ -101,7 +101,7 @@ const getRequisitionReport = async (req, res, next) => {
                     response = await selectRequisitionByProId(product_id);
                 }
             }
-        } 
+        }
         else if (queryFor === "person") {
             if (!hrid) {
                 res.json(createResponse(null, "Required query missing", true));
@@ -150,11 +150,11 @@ const getMaintananceReport = async (req, res, next) => {
         if (queryFor == "date") {
             if (!fdate || !tdate) {
                 res.json(createResponse(null, "Required query missing!!", true));
-            } 
+            }
             else {
                 response = await selectMaintananceByDate(fdate, tdate);
             }
-        } 
+        }
         else if (queryFor === "product") {
             if (!product_id) {
                 res.json(createResponse(null, "Required query missing", true));
@@ -167,7 +167,7 @@ const getMaintananceReport = async (req, res, next) => {
                     response = await selectMaintananceByProId(product_id);
                 }
             }
-        } 
+        }
         else if (queryFor === "person") {
             if (!hrid) {
                 res.json(createResponse(null, "Required query missing", true));

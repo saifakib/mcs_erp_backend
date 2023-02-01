@@ -31,7 +31,7 @@ const newProductList = async (req, res, next) => {
             const productListForNew = await selectNewProductListByCatId(category_id);
             res.json(createResponse(productListForNew.rows));
         }
-        
+
     } catch (err) {
         next(err.message);
     }
@@ -52,8 +52,8 @@ const manageProducts = async (_, res, next) => {
             }
             acc[1] += obj.CT;
             acc[2] += obj.QTY,
-            acc[3] += obj.NON_QTY,
-            acc[4] += obj.PRODUCT
+                acc[3] += obj.NON_QTY,
+                acc[4] += obj.PRODUCT
             return acc;
         }, [[], 0, 0, 0, 0]);
 
@@ -90,7 +90,7 @@ const getStrProductsbyCategoryId = async (req, res, next) => {
 const getStrProductsbyCatIdProdId = async (req, res, next) => {
     try {
         const { category_id, product_id } = req.params;
-        if ((typeof (category_id) !== number && !category_id ) && (typeof (product_id) !== number && !product_id )){
+        if ((typeof (category_id) !== number && !category_id) && (typeof (product_id) !== number && !product_id)) {
             res.json(createResponse(null, "Something went wrong", true))
         } else {
             const response = await selectProductWithSup(product_id, category_id);
@@ -162,7 +162,7 @@ const getStoreProdCountByProId = async (req, res, next) => {
             const response = await selectStoreProdCountByProId(pro_id);
             res.json(createResponse(response.rows, "Store Product By Sub Category"));
         }
-        
+
     } catch (err) {
         next(err);
     }
@@ -186,7 +186,7 @@ const postProductEntrilist = async (req, res, next) => {
 
                     if (postStorePro.rowsAffected === 1) {
                         const productInfo = await selectProductLists(product.pro_id);
-                        const unique = 'BBA-' + productInfo.rows[0].PRODUCT_NAME.slice(0,3).toUpperCase() + "-" + postStorePro.outBinds.id[0].toString();
+                        const unique = 'BBA-' + productInfo.rows[0].PRODUCT_NAME.slice(0, 3).toUpperCase() + "-" + postStorePro.outBinds.id[0].toString();
 
                         let indProducts = [];
                         for (let i = 0; i < product.qty; i++) {
@@ -252,22 +252,22 @@ const postProductEntrilist = async (req, res, next) => {
 /*------------- All Update Controllers ---------------*/
 
 // Update Individual Product Status
-const putIndProduct = async ( req, res, next ) => {
+const putIndProduct = async (req, res, next) => {
     try {
         const { ind_product_id } = req.headers;
         const indProdInfo = await selectIndProduct(ind_product_id);
-        if(indProdInfo.rows[0].STATUS === 3) {
-            const changeIndProd =  await updateIndProduct(ind_product_id, 0);
+        if (indProdInfo.rows[0].STATUS === 3) {
+            const changeIndProd = await updateIndProduct(ind_product_id, 0);
 
-            if(changeIndProd.rowsAffected === 1) {
-                const changeStrProById = await updateStrProNonWCount(indProdInfo.rows[0].STR_PRO_ID); 
-                console.log(changeStrProById)
-                if(changeStrProById.rowsAffected === 1) {
+            if (changeIndProd.rowsAffected === 1) {
+                const changeStrProById = await updateStrProNonWCount(indProdInfo.rows[0].STR_PRO_ID);
+
+                if (changeStrProById.rowsAffected === 1) {
                     indProdInfo.rows[0].STATUS = 'Active'
                     res.json(createResponse(indProdInfo.rows[0], "Individual Product update Succesfully", false));
                 }
             }
-        } 
+        }
         else {
             res.json(createResponse(indProdInfo.rows[0], "You are hitting a wrong product to change status", true))
         }
@@ -405,8 +405,8 @@ const putIndProduct = async ( req, res, next ) => {
 
 
 module.exports = {
-    newProductList, getStoreProducts, getStoreProductsById, getStoreProdCountByProId, getIndStrProductsbyProId, getIndStrProductsbyStrId, 
-    manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId, 
+    newProductList, getStoreProducts, getStoreProductsById, getStoreProdCountByProId, getIndStrProductsbyProId, getIndStrProductsbyStrId,
+    manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId,
     postProductEntrilist,
     putIndProduct
 }

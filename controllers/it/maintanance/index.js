@@ -134,8 +134,6 @@ const putServicing = async (req, res, next) => {
             const putServing = await updateServicing(maintanance_id, remarks);
             const updateMaintananceR = await updateMaintanance(Number(4), maintanance_id, cost);
 
-            console.log("PostServicing:", putServing);
-            console.log("UpdateMaintananceR:", updateMaintananceR);
 
             if (updateMaintananceR.rowsAffected === 1 && putServing.rowsAffected === 1) {
                 res.json(createResponse(null, "Maintanance and Servicing status has been Updated"));

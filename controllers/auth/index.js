@@ -66,7 +66,6 @@ module.exports.login = async (req, res, next) => {
             res.cookie("Role", rest.ROLE_ID, {
               maxAge: 36000000,
             });
-            console.log(token)
             res.json({ status: 200, token: token, user: rest });
           }
         } else {
@@ -152,7 +151,7 @@ module.exports.getSingleUserWithVaidation = async (req, res) => {
     const { rows } = await getUserByUserName(userId);
     if (rows.length > 0) {
       const { PASSWORD, ...rest } = rows[0];
-      console.log(rest)
+
       const data = {
         user_id: rest.USER_ID,
         role_id: rest.ROLE_ID,

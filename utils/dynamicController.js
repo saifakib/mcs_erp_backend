@@ -17,13 +17,13 @@ module.exports.Execute = (QuertyString, object = {}) => {
   });
 };
 
-module.exports.Executee = (QuertyString, object = {}, type=2) => {
+module.exports.Executee = (QuertyString, object = {}, type = 2) => {
   return new Promise(async function (resolve, reject) {
     try {
       let connection = await oracledb.getConnection("store");
       const result = await connection.execute(QuertyString, object);
       if (type === 1) {
-        if(result) {
+        if (result) {
           resolve(result);
         } else {
           resolve(result);
@@ -60,7 +60,6 @@ module.exports.Executee = (QuertyString, object = {}, type=2) => {
 
 // execute many query
 module.exports.ExecuteMany = (QuertyString, binds, options = {}) => {
-  console.log(QuertyString)
   return new Promise(async function (resolve, reject) {
     try {
       let connection = await oracledb.getConnection("store");
