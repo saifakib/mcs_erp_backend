@@ -6,6 +6,7 @@ const {
   getLastReqNo,
   updateRequisitionInfo,
   updateReqProducts,
+  updateReqGivenByStore,
   getRequisitionById,
   lastProRequiId,
   getRequisitionDetailsById,
@@ -444,7 +445,7 @@ module.exports.postRequisition = async (req, res, next) => {
       const reqNo = lastReqNo.length === 0 ? 1 : lastReqNo[0].REQUISITIONNO
         ? parseInt(lastReqNo[0].REQUISITIONNO) + 1
         : 1;
-      
+
 
       const requisitionInfo = {
         profilehrId: user_id,
@@ -651,7 +652,7 @@ module.exports.updateRequisitionByAdmin = async (req, res, next) => {
 // update requisition by store_officer
 module.exports.updateReqByStoreOfficer = async (req, res, next) => {
   try {
-    const { req_id, approvedBy, products } = req.body;
+    const { req_id, approvedBy, products, given = false } = req.body;
 
     if (!req_id) {
       res.json(createResponse(null, "Requisition id missing", true));
@@ -711,7 +712,7 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
       REQID: req_id,
     };
 
-    const result = await updateReqByStore(data);
+    const result = await updateReqByStore(data, given);
     if (result) {
       res.json(createResponse(null, "Requisition Approved"));
     }
@@ -719,6 +720,23 @@ module.exports.updateReqByStoreOfficer = async (req, res, next) => {
     next(error.message);
   }
 };
+
+// given by store office
+module.exports.updateRequisitionGivenStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      res.json(createResponse(null, "Requisitions id missing", true));
+    } else {
+      const result = await updateReqGivenByStore(id);
+      if(result.rowsAffected === 1) {
+        res.json(createResponse(null, "Requisition Given"));
+      }
+    }
+  } catch (err) {
+    next(err)
+  }
+}
 
 // requisition accept by user
 module.exports.reqAcceptByUser = async (req, res, next) => {
