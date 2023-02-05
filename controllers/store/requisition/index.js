@@ -336,7 +336,7 @@ module.exports.approvedRequisitionDetails = async (req, res, next) => {
 module.exports.doneRequisitions = async (req, res, next) => {
   try {
     const { search } = req.headers;
-    const { page, limit } = req.query;
+    const { page, limit, given = 1 } = req.query;
 
     if (!search) {
       res.json(createResponse(null, "Search parameter missing", true));
@@ -344,7 +344,7 @@ module.exports.doneRequisitions = async (req, res, next) => {
     if (!page || !limit) {
       res.json(createResponse(null, "Parameter missing", true));
     }
-    const { rows } = await doneRequisitions(search, page, limit);
+    const { rows } = await doneRequisitions(search, page, limit, given);
     res.json(createResponse(rows));
   } catch (error) {
     next(error.message);

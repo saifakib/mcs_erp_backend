@@ -1,6 +1,7 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const {
   getStoreProducts,
+  getStoreProductsFR,
   selectProdFromStore,
   totalQuantites,
   totalQuantitesByCategoryId,
@@ -182,6 +183,22 @@ const getStockProducts = async (req, res, next) => {
       res.json(createResponse(null, "Required headers needed", true));
     } else {
       const result = await getStoreProducts(search, page, limit);
+      res.json(createResponse(result.rows));
+    }
+  } catch (err) {
+    next(err.message);
+  }
+};
+
+const getStockProductsFR = async (req, res, next) => {
+  try {
+    const { search } = req.headers;
+    const { page, limit } = req.query;
+
+    if (!search) {
+      res.json(createResponse(null, "Required headers needed", true));
+    } else {
+      const result = await getStoreProductsFR(search, page, limit);
       res.json(createResponse(result.rows));
     }
   } catch (err) {
@@ -496,4 +513,5 @@ module.exports = {
   newProductList,
   updateProductList,
   getStockProducts,
+  getStockProductsFR
 };

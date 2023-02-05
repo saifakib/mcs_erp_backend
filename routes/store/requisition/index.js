@@ -93,7 +93,7 @@ router.put(
 );
 
 // Given Not Given
-router.put("given/:id", checkStoreManagers, requisitionController.updateRequisitionGivenStatus);
+router.put("/given/:id", checkStoreManagers, requisitionController.updateRequisitionGivenStatus);
 
 router.put("/acceptByUser", requisitionController.reqAcceptByUser);
 

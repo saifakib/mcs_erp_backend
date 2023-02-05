@@ -12,14 +12,15 @@ const requisitionInfoWithStatusCount = async (_, res, next) => {
         const response = await getRequisitionStatusCount();
         const stockAlert = await getStockAlert();
 
-        const { PENDINGCOUNT, APPROVEDCOUNT, DENIEDCOUNT, DONECOUNT} = response.rows[0];
+        const { PENDINGCOUNT, APPROVEDCOUNT, DENIEDCOUNT, DONECOUNT, NOTGIVENCOUNT} = response.rows[0];
         res.json(
             createResponse({
-                TOTALREQUISITION: PENDINGCOUNT + APPROVEDCOUNT + DENIEDCOUNT + DONECOUNT,
+                TOTALREQUISITION: PENDINGCOUNT + APPROVEDCOUNT + DENIEDCOUNT + DONECOUNT + NOTGIVENCOUNT,
                 PENDINGCOUNT, 
                 APPROVEDCOUNT, 
                 DENIEDCOUNT,
                 DONECOUNT,
+                NOTGIVENCOUNT,
                 STOCKALERT: stockAlert.rows.length
             })
         );
@@ -32,7 +33,7 @@ const stockAlertList = async (_, res, next) => {
     try {
         const response = await getStockAlert();
 
-        res.json(
+        res.json(   
             createResponse(response.rows)
         )
     } catch (err) {

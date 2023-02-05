@@ -8,10 +8,20 @@ const { Execute, Executee } = require("../../../utils/dynamicController");
 const getStoreProducts = (search = "%%", page = 0, limit = 1000) => {
   let offset = limit * page;
   return Execute(
-    `SELECT PL.PROID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, PL.PRODUNIT, C.CATEGORYBN, C.CATEGORYEN, U.UNIT, PL.PROTSTATUS , PL.PROQTY
+    `SELECT PL.PROID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, PL.PRODUNIT, C.CATEGORYBN, C.CATEGORYEN, U.UNIT, PL.PROTSTATUS , PL.PROQTY, PL.PROIMAGE
     FROM STR_STOREPRODUCTS PL 
     LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = PL.PROCATE 
     LEFT OUTER JOIN STR_UNITS U ON U.UNIT_ID = PL.PRODUNIT WHERE LOWER(PL.PRONAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYEN) LIKE LOWER('${search}') OR LOWER(C.CATEGORYBN) LIKE LOWER('${search}') OR LOWER(U.UNIT) LIKE LOWER('${search}') OR LOWER(PL.PRONAMETWO) LIKE LOWER('${search}') OR LOWER(PL.PROQTY) LIKE LOWER('${search}') ORDER BY PROID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
+  );
+};
+
+const getStoreProductsFR = (search = "%%", page = 0, limit = 1000) => {
+  let offset = limit * page;
+  return Execute(
+    `SELECT PL.PROID, PL.PRONAME, PL.PRONAMETWO, PL.PROCATE, PL.PRODUNIT, C.CATEGORYBN, C.CATEGORYEN, U.UNIT, PL.PROTSTATUS , PL.PROQTY
+    FROM STR_STOREPRODUCTS PL 
+    LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = PL.PROCATE 
+    LEFT OUTER JOIN STR_UNITS U ON U.UNIT_ID = PL.PRODUNIT WHERE PL.PROQTY != ${Number(0)} AND (LOWER(PL.PRONAME) LIKE LOWER('${search}') OR LOWER(C.CATEGORYEN) LIKE LOWER('${search}') OR LOWER(C.CATEGORYBN) LIKE LOWER('${search}') OR LOWER(U.UNIT) LIKE LOWER('${search}') OR LOWER(PL.PRONAMETWO) LIKE LOWER('${search}') OR LOWER(PL.PROQTY) LIKE LOWER('${search}')) ORDER BY PROID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`
   );
 };
 
@@ -237,6 +247,7 @@ const deleteDynamically = (
 
 module.exports = {
   getStoreProducts,
+  getStoreProductsFR,
   selectProdFromStore,
   totalQuantites,
   getTotalEntQuantites,
