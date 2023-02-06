@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { getAllEmployee, getEmployeeByDeptId  } = require("../../../services/hr/employee");
+const { getAllEmployee, getEmployee, getEmployeeByDeptId  } = require("../../../services/hr/employee");
 
 
 
@@ -12,6 +12,20 @@ const { getAllEmployee, getEmployeeByDeptId  } = require("../../../services/hr/e
     try {
         const employees = await getAllEmployee();
         res.json(createResponse(employees.rows));
+
+    } catch(err) {
+        next(err)
+    }
+};
+
+/**
+ * Get Employee By Employeeid
+ */
+const getEmployeeById = async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        const employees = await getEmployee(id);
+        res.json(createResponse(employees.rows[0]));
 
     } catch(err) {
         next(err)
@@ -41,6 +55,6 @@ const getEmpByDeptId = async (req, res, next) => {
 /*------------- End Get Controller ---------------*/
 
 module.exports = {
-    getEmployees,
+    getEmployees, getEmployeeById,
     getEmpByDeptId
 };

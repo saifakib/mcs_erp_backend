@@ -1,5 +1,4 @@
 module.exports.queryFieldValidator = (fields, query) => {
-
     let response = true;
     let err = [];
     return Object.keys(query).forEach(key => {

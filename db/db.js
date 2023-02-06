@@ -88,7 +88,6 @@ function getConnection(pool) {
       // response
       resolve(connection);
     } catch (err) {
-      console.log("Pool er",err)
       reject(err);
     }
   });

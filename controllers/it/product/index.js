@@ -261,7 +261,6 @@ const putIndProduct = async (req, res, next) => {
 
             if (changeIndProd.rowsAffected === 1) {
                 const changeStrProById = await updateStrProNonWCount(indProdInfo.rows[0].STR_PRO_ID);
-
                 if (changeStrProById.rowsAffected === 1) {
                     indProdInfo.rows[0].STATUS = 'Active'
                     res.json(createResponse(indProdInfo.rows[0], "Individual Product update Succesfully", false));
@@ -364,7 +363,6 @@ const putIndProduct = async (req, res, next) => {
 //         //     NON_WORKABLE: 1,
 //         //     STOCK_ALERT_1: 1
 //         //   }
-//         // console.log(responses.rows[0])
 //         // if (response.rows[0].QUANTITY > req.body.qty) {
 
 //         // } else {
@@ -385,7 +383,6 @@ const putIndProduct = async (req, res, next) => {
 //         // }
 //         //res.json(createResponse(response.rows[0]));
 //         const response = await updateStoreProduct({ str_pro_id, ...req.body }, store_alert = true, store_alert_number = req.body.stock_alert);
-//         console.log(response.rowsAffected === 1)
 //         if (response.rowsAffected === 1) {
 //             res.json(createResponse(null, "Store Updated"));
 //         }

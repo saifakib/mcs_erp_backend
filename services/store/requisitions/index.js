@@ -114,7 +114,7 @@ module.exports.pendingRequisitions = (
   DG.DESIGNATION_ID = E.DESIGNATION_ID
   WHERE R.REQUISTATUS = ${Number(
     0
-  )} AND R.REQUISITIONNO LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND (R.REQUISITIONNO LIKE LOWER('${search}') OR E.NAME_ENGLISH LIKE UPPER('${search}') OR UPPER(D.DEPARTEMENT) LIKE UPPER('${search}') OR UPPER(DG.DESIGNATION) LIKE UPPER('${search}'))  ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.pendingRequisitionDetails = (id) => {
@@ -156,14 +156,13 @@ module.exports.approvedRequisitions = (
   let offset = limit * page;
   return Execute(`SELECT distinct(R.REQID), R.REQUISITIONNO, R.REQUIDATE, R.REQUITIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, sum(p.PROREQUQTY) over(partition by p.REQUIID) req_qty, sum(p.APROQTY) over( partition by p.REQUIID) approved_qty from STR_REQUISITIONS r LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID left outer join HRM.EMPLOYEE E
   ON E.EMPLOYE_ID = R.PROFILEHRID
-  LEFT OUTER JOIN HRM.DEPARTMENT_LIST D
-  ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
-  LEFT OUTER JOIN  HRM.DESIGNATION DG ON
-  DG.DESIGNATION_ID = E.DESIGNATION_ID
+  LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
+  LEFT OUTER JOIN  HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
   WHERE R.REQUISTATUS = ${Number(
     1
-  )} AND R.REQUISITIONNO LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND (R.REQUISITIONNO LIKE LOWER('${search}') OR E.NAME_ENGLISH LIKE UPPER('${search}') OR  UPPER(D.DEPARTEMENT) LIKE UPPER('${search}') OR UPPER(DG.DESIGNATION) LIKE UPPER('${search}')) ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
+
 
 module.exports.approvedRequisitionDetails = (id) => {
   return Execute(`select pr.proreqid, pr.requiid, pr.hridno, pr.proid, pr.premarks, pr.approveremarks, sp.proname, sp.pronametwo, 
@@ -185,17 +184,17 @@ module.exports.adminApproved = (item) => {
 };
 
 // get done requisitions
-module.exports.doneRequisitions = (search = "%%", page = 0, limit = 1000) => {
+module.exports.doneRequisitions = (search = "%%", page = 0, limit = 1000, given) => {
   let offset = limit * page;
-  return Execute(`SELECT distinct(R.REQID), R.REQUISITIONNO, R.REQUIDATE , E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, sum(p.PROREQUQTY) over(partition by p.REQUIID) req_qty, sum(p.APROQTY) over( partition by p.REQUIID) approved_qty from STR_REQUISITIONS r LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID left outer join HRM.EMPLOYEE E
-  ON E.EMPLOYE_ID = R.PROFILEHRID
-  LEFT OUTER JOIN HRM.DEPARTMENT_LIST D
-  ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
-  LEFT OUTER JOIN  HRM.DESIGNATION DG ON
-  DG.DESIGNATION_ID = E.DESIGNATION_ID
+  return Execute(`SELECT distinct(R.REQID), R.REQUISITIONNO, R.REQUIDATE , E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, case
+  WHEN R.GIVEN = 0 THEN 'Not Given'
+  WHEN R.GIVEN = 1 THEN 'Given' END GIVEN,
+  sum(p.PROREQUQTY) over(partition by p.REQUIID) req_qty, sum(p.APROQTY) over( partition by p.REQUIID) approved_qty from STR_REQUISITIONS r LEFT OUTER JOIN STR_PROREQUISITIONS P ON P.REQUIID = R.REQID left outer join HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.PROFILEHRID
+  LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
+  LEFT OUTER JOIN  HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
   WHERE R.REQUISTATUS = ${Number(
     3
-  )} AND R.REQUISITIONNO LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND R.GIVEN = ${Number(given)} AND (R.REQUISITIONNO LIKE LOWER('${search}') OR E.NAME_ENGLISH LIKE UPPER('${search}') OR  UPPER(D.DEPARTEMENT) LIKE UPPER('${search}') OR UPPER(DG.DESIGNATION) LIKE UPPER('${search}')) ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.doneRequisitionsDetails = (id) => {

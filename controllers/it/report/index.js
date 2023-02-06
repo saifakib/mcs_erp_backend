@@ -43,8 +43,6 @@ const getEntriesProductReport = async (req, res, next) => {
                     tdate
                 );
 
-
-
                 const Total = response.rows.reduce(
                     (acc, obj) => {
                         acc[0] += obj.QUANTITES;

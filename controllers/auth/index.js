@@ -151,7 +151,6 @@ module.exports.getSingleUserWithVaidation = async (req, res) => {
     const { rows } = await getUserByUserName(userId);
     if (rows.length > 0) {
       const { PASSWORD, ...rest } = rows[0];
-
       const data = {
         user_id: rest.USER_ID,
         role_id: rest.ROLE_ID,

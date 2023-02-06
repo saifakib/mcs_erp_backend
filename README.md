@@ -19,14 +19,18 @@ This repository uses a number libraries to work:
 
 
 ## Screenshots
+- [IT_STORE_Relation_Screenshot]
+![IT STORE Relation Screenshot](./files/storeDB.jpg)
+
 - [IT_DB_Relation_Screenshot]
-![IT DB Relation Screenshot](./files/IT_DB.jpg);
+![IT DB Relation Screenshot](./files/IT_DB.jpg)
 
 
 ## DRAW.IO Files
+[IT_DRAW.IO](./files/storeDB.drawio)
 [IT_DRAW.IO](./files/IT_DB.drawio)
 
-###  Using Number For IT Status
+###  Using Status Number For IT Status
 ---
 
 **Product Status**

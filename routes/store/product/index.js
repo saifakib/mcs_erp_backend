@@ -13,6 +13,7 @@ const {
   newProductList,
   updateProductList,
   getStockProducts,
+  getStockProductsFR
 } = require("../../../controllers/store/product");
 
 const { checkBoth } = require('../../../middlewares/checkAuthorization')
@@ -20,6 +21,7 @@ const { checkBoth } = require('../../../middlewares/checkAuthorization')
 // Get Routes
 router.get("/manageproducts", checkBoth, manageProducts);
 router.get("/storeProducts", getStockProducts);
+router.get("/storeProductsFR/:empid", getStockProductsFR);
 router.get("/storeProducts/:list_id", getStorProductByListId);
 
 router.get("/getStoreProductByCategoryId/:cat_id", checkBoth, getStoreProByCatId);
