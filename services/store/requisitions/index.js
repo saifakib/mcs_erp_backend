@@ -114,7 +114,7 @@ module.exports.pendingRequisitions = (
   DG.DESIGNATION_ID = E.DESIGNATION_ID
   WHERE R.REQUISTATUS = ${Number(
     0
-  )} AND R.REQUISITIONNO LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND (R.REQUISITIONNO LIKE LOWER('${search}') OR E.NAME_ENGLISH LIKE UPPER('${search}') OR UPPER(D.DEPARTEMENT) LIKE UPPER('${search}') OR UPPER(DG.DESIGNATION) LIKE UPPER('${search}'))  ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 module.exports.pendingRequisitionDetails = (id) => {
@@ -160,7 +160,7 @@ module.exports.approvedRequisitions = (
   LEFT OUTER JOIN  HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
   WHERE R.REQUISTATUS = ${Number(
     1
-  )} AND R.REQUISITIONNO LIKE LOWER('${search}') ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
+  )} AND (R.REQUISITIONNO LIKE LOWER('${search}') OR E.NAME_ENGLISH LIKE UPPER('${search}') OR  UPPER(D.DEPARTEMENT) LIKE UPPER('${search}') OR UPPER(DG.DESIGNATION) LIKE UPPER('${search}')) ORDER BY R.REQID DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`);
 };
 
 

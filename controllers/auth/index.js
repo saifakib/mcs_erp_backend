@@ -113,7 +113,6 @@ module.exports.logout = async (req, res, next) => {
 module.exports.getCurrentUser = async (req, res, next) => {
   try {
     const userId = req.cookies.userId;
-    console.log('userId', userId)
     if (!userId) {
       res.json(
         createResponse(
@@ -153,7 +152,6 @@ module.exports.getSingleUserWithVaidation = async (req, res) => {
     const { rows } = await getUserByUserName(userId);
     if (rows.length > 0) {
       const { PASSWORD, ...rest } = rows[0];
-      console.log(rest)
       const data = {
         user_id: rest.USER_ID,
         role_id: rest.ROLE_ID,

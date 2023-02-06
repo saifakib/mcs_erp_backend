@@ -8,7 +8,6 @@ const { queryFieldValidator } = require("../../../utils/queryFieldValidator");
 const getLogActivity = async (req, res, next) => {
   try {
     let resp = queryFieldValidator(['hrid','module'], req.query);
-    console.log(resp)
     let modifyQuery = Object.keys(req.query).reduce((acc, key, index) => {
       if (key == 'hrid') {
         req.query[key] = Number(req.query[key]);

@@ -11,15 +11,19 @@ const selectCategoryProductsWTStatus = (empid, catid) =>
     WHERE SP.PROCATE=${Number(catid)}`);
 
 
-const selectUserAccessProduct = (empid) => Execute(
+const selectUserNotAccessProduct = (empid) => Execute(
     `SELECT SP.PRONAME, SP.PRONAMETWO, C.CATEGORYEN, C.CATEGORYBN FROM STR_ACCESS_PRODUCTS AP
     LEFT OUTER JOIN STR_STOREPRODUCTS SP ON AP.PROID = SP.PROID
     LEFT OUTER JOIN STR_CATEGORIES C ON C.CAT_ID = SP.PROCATE
     WHERE EMP_ID = ${Number(empid)}`
 );
 
+const selectUserNotAccessProductInd = (empid, proid) => Execute(
+    `SELECT COUNT(*) AS COUNT FROM STR_ACCESS_PRODUCTS WHERE EMP_ID = ${Number(empid)} AND PROID = ${Number(proid)}`
+);
+
 /*------------------ Post -------------------*/
-const insertProdAccessToUser = ({ empid, proid }) =>
+const insertProdNotAccessToUser = ({ empid, proid }) =>
     Execute(
         `INSERT INTO STR_ACCESS_PRODUCTS (EMP_ID, PROID) VALUES (${Number(empid)}, ${Number(proid)})`
     );
@@ -27,10 +31,10 @@ const insertProdAccessToUser = ({ empid, proid }) =>
 
 
 /*------------------ Delete ----------------*/
-const deleteProdAccessToUser = ({ empid, proid }) =>
+const deleteProdNotAccessToUser = ({ empid, proid }) =>
     Execute(`DELETE FROM STR_ACCESS_PRODUCTS WHERE EMP_ID = ${Number(empid)} AND PROID = ${Number(proid)}`);
 
 
 module.exports = {
-    selectCategoryProductsWTStatus, selectUserAccessProduct, insertProdAccessToUser, deleteProdAccessToUser
+    selectCategoryProductsWTStatus, selectUserNotAccessProduct, selectUserNotAccessProductInd, insertProdNotAccessToUser, deleteProdNotAccessToUser
 }

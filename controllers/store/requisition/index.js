@@ -729,7 +729,7 @@ module.exports.updateRequisitionGivenStatus = async (req, res, next) => {
       res.json(createResponse(null, "Requisitions id missing", true));
     } else {
       const result = await updateReqGivenByStore(id);
-      if(result.rowsAffected === 1) {
+      if (result.rowsAffected === 1) {
         res.json(createResponse(null, "Requisition Given"));
       }
     }

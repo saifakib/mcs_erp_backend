@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectCategoryProductsWTStatus ,selectUserAccessProduct, insertProdAccessToUser, deleteProdAccessToUser } = require("../../../services/store/systemAccess");
+const { selectCategoryProductsWTStatus , selectUserNotAccessProduct, selectUserNotAccessProductInd, insertProdNotAccessToUser, deleteProdNotAccessToUser } = require("../../../services/store/systemAccess");
 const { getEmployee } = require("../../../services/hr/employee")
 
 /*------------- All Get Routes ---------------*/
@@ -20,13 +20,13 @@ const getCategoryAllProdWAccess = async (req, res, next) => {
 }
 
 // get a single user product
-const getUserAccessProduct = async (req, res, next) => {
+const getUserNotAccessProduct = async (req, res, next) => {
   try {
     const { empid } = req.params;
     if (!empid) {
       res.json(createResponse(null, "Required Parameter Missing", true));
     } else {
-      const result = await selectUserAccessProduct(empid);
+      const result = await selectUserNotAccessProduct(empid);
       const employee = await getEmployee(empid);
       res.json(createResponse({
         employee: employee.rows[0],
@@ -43,17 +43,22 @@ const getUserAccessProduct = async (req, res, next) => {
 
 /*------------- All Post Routes ---------------*/
 
-const postProdAccesstoUser = async (req, res, next) => {
+const postProdNotAccesstoUser = async (req, res, next) => {
     try {
         const { empid, proid } = req.body;
         if (!empid && !proid) {
             res.json(createResponse(null, "Required Field Missing", true));
         } else {
-            const result = await insertProdAccessToUser({ empid, proid });
-            if (result.rowsAffected === 1) {
-                res.json(createResponse(null, "Access", true));
+            const isExit = await selectUserNotAccessProductInd(empid, proid);
+            if(isExit.rows[0].COUNT === 0) {
+                const result = await insertProdNotAccessToUser({ empid, proid });
+                if (result.rowsAffected === 1) {
+                    res.json(createResponse(null, "No Access", false));
+                } else {
+                    res.json(createResponse(null, "Something error", true));
+                }
             } else {
-                res.json(createResponse(null, "Something error", true));
+                res.json(createResponse(null, "Already No Access", true));
             }
         }
     } catch (err) {
@@ -64,21 +69,18 @@ const postProdAccesstoUser = async (req, res, next) => {
 
 /*------------- End ---------------*/
 
-/*------------- All Update Routes ---------------*/
-
-/*------------- End ---------------*/
 
 /*------------- All Delete Routes ---------------*/
 
-const removeProdAccesstoUser = async (req, res, next) => {
+const removeProdNotAccesstoUser = async (req, res, next) => {
     try {
-        const { empid, proid } = req.body;
+        const { empid, proid } = req.headers;
         if (!empid && !proid) {
             res.json(createResponse(null, "Required Field Missing", true));
         } else {
-            const result = await deleteProdAccessToUser({ empid, proid });
+            const result = await deleteProdNotAccessToUser({ empid, proid });
             if (result.rowsAffected === 1) {
-                res.json(createResponse(null, "Access Remove", true));
+                res.json(createResponse(null, "Access", false));
             } else {
                 res.json(createResponse(null, "Something error", true));
             }
@@ -88,4 +90,4 @@ const removeProdAccesstoUser = async (req, res, next) => {
     }
 };
 
-module.exports = { getCategoryAllProdWAccess, getUserAccessProduct, postProdAccesstoUser, removeProdAccesstoUser }
+module.exports = { getCategoryAllProdWAccess, getUserNotAccessProduct, postProdNotAccesstoUser, removeProdNotAccesstoUser }

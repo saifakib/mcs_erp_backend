@@ -194,11 +194,12 @@ const getStockProductsFR = async (req, res, next) => {
   try {
     const { search } = req.headers;
     const { page, limit } = req.query;
+    const { empid } = req.params;
 
     if (!search) {
       res.json(createResponse(null, "Required headers needed", true));
     } else {
-      const result = await getStoreProductsFR(search, page, limit);
+      const result = await getStoreProductsFR(search, page, limit, empid);
       res.json(createResponse(result.rows));
     }
   } catch (err) {

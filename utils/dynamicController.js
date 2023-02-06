@@ -2,9 +2,7 @@
 const { oracledb } = require("../db/db");
 
 // execute single query
-
 module.exports.Execute = (QuertyString, object = {}) => {
-  console.log(QuertyString)
   return new Promise(async function (resolve, reject) {
     try {
       let connection = await oracledb.getConnection("store");
@@ -45,23 +43,8 @@ module.exports.Executee = (QuertyString, object = {}, type=2) => {
   });
 };
 
-// module.exports.Execute = (QuertyString, object = {}) => {
-//   return (async () => {
-//     try {
-//       console.log(QuertyString)
-//       let connection = await oracledb.getConnection("store");
-//       const result = await connection.execute(QuertyString, object);
-//       await connection.close();
-//       return result;
-//     } catch (error) {
-//       return error;
-//     }
-//   })();
-// };
-
 // execute many query
 module.exports.ExecuteMany = (QuertyString, binds, options = {}) => {
-  console.log(QuertyString)
   return new Promise(async function (resolve, reject) {
     try {
       let connection = await oracledb.getConnection("store");

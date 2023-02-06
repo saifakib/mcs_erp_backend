@@ -47,7 +47,6 @@ const getProduct = async (req, res, next) => {
 const getProductListCountByCategories = async (_, res, next) => {
     try {
         const result = await selectProductListCountByCategories();
-        console.log(result)
         res.json(createResponse(result.rows));
     } catch (err) {
         next(err.message);

@@ -14,7 +14,6 @@ module.exports.ExecuteHR = (QuertyString, object = {}, type) => {
       }
       await connection.close();
     } catch (err) {
-      console.log("hitting", err);
       if (type === 1) {
         resolve({ data: null, error: err });
       }

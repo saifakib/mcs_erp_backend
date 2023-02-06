@@ -16,6 +16,6 @@ router.use("/mrr", checkBoth, supplierRoute);
 router.use("/reports", reportsRoute);
 router.use("/warehouse", checkBoth, wareHouseRoute);
 router.use("/logs", logActivityRoute);
-router.use("/permission", permissionRoute);
+router.use("/permission", checkBoth, permissionRoute);
 
 module.exports = router;
