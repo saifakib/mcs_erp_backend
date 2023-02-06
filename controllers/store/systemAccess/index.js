@@ -1,8 +1,23 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectUserAccessProduct, insertProdAccessToUser, deleteProdAccessToUser } = require("../../../services/store/systemAccess");
+const { selectCategoryProductsWTStatus ,selectUserAccessProduct, insertProdAccessToUser, deleteProdAccessToUser } = require("../../../services/store/systemAccess");
 const { getEmployee } = require("../../../services/hr/employee")
 
 /*------------- All Get Routes ---------------*/
+
+// Show All Product by a category aganist a user
+const getCategoryAllProdWAccess = async (req, res, next) => {
+    try {
+        const { empid, catid } = req.params;
+        if (!empid && !catid) {
+            res.json(createResponse(null, "Required Parameter Missing", true));
+          } else {
+            const result = await selectCategoryProductsWTStatus(empid, catid);
+            res.json(createResponse(result.rows));
+          }
+    } catch (err) {
+        next(err.message)
+    }
+}
 
 // get a single user product
 const getUserAccessProduct = async (req, res, next) => {
@@ -24,12 +39,10 @@ const getUserAccessProduct = async (req, res, next) => {
 };
 
 
-
 /*------------- End ---------------*/
 
 /*------------- All Post Routes ---------------*/
 
-// category
 const postProdAccesstoUser = async (req, res, next) => {
     try {
         const { empid, proid } = req.body;
@@ -75,4 +88,4 @@ const removeProdAccesstoUser = async (req, res, next) => {
     }
 };
 
-module.exports = { getUserAccessProduct, postProdAccesstoUser, removeProdAccesstoUser }
+module.exports = { getCategoryAllProdWAccess, getUserAccessProduct, postProdAccesstoUser, removeProdAccesstoUser }

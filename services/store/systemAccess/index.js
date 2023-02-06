@@ -2,15 +2,13 @@ const { Execute } = require("../../../utils/dynamicController");
 
 /*------------- Get ------------*/
 
-const selectCategoryProductsWTStatus = (cat_id) => Execute(`SELECT * FROM STR_STOREPRODUCTS SP LEFT OUTER JOIN STR_UNITS U ON SP.PRODUNIT = U.UNIT_ID where procate=${cat_id}`)
-
-TODO:
-// SELECT DISTINCT(SP.PROID), SP.PROCATE, SP.PRONAME, SP.PRONAMETWO, AC.PROID, CASE
-//  WHEN AC.EMP_ID=261 AND (AC.PROID IS NULL THEN 'No Access' ELSE 'Access') END STATUS
-// FROM STR_STOREPRODUCTS SP
-// LEFT OUTER JOIN STR_ACCESS_PRODUCTS AC ON SP.PROID = AC.PROID
-// WHERE SP.PROCATE=4;
-
+const selectCategoryProductsWTStatus = (empid, catid) =>
+    Execute(`SELECT SP.PROID, SP.PROCATE,  C.CATEGORYEN, SP.PRONAME, SP.PRONAMETWO, CASE
+    WHEN (SELECT COUNT(*) FROM STR_ACCESS_PRODUCTS AC WHERE AC.PROID = SP.PROID AND AC.EMP_ID = ${Number(empid)}) = 1 THEN 1 ELSE 0
+    END AS STATUS
+    FROM STR_STOREPRODUCTS SP
+    LEFT OUTER JOIN STR_CATEGORIES C ON SP.PROCATE = C.CAT_ID
+    WHERE SP.PROCATE=${Number(catid)}`);
 
 
 const selectUserAccessProduct = (empid) => Execute(
@@ -34,5 +32,5 @@ const deleteProdAccessToUser = ({ empid, proid }) =>
 
 
 module.exports = {
-    selectUserAccessProduct, insertProdAccessToUser, deleteProdAccessToUser
+    selectCategoryProductsWTStatus, selectUserAccessProduct, insertProdAccessToUser, deleteProdAccessToUser
 }

@@ -1,12 +1,13 @@
 const router = require("express").Router();
-const { getUserAccessProduct, postProdAccesstoUser, removeProdAccesstoUser } = require("../../../controllers/store/systemAccess");
+const { getCategoryAllProdWAccess, getUserAccessProduct, postProdAccesstoUser, removeProdAccesstoUser } = require("../../../controllers/store/systemAccess");
 
 
 // ----- Permission ----- //
-//router.get();
+router.get("/users/:empid/:catid", getCategoryAllProdWAccess);
+router.get("/users/:empid", getUserAccessProduct);
 router.post("/users", postProdAccesstoUser);
 router.delete("/users", removeProdAccesstoUser);
-router.get("/users/:empid", getUserAccessProduct);
+
 
 
 module.exports = router;
