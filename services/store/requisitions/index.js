@@ -93,9 +93,18 @@ module.exports.getRequisitionDetailsById = (id) => {
 
 module.exports.getTotalProductByUser = (id) => {
   return Execute(
-    `select distinct(requiid), sum(PROREQUQTY)over(partition by hridno) as total_products,  
-    sum(APROQTY)over(partition by hridno) as total_approved
-    from str_prorequisitions where hridno = ${Number(id)}`
+    `SELECT DISTINCT(REQUIID), SUM(CASE
+      WHEN REQUPRODSTATUS = 1
+          THEN PROREQUQTY
+      ELSE 0
+      END) OVER(PARTITION BY HRIDNO) AS TOTAL_PRODUCTS, 
+      SUM(APROQTY)OVER(PARTITION BY HRIDNO) AS TOTAL_APPROVED,
+      SUM(CASE
+      WHEN REQUPRODSTATUS = 2
+          THEN PROREQUQTY
+      ELSE 0
+      END) OVER(PARTITION BY HRIDNO) AS TOTAL_DENY
+      FROM STR_PROREQUISITIONS WHERE HRIDNO = ${Number(id)}`
   );
 };
 
@@ -119,7 +128,7 @@ module.exports.pendingRequisitions = (
 
 module.exports.pendingRequisitionDetails = (id) => {
   return Execute(`select pr.proreqid, pr.requiid, pr.hridno, pr.proid, pr.premarks, sp.proname, 
-  pr.prorequqty, pr.APPROVEREMARKS, u.unit, sp.procate, sp.proqty from str_prorequisitions pr
+  pr.prorequqty, pr.APPROVEREMARKS, u.unit, sp.procate, sp.proqty, sp.proimage from str_prorequisitions pr
   left outer join str_storeproducts sp on pr.proid = sp.proid
   left outer join str_units u on u.unit_id = sp.produnit
   left outer join str_requisitions r on r.reqid = pr.requiid

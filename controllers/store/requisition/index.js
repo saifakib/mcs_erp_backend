@@ -82,7 +82,16 @@ module.exports.getRequisitionById = async (req, res, next) => {
       const { rows: totals } = await getTotalProductByUser(id);
       const totalCount = totals[0];
 
-      res.json(createResponse({ rows, totalCount }));
+      const DENY_COUNT = rows.reduce((acc, obj) => {
+        if(obj.STATUS === 'Rejected') {
+          acc++;
+        } 
+        return acc;
+      }, 0)
+
+      let tatalC = { ...totalCount, DENY_COUNT, TOTAL_REQUISITION: rows.length }
+
+      res.json(createResponse({ rows, tatalC }));
     }
   } catch (error) {
     next(error.message);
@@ -163,6 +172,7 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
             APROQTY: item.PROREQUQTY,
             ADMINREMARKS: item.APPROVEREMARKS,
             PROQTY: item.PROQTY,
+            PROIMAGE: item.PROIMAGE
           };
         } else {
           obj = {
@@ -183,6 +193,7 @@ module.exports.pendingRequisitionDetails = async (req, res, next) => {
             APROQTY: item.PROREQUQTY,
             ADMINREMARKS: item.APPROVEREMARKS,
             PROQTY: item.PROQTY,
+            PROIMAGE: item.PROIMAGE
           };
         }
 

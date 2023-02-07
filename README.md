@@ -27,7 +27,7 @@ This repository uses a number libraries to work:
 
 
 ## DRAW.IO Files
-[IT_DRAW.IO](./files/storeDB.drawio)
+[STORE_DRAW.IO](./files/storeDB.drawio)
 [IT_DRAW.IO](./files/IT_DB.drawio)
 
 ###  Using Status Number For IT Status

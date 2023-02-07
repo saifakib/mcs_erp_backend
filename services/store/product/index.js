@@ -26,8 +26,6 @@ const getStoreProductsFR = (search = "%%", page = 0, limit = 1000, empid) => {
   );
 };
 
-
-
 const selectProdFromStore = (list_id) =>
   Execute(`SELECT PRONAME, PROCATE, PROID, PROQTY, STOCKPRICE, STOCKALERT, U.UNIT FROM STR_STOREPRODUCTS SP LEFT OUTER JOIN STR_UNITS U ON SP.PRODUNIT = U.UNIT_ID WHERE PRODLISTID=${Number(list_id)}`);
 
