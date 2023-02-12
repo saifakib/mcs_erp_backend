@@ -1,6 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const {
-  assetProducts,
+  assetProducts, assetIndProduct, userIndProduct, userNotExitProducts,
   insertAssetProduct,
   deleteAssetProduct,
   updateAssetProduct,
@@ -22,10 +22,30 @@ const getAssetProducts = async (_, res, next) => {
     next(err.message);
   }
 };
+
+// User Not exit Product
+const getUserNotExitProducts = async (req, res, next) => {
+  const { employee_id } = req.params;
+  try {
+    if (!employee_id) {
+      res.json(createResponse(null, "Required Parameter missing", true))
+    } else {
+      const result = await userNotExitProducts(employee_id);
+      res.json(createResponse(result.rows));
+    }
+  } catch (err) {
+    next(err.message);
+  }
+}
 const postAssetProducts = async (req, res, next) => {
   try {
-    const result = await insertAssetProduct(req.body);
-    res.json(createResponse(result));
+    const check = await assetIndProduct(req.body.p_name);
+    if (check.rows.length > 0) {
+      res.json(createResponse(null, "Product Already Exit"), true);
+    } else {
+      const result = await insertAssetProduct(req.body);
+      res.json(createResponse(result));
+    }
   } catch (err) {
     next(err);
   }
@@ -51,12 +71,17 @@ const putAssetProducts = async (req, res, next) => {
     const { p_name } = req.body;
     const { id } = req.headers;
 
-    const data = {
-      P_NAME: p_name,
-      ID: parseInt(id),
-    };
-    const result = await updateAssetProduct(data);
-    res.json(createResponse(result));
+    const check = await assetIndProduct(req.body.p_name);
+    if (check.rows.length > 0 && check.rows[0].id !== id) {
+      res.json(createResponse(null, "Product Already Exit"), true);
+    } else {
+      const data = {
+        P_NAME: p_name,
+        ID: parseInt(id),
+      };
+      const result = await updateAssetProduct(data);
+      res.json(createResponse(result));
+    }
   } catch (err) {
     next(err);
   }
@@ -82,14 +107,22 @@ const getAssetManualById = async (req, res, next) => {
     next(err);
   }
 };
+
+
 const postAssetManual = async (req, res, next) => {
   try {
+    const check = await userIndProduct(req.body.employee_id, req.body.product_id);
+    if (check.rows.length > 0) {
+      res.json(createResponse(null, "Product Already In User"), true);
+    }
     const result = await insertAssetManual(req.body);
     res.json(createResponse(result));
   } catch (err) {
     next(err);
   }
 };
+
+
 const putAssetManual = async (req, res, next) => {
   try {
     const { emp_id } = req.headers;
@@ -216,7 +249,7 @@ const getAssetManualDepartmentReport = async (req, res, next) => {
 };
 
 module.exports = {
-  getAssetProducts,
+  getAssetProducts, getUserNotExitProducts, 
   postAssetProducts,
   deleteAssetProducts,
   putAssetProducts,

@@ -6,6 +6,14 @@ const {
 // asset Products
 const assetProducts = () => ExecuteIT(`SELECT * FROM ASSET_PRODUCT`);
 
+// Check Product Already Exit
+const assetIndProduct = (prodName) => ExecuteIT(`SELECT * FROM ASSET_PRODUCT WHERE P_NAME = '${prodName}'`);
+const userIndProduct = (employee_id, product_id) => ExecuteIT(`SELECT ID FROM ASSET_M_ENTRY WHERE EMP_ID = ${Number(employee_id)} AND PRODUCT_ID = ${Number(product_id)}`);
+
+const userNotExitProducts = (employee_id) => ExecuteIT(`SELECT * FROM ASSET_PRODUCT WHERE ID NOT IN(SELECT PRODUCT_ID FROM ASSET_M_ENTRY  WHERE EMP_ID = ${Number(employee_id)})`)
+
+
+
 const insertAssetProduct = (data) => {
   return ExecuteIT(`INSERT INTO ASSET_PRODUCT (P_NAME) VALUES ('${data.p_name}')`);
 }
@@ -33,6 +41,8 @@ const assetManualById = (data) => {
   LEFT OUTER JOIN VIEW_EMP_DETAILS VE ON VE.EMPLOYE_ID =AM.EMP_ID LEFT OUTER JOIN ASSET_PRODUCT AP ON AP.ID=AM.PRODUCT_ID
   WHERE AM.ID= ${Number(data.ID)}`);
 };
+
+
 const insertAssetManual = (data) => {
   return ExecuteIT(
     `INSERT INTO ASSET_M_ENTRY (EMP_ID,PRODUCT_ID,DETAILS,YEAR,QUANTITY,FILES,SOURCE) VALUES (${Number(
@@ -42,6 +52,7 @@ const insertAssetManual = (data) => {
     )},'${data.files}','${data.source}')`
   );
 };
+
 const updateAssetManual = (data) => {
   return ExecuteIT(
     `UPDATE ASSET_M_ENTRY
@@ -73,7 +84,7 @@ WHERE AM.STATUS=0 AND ED.DEPARTEMENT_ID = ${Number(dep_id)}`)
 };
 
 module.exports = {
-  assetProducts,
+  assetProducts, assetIndProduct, userIndProduct, userNotExitProducts,
   insertAssetProduct,
   deleteAssetProduct,
   updateAssetProduct,

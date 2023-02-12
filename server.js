@@ -32,7 +32,7 @@ app.use("/api/hr/report", hrReportRouter);
 //error handler
 const port = process.env.PORT || 4000;
 
-app.get("/", (req, res) => {
+app.get("/routes", (req, res) => {
   res.json({
     Server: `Server is running at ${req.protocol}://${req.hostname}:${port}`,
     Routes: route_lists(app)

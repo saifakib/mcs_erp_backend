@@ -87,7 +87,13 @@ const insertServicing = (maintanance_id, problem) =>
 
 /*-------------- UPDATE ---------------*/
 // maintanance statue
-const updateMaintanance = (status, maintanance_id, cost) => ExecuteIT(`UPDATE MAINTENANCE SET STATUS = ${Number(status)}, COST = ${Number(cost)} WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
+const updateMaintanance = (status, maintanance_id, cost) => {
+    if(cost) {
+        return ExecuteIT(`UPDATE MAINTENANCE SET STATUS = ${Number(status)}, COST = ${Number(cost)} WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
+    } else {
+        return ExecuteIT(`UPDATE MAINTENANCE SET STATUS = ${Number(status)} WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
+    }
+}
 
 // servicing statue
 const updateServicing = (maintanance_id, remarks) => ExecuteIT(`UPDATE SERVICES SET STATUS = ${Number(1)}, REMARKS = '${remarks}' WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
