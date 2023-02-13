@@ -1,16 +1,10 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const {
-  assetProducts, assetIndProduct, userIndProduct, userNotExitProducts,
-  insertAssetProduct,
-  deleteAssetProduct,
-  updateAssetProduct,
-  assetManual,
-  insertAssetManual,
-  assetManualById,
-  updateAssetManual,
-  updateAssetManualStatus,
-  assetManualPersonReport,
-  assetManualDepReport,
+  assetProducts, assetIndProduct, userIndProduct, userNotExitProducts, assetManual, assetManualById,
+  insertAssetProduct, insertAssetManual, 
+  updateAssetProduct, updateAssetManual, updateAssetManualStatus,
+  assetManualPersonReport, assetManualDepReport, assetManualReturnReport,
+  deleteAssetProduct
 } = require("../../../services/it/asset");
 
 // Asset Product
@@ -54,7 +48,7 @@ const postAssetProducts = async (req, res, next) => {
 const deleteAssetProducts = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if ((typeof (id) !== number && !id)) {
+    if ((typeof (id) !== "number" && !id)) {
       res.json(createResponse(null, "Something went wrong", true))
     } else {
       const data = { ID: id };
@@ -248,8 +242,61 @@ const getAssetManualDepartmentReport = async (req, res, next) => {
   }
 };
 
+
+const getAssetManualReturnReport = async (req, res, next) => {
+  try {
+    const { rows: result } = await assetManualReturnReport();
+    let employeesArr = result.reduce((acc, obj) => {
+      if (acc[obj.EMP_ID]) {
+        acc[obj.EMP_ID].push(obj);
+      } else {
+        acc[obj.EMP_ID] = [];
+        acc[obj.EMP_ID].push(obj);
+      }
+      return acc;
+    }, {});
+
+    let response = Object.keys(employeesArr).map((indEm) => {
+      return employeesArr[indEm].reduce((acc, obj, index) => {
+        if (index == 0) {
+          acc["user"] = {
+            NAME_ENGLISH: obj.NAME_ENGLISH,
+            DEPARTEMENT: obj.DEPARTEMENT,
+            DESIGNATION: obj.DESIGNATION,
+            DESIGNATION_BANGLA: obj.DESIGNATION_BANGLA,
+            MOBILE_PHONE: obj.MOBILE_PHONE,
+            NAME_BANGLA: obj.NAME_BANGLA,
+            EMP_ID: obj.EMP_ID,
+          };
+        }
+        let newObj = {
+          P_NAME: obj.P_NAME,
+          PRO_ID: obj.PRO_ID,
+          DETAILS: obj.DETAILS,
+          YEAR: obj.YEAR,
+          QUANTITY: obj.QUANTITY,
+          SOURCE: obj.SOURCE,
+          FILES: obj.FILES,
+          V_FILE: obj.V_FILE,
+          ENTRY_DATE: obj.ENTRY_DATE,
+        };
+        if (acc["products"]) {
+          acc["products"][obj.PRO_ID] = newObj;
+        } else {
+          acc["products"] = {};
+          acc["products"][obj.PRO_ID] = newObj;
+        }
+        return acc;
+      }, {});
+    });
+    res.json(createResponse(response, "Return Products Asset Info"));
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
-  getAssetProducts, getUserNotExitProducts, 
+  getAssetProducts, getUserNotExitProducts,
   postAssetProducts,
   deleteAssetProducts,
   putAssetProducts,
@@ -259,5 +306,5 @@ module.exports = {
   putAssetManual,
   putAssetManualStatus,
   getAssetManualPersonReport,
-  getAssetManualDepartmentReport,
+  getAssetManualDepartmentReport, getAssetManualReturnReport,
 };

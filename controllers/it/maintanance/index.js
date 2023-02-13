@@ -25,7 +25,7 @@ const getMaintanances = async (req, res, next) => {
 const getMaintanance = async (req, res, next) => {
     const { maintanance_id } = req.params;
     try {
-        if (typeof (maintanance_id) !== number && !maintanance_id) {
+        if (typeof (maintanance_id) !== "number" && !maintanance_id) {
             res.json(createResponse(null, "Something went wrong", true))
         } else {
             const maintanance = await selectMaintanance(maintanance_id);

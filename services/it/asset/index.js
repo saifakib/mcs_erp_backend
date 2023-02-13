@@ -83,16 +83,19 @@ LEFT OUTER JOIN ASSET_PRODUCT AP ON AP.ID=AM.PRODUCT_ID
 WHERE AM.STATUS=0 AND ED.DEPARTEMENT_ID = ${Number(dep_id)}`)
 };
 
+
+const assetManualReturnReport = () => ExecuteIT(`SELECT AM.ID, VE.NAME_ENGLISH, ED.DEPARTEMENT_ID, VE.DEPARTEMENT,VE.DESIGNATION,VE.DESIGNATION_BANGLA,VE.MOBILE_PHONE,VE.NAME_BANGLA, 
+AP.P_NAME,AP.ID AS PRO_ID,AM.DETAILS,AM.YEAR,AM.QUANTITY,AM.SOURCE,AM.FILES,AM.V_FILE,AM.EMP_ID, 
+TO_CHAR(AM.ENTRY_DATE,'DD-MM-YYYY') AS ENTRY_DATE FROM ASSET_M_ENTRY AM
+LEFT OUTER JOIN VIEW_EMP_DETAILS VE ON VE.EMPLOYE_ID = AM.EMP_ID
+LEFT OUTER JOIN VIEW_EMPLOYEE ED ON ED.EMPLOYE_ID = AM.EMP_ID
+LEFT OUTER JOIN ASSET_PRODUCT AP ON AP.ID=AM.PRODUCT_ID
+WHERE AM.STATUS=1`);
+
 module.exports = {
-  assetProducts, assetIndProduct, userIndProduct, userNotExitProducts,
-  insertAssetProduct,
-  deleteAssetProduct,
-  updateAssetProduct,
-  assetManual,
-  insertAssetManual,
-  assetManualById,
-  updateAssetManual,
-  updateAssetManualStatus,
-  assetManualPersonReport,
-  assetManualDepReport,
+  assetProducts, assetIndProduct, userIndProduct, userNotExitProducts, assetManual, assetManualById,
+  insertAssetProduct, insertAssetManual, 
+  updateAssetProduct, updateAssetManual, updateAssetManualStatus,
+  assetManualPersonReport, assetManualDepReport, assetManualReturnReport,
+  deleteAssetProduct
 };

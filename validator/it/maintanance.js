@@ -41,7 +41,8 @@ const checkServicing = (req, res, next) => {
     else if (req.method == 'PUT') {
         checkServicingSchema = Joi.object().keys({
             maintanance_id: Joi.number().required(),
-            remarks: Joi.string().required()
+            remarks: Joi.string().required(),
+            cost: Joi.number().required()
         })
     }
 

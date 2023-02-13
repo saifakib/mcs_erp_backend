@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const {
   getAssetProducts, postAssetProducts, deleteAssetProducts, putAssetProducts, getUserNotExitProducts,
-  getAssetManual, postAssetManual, getAssetManualById, putAssetManual, putAssetManualStatus, getAssetManualPersonReport,getAssetManualDepartmentReport,
+  getAssetManual, postAssetManual, getAssetManualById, putAssetManual, putAssetManualStatus, getAssetManualPersonReport,getAssetManualDepartmentReport, getAssetManualReturnReport,
 } = require("../../../controllers/it/asset");
 const {
   checkAssetProduct,
@@ -22,6 +22,8 @@ router.put("/assetmanual", putAssetManual);
 router.put("/assetmanual/status", putAssetManualStatus);
 router.get("/assetmanual/report/person/:emp_id", getAssetManualPersonReport);
 router.get("/assetmanual/report/department/:dep_id", getAssetManualDepartmentReport);
+
+router.get("/assetmanual/return/report", getAssetManualReturnReport);
 
 
 module.exports = router;
