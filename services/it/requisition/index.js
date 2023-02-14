@@ -59,14 +59,29 @@ const selectUserAcceptActiveRequisitions = (user_id) =>
   WHERE R.REQ_STATUS = 2 AND R.HR_ID =  ${Number(user_id)} AND I.STATUS = ${Number(0)}`);
 
 // get pending requisitions
-const selectStatusRequisitions = (status) => ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
-TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, 
-sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 
-LEFT OUTER JOIN PRO_REQUISITION PR ON R.REQ_ID = PR.REQ_ID 
-LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.HR_ID 
-LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID 
-LEFT OUTER JOIN HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
-WHERE R.REQ_STATUS = ${Number(status)}`)
+const selectStatusRequisitions = (status, ts, given) => {
+  if(ts) {
+    //console.log("given",ts)
+    return ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
+    TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, 
+    sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 
+    LEFT OUTER JOIN PRO_REQUISITION PR ON R.REQ_ID = PR.REQ_ID 
+    LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.HR_ID 
+    LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID 
+    LEFT OUTER JOIN HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
+    WHERE R.REQ_STATUS = ${Number(status)} AND R.GIVEN = ${Number(given)}`)
+  } else  {
+    //console.log("Not given",ts)
+    return ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
+    TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, 
+    sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 
+    LEFT OUTER JOIN PRO_REQUISITION PR ON R.REQ_ID = PR.REQ_ID 
+    LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.HR_ID 
+    LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID 
+    LEFT OUTER JOIN HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
+    WHERE R.REQ_STATUS = ${Number(status)}`)
+  }
+}
 
 
 const selectRequisitionById = (req_id, status) => ExecuteIT(`  SELECT VE.NAME_ENGLISH, VE.MOBILE_PHONE, VE.DEPARTEMENT, VE.DESIGNATION, R.REQ_ID, 
@@ -83,7 +98,7 @@ const selectRequisitionById = (req_id, status) => ExecuteIT(`  SELECT VE.NAME_EN
   LEFT OUTER JOIN UNIT U ON U.UNIT_ID = SP.UNIT_ID
   WHERE R.REQ_ID = ${Number(req_id)} AND R.REQ_STATUS = ${Number(status)}`);
 
-  const selectAllDetailsRequisitionById = (req_id) => ExecuteIT(`  SELECT VE.NAME_ENGLISH, VE.MOBILE_PHONE, VE.DEPARTEMENT, VE.DESIGNATION, R.REQ_ID, 
+const selectAllDetailsRequisitionById = (req_id) => ExecuteIT(`  SELECT VE.NAME_ENGLISH, VE.MOBILE_PHONE, VE.DEPARTEMENT, VE.DESIGNATION, R.REQ_ID, 
   TO_CHAR(R.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, TO_CHAR(R.REQ_DATE,'HH12:MI AM') AS REQ_TIME, IP.UNIQUE_V, B.BRAND_NAME, U.UNIT_NAME,
   R.USER_REMARKS, PR.PRO_REQ_ID, PR.QUNTITY, PR.APR_QTY, PL.PRODUCT_ID, PL.PRODUCT_NAME,
   sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as T_REQQUNTITY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as T_APR_QTY FROM REQUISITION R
@@ -143,19 +158,35 @@ const insertSummaries = (data) =>
 
 
 /*----------- UPDATE ----------- */
-// working letter, should be modified TODO:
-const updateRequisition = (data) => {
+// TODO: working letter, should be modified 
+const updateRequisition = (data, given) => {
   if (data.REQ_STATUS == 2) {
-    return ExecuteIT(
-      `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
-    )
+    if (given) {
+      return ExecuteIT(
+        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)}, GIVEN = ${Number(1)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
+      )
+    } else {
+      return ExecuteIT(
+        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
+      )
+    }
   } else {
-    return ExecuteIT(
-      `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)}, 
-        STR_REMARKS = '${data.STR_REMARKS}' WHERE REQ_ID = ${Number(data.REQ_ID)}`
-    )
+    if (given) {
+      return ExecuteIT(
+        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)},
+          STR_REMARKS = '${data.STR_REMARKS}', GIVEN = ${Number(1)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
+      )
+    } else {
+      return ExecuteIT(
+        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)},
+          STR_REMARKS = '${data.STR_REMARKS}' WHERE REQ_ID = ${Number(data.REQ_ID)}`
+      )
+    }
+
   }
 };
+
+const updateReqGivenByIT = (id) => ExecuteIT(`UPDATE REQUISITION SET GIVEN = ${Number(1)} WHERE REQ_ID = ${id}`);
 
 const updateStrBalance = (str_pro_id, apr_qty) =>
   ExecuteIT(
@@ -204,5 +235,6 @@ module.exports = {
   updateStrBalance,
   updateProRequisition,
   updateManyIndProduct,
-  updateIndProReq
+  updateIndProReq,
+  updateReqGivenByIT
 }

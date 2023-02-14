@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectUserReqIsPending, selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, selectAllDetailsRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct } = require("../../../services/it/requisition");
+const { selectUserReqIsPending, selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, selectAllDetailsRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct, updateReqGivenByIT } = require("../../../services/it/requisition");
 
 
 /*------------- get ------------*/
@@ -103,9 +103,23 @@ const getUserAcceptActiveRequitions = async (req, res, next) => {
 }
 
 const getAdminRequisitions = async (req, res, next) => {
-    const { status } = req.query;
+    let { status, given } = req.query;
     try {
-        const allPendingRequitions = await selectStatusRequisitions(status);
+        let allPendingRequitions = {};
+        if(status == 2) {
+            if (typeof given === "undefined") {
+                allPendingRequitions = await selectStatusRequisitions(status, ts = false);
+            } else {
+                let statusNum = [0, 1];
+                if(statusNum.includes(Number(given))) {
+                    allPendingRequitions = await selectStatusRequisitions(status, ts = true, given);
+                } else {
+                    allPendingRequitions = await selectStatusRequisitions(status, ts = false);
+                }
+            }
+        } else {
+            allPendingRequitions = await selectStatusRequisitions(status, ts = false);
+        }
         let msg = status == 0 ? "Pending" : status == 1 ? "Approve" : status == 2 ? "Accept" : "Deny";
         if (status >= 0 && status <= 3) {
             res.json(createResponse(allPendingRequitions.rows, `All ${msg} Requisition`));
@@ -291,7 +305,7 @@ const quantityChecking = (products) => {
 }
 const putReqByItStoreOfficer = async (req, res, next) => {
     try {
-        let { req_id, products, str_remarks } = req.body;
+        let { req_id, products, str_remarks, given = false } = req.body;
 
         products = productModification(products);
         let response = quantityChecking(products);
@@ -362,7 +376,7 @@ const putReqByItStoreOfficer = async (req, res, next) => {
                     REQ_ID: Number(req_id),
                 };
 
-                const requistionUpdate = await updateRequisition(updateObj);
+                const requistionUpdate = await updateRequisition(updateObj, given);
                 if (requistionUpdate.rowsAffected === 1) {
                     res.json(createResponse(null, "Requisition Approved"));
                 }
@@ -412,6 +426,23 @@ const acceptUserRequisition = async (req, res, next) => {
     }
 };
 
+// given status change
+const putRequisitionGivenStatus = async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        res.json(createResponse(null, "Requisitions id missing", true));
+      } else {
+        const result = await updateReqGivenByIT(id);
+        if (result.rowsAffected === 1) {
+          res.json(createResponse(null, "Requisition Given"));
+        }
+      }
+    } catch (err) {
+      next(err)
+    }
+  }
+
 
 
 module.exports = {
@@ -425,6 +456,7 @@ module.exports = {
     getAllDetailsRequisition,
     postRequisition,
     putReqByItStoreOfficer,
+    putRequisitionGivenStatus,
     denyRequisition,
     acceptUserRequisition
 }
