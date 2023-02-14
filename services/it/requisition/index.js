@@ -61,9 +61,8 @@ const selectUserAcceptActiveRequisitions = (user_id) =>
 // get pending requisitions
 const selectStatusRequisitions = (status, ts, given) => {
   if(ts) {
-    //console.log("given",ts)
     return ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
-    TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, 
+    TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, R.GIVEN,
     sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 
     LEFT OUTER JOIN PRO_REQUISITION PR ON R.REQ_ID = PR.REQ_ID 
     LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.HR_ID 
@@ -71,9 +70,8 @@ const selectStatusRequisitions = (status, ts, given) => {
     LEFT OUTER JOIN HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
     WHERE R.REQ_STATUS = ${Number(status)} AND R.GIVEN = ${Number(given)}`)
   } else  {
-    //console.log("Not given",ts)
     return ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
-    TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, 
+    TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, R.GIVEN,
     sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 
     LEFT OUTER JOIN PRO_REQUISITION PR ON R.REQ_ID = PR.REQ_ID 
     LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.HR_ID 

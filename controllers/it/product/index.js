@@ -1,10 +1,11 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { commitConnect, rollbackConnect, randConnect } = require('../../../utils/dbtransactions');
 
-const { selectLastMrrNumber, selectIndProduct, selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, selectIndStrProductsByProId, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct, updateIndProduct, updateStrProNonWCount } = require("../../../services/it/product");
+const { selectLastMrrNumber, selectIndProduct, selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct, updateIndProduct, updateStrProNonWCount } = require("../../../services/it/product");
 const { selectProductLists } = require("../../../services/it/settings")
 const { number } = require("joi");
 const shortid = require('shortid');
+const { generator } = require("../../../utils/responseGenerator");
 
 
 /*------------- All Get Controllers ---------------*/
@@ -175,6 +176,7 @@ const postProductEntrilist = async (req, res, next) => {
         supplier_id,
         products,
     } = req.body;
+
     try {
         const mrr_no = await lastMrrNum();
         if (mrr_no) {
@@ -182,25 +184,37 @@ const postProductEntrilist = async (req, res, next) => {
             if (postMrrLogs.rowsAffected === 1) {
                 let count = 0;
                 products.forEach(async (product) => {
+                    const lastStrProdIndList = await selectLastStrProdIndList(product.pro_id);
                     const postStorePro = await insertStoreProduct(product);
 
                     if (postStorePro.rowsAffected === 1) {
                         const productInfo = await selectProductLists(product.pro_id);
-                        const unique = 'BBA-' + productInfo.rows[0].PRODUCT_NAME.slice(0, 3).toUpperCase() + "-" + postStorePro.outBinds.id[0].toString();
+                        const unique =  productInfo.rows[0].PRODUCT_NAME.slice(0, 3).toUpperCase() + "-" + postStorePro.outBinds.id[0].toString();
 
+                        let gen;
+                        //const lastStrProdIndList = await selectLastStrProdIndList(product.pro_id);
+                        console.log(lastStrProdIndList)
+                        if(lastStrProdIndList.rows.length > 0) {
+                            let Uvalue = lastStrProdIndList.rows[0].UNIQUE_V;
+                            let lastStrProdIndNumber = Number(Uvalue.substr(Uvalue.length - 4));
+                            gen = generator(lastStrProdIndNumber);
+                        } else {
+                            gen = generator(0001)
+                        }
                         let indProducts = [];
                         for (let i = 0; i < product.qty; i++) {
                             if (product.non_workable > i) {
                                 indProducts.push({
                                     STR_PRO_ID: postStorePro.outBinds.id[0],
-                                    UNIQUE_V: unique + shortid.generate(),
+                                    //UNIQUE_V: unique + shortid.generate(),
+                                    UNIQUE_V: unique + String(gen.next().value).padStart(4, '0'),
                                     STATUS: 3,   // product inactive
                                     PRICE: product.price
                                 })
                             } else {
                                 indProducts.push({
                                     STR_PRO_ID: postStorePro.outBinds.id[0],
-                                    UNIQUE_V: unique + shortid.generate(),
+                                    UNIQUE_V: unique + String(gen.next().value).padStart(4, '0'),
                                     STATUS: 0,  // product active
                                     PRICE: product.price
                                 })

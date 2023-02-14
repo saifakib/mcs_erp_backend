@@ -112,6 +112,10 @@ const selectLastMrrNumber = () =>
     ExecuteIT(`SELECT MAX(MRR_NO) AS MRRNO FROM MRRLOGS`);
 
 
+const selectLastStrProdIndList = (prod_id) => ExecuteIT(`SELECT * FROM IND_PRODUCT IP
+WHERE IP.STR_PRO_ID = (SELECT MAX(STR_PRO_ID) FROM STORE_PRODUCTS WHERE PRO_ID = ${Number(prod_id)}) ORDER BY IND_PRODUCT_ID DESC`);
+
+
 
 
 /*------------- INSERT ------------*/
@@ -232,7 +236,7 @@ module.exports = {
     selectLastMrrNumber, selectIndProduct,
     selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId, 
     selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
-    selectProductWithSup, selectIndStrProductsByProId,
+    selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
     updateStoreProduct, updateIndProduct, updateStrProNonWCount,
     insertExProdSummaries,
