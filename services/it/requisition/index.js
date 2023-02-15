@@ -9,9 +9,12 @@ const selectIndProductList = (str_pro_id, status) => ExecuteIT(`SELECT * FROM IN
 
 // isPending
 const selectUserReqIsPending = (user_id) => ExecuteIT(`SELECT REQ_ID, TO_CHAR(REQ_DATE, 'DD-MM-YYYY') AS LAST_REQ_DATE,
-CASE 
+(CASE 
 WHEN REQ_STATUS = 0 OR REQ_STATUS = 1 THEN ${Number(true)}
-WHEN REQ_STATUS = 2 OR  REQ_STATUS = 3 THEN ${Number(false)} END Status
+WHEN REQ_STATUS = 2 OR  REQ_STATUS = 3 THEN ${Number(false)} END) As Status,
+(CASE 
+WHEN REQ_STATUS = 2 THEN ${Number(0)}
+WHEN REQ_STATUS = 3 THEN ${Number(1)} END) As Deny
 FROM REQUISITION 
 WHERE REQ_ID=(SELECT max(REQ_ID) FROM REQUISITION WHERE HR_ID = ${Number(user_id)})`);
 
@@ -60,7 +63,7 @@ const selectUserAcceptActiveRequisitions = (user_id) =>
 
 // get pending requisitions
 const selectStatusRequisitions = (status, ts, given) => {
-  if(ts) {
+  if (ts) {
     return ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
     TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, R.GIVEN,
     sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 
@@ -69,7 +72,7 @@ const selectStatusRequisitions = (status, ts, given) => {
     LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID 
     LEFT OUTER JOIN HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
     WHERE R.REQ_STATUS = ${Number(status)} AND R.GIVEN = ${Number(given)}`)
-  } else  {
+  } else {
     return ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
     TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, R.GIVEN,
     sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 

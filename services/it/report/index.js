@@ -72,7 +72,7 @@ const selectRequisitionByDateHrid = (hrid, fdate, tdate) =>
   AND R.HR_ID = ${Number(hrid)}`);
 
 const selectMaintananceByDate = (fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
-  PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V ,
+  PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
       WHEN M.STATUS = 0 THEN 'Pending'
       WHEN M.STATUS = 1 THEN 'Approved'
@@ -97,7 +97,7 @@ const selectMaintananceByDate = (fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANC
 
 
 const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
-  PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V ,
+  PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
       WHEN M.STATUS = 0 THEN 'Pending'
       WHEN M.STATUS = 1 THEN 'Approved'
@@ -121,7 +121,7 @@ const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELE
   WHERE trunc(M.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD') AND PL.PRODUCT_ID=${product_id}`);
 
   const selectMaintananceByProId = (product_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
-  PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V ,
+  PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
       WHEN M.STATUS = 0 THEN 'Pending'
       WHEN M.STATUS = 1 THEN 'Approved'
@@ -146,7 +146,7 @@ const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELE
 
 
   const selectMaintananceByHrDate = (hrid, fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
-  PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V ,
+  PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
       WHEN M.STATUS = 0 THEN 'Pending'
       WHEN M.STATUS = 1 THEN 'Approved'
@@ -170,7 +170,7 @@ const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELE
   WHERE trunc(M.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD') AND M.HR_ID=${hrid}`);
 
   const selectMaintananceByHrId = (hrid) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
-  PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V ,
+  PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
       WHEN M.STATUS = 0 THEN 'Pending'
       WHEN M.STATUS = 1 THEN 'Approved'

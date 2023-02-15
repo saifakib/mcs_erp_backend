@@ -184,8 +184,14 @@ const getMaintananceReport = async (req, res, next) => {
         }
 
         if (response.rows) {
+            const TotalCost = response.rows.reduce(
+                (acc, obj) => {
+                    acc += obj.COST;
+                    return acc;
+                }, 0);
             res.json(createResponse({
-                maintanances: response.rows
+                maintanances: response.rows,
+                TotalCost
             }));
         }
     } catch (err) {

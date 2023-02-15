@@ -197,7 +197,7 @@ const postProductEntrilist = async (req, res, next) => {
                         if(lastStrProdIndList.rows.length > 0) {
                             let Uvalue = lastStrProdIndList.rows[0].UNIQUE_V;
                             let lastStrProdIndNumber = Number(Uvalue.substr(Uvalue.length - 4));
-                            gen = generator(lastStrProdIndNumber);
+                            gen = generator(Number(lastStrProdIndNumber+1));
                         } else {
                             gen = generator(0001)
                         }
