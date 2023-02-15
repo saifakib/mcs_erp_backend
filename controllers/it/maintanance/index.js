@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectMaintanances, selectMaintanance, insertMaintananceReq, insertServicing, updateMaintanance, updateServicing } = require("../../../services/it/maintanance");
+const { selectMaintanances, selectMaintanance, insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateServicing } = require("../../../services/it/maintanance");
 const { updateIndProReq } = require("../../../services/it/requisition");
 const { updateIndProduct } = require("../../../services/it/product")
 
@@ -126,15 +126,17 @@ const putMaintanance = async (req, res, next) => {
 
 const putServicing = async (req, res, next) => {
     try {
-        const { maintanance_id, remarks, cost } = req.body;
+        const { maintanance_id, remarks, cost, specifications, ind_prod_id } = req.body;
         if (typeof (maintanance_id) !== 'number') {
             res.json(createResponse("Error Occured", "Value should be a number", true));
         }
         else {
             const putServing = await updateServicing(maintanance_id, remarks);
             const updateMaintananceR = await updateMaintanance(Number(4), maintanance_id, cost);
-
-
+            if(specifications.length > 0) {
+                const postManySpecifications = await insertManySpecifications(maintanance_id, ind_prod_id, specifications);
+            }
+            
             if (updateMaintananceR.rowsAffected === 1 && putServing.rowsAffected === 1) {
                 res.json(createResponse(null, "Maintanance and Servicing status has been Updated"));
             }

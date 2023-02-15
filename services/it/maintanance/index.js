@@ -1,4 +1,4 @@
-const { ExecuteIT } = require("../../../utils/itDynamicController");
+const { ExecuteIT, ExecuteITMany } = require("../../../utils/itDynamicController");
 const { oracledb } = require("../../../db/db");
 
 /*------------- GET ------------*/
@@ -84,11 +84,17 @@ const insertServicing = (maintanance_id, problem) =>
         `INSERT INTO SERVICES (PROBLEM, STATUS, MAINTENANCE_ID) VALUES ('${problem}', ${Number(0)}, ${Number(maintanance_id)})`,
     );
 
+// INSERT MULTIPLE SPECIFICATIONS
+const insertManySpecifications = (maintanance_id, ind_prod_id, array) => {
+    let newArray = array;
+    const statement = `INSERT INTO CUS_SPECIFICATION (IND_PROD_ID, MAINTENANCE_ID, NAME, S_VALUE) VALUES ('${Number(ind_prod_id)}', '${Number(maintanance_id)}', :name, :value)`;
+    return ExecuteITMany(statement, newArray);
+};
 
 /*-------------- UPDATE ---------------*/
 // maintanance statue
 const updateMaintanance = (status, maintanance_id, cost) => {
-    if(cost) {
+    if (cost) {
         return ExecuteIT(`UPDATE MAINTENANCE SET STATUS = ${Number(status)}, COST = ${Number(cost)} WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
     } else {
         return ExecuteIT(`UPDATE MAINTENANCE SET STATUS = ${Number(status)} WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
@@ -99,5 +105,5 @@ const updateMaintanance = (status, maintanance_id, cost) => {
 const updateServicing = (maintanance_id, remarks) => ExecuteIT(`UPDATE SERVICES SET STATUS = ${Number(1)}, REMARKS = '${remarks}' WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
 
 module.exports = {
-    selectMaintanances, selectMaintanance, insertMaintananceReq, insertServicing, updateMaintanance, updateServicing
+    selectMaintanances, selectMaintanance, insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateServicing
 }

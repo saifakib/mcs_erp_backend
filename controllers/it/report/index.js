@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, selectRequisitionByHrid, selectRequisitionByDateHrid, selectMaintananceByDate, selectMaintananceByProDate, selectMaintananceByProId, selectMaintananceByHrDate, selectMaintananceByHrId } = require("../../../services/it/report");
+const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, selectRequisitionByHrid, selectRequisitionByDateHrid, selectMaintananceByDate, selectMaintananceByProDate, selectMaintananceByProId, selectMaintananceByHrDate, selectMaintananceByHrId, selectSpecificationsByIndProdId, selectChangesSpecificationsByIndProdId } = require("../../../services/it/report");
 const { format } = require('date-fns')
 
 
@@ -200,8 +200,45 @@ const getMaintananceReport = async (req, res, next) => {
 };
 
 
+/**
+ * Report - Specifications by product
+*/
+const getSpecificationsByIndProdIdReport = async (req, res, next) => {
+    try {
+         const { ind_prod_id } = req.query;
+         if(!ind_prod_id) {
+            res.json(createResponse(null, "Required query missing", true));
+         } else  {
+            const initialSpecifications = await selectSpecificationsByIndProdId(ind_prod_id);
+            const changesSpecifications = await selectChangesSpecificationsByIndProdId(ind_prod_id);
+
+
+            // TODO::Need TO Modified
+            const changes = changesSpecifications.rows.reduce((acc, obj) => {
+                if(acc[obj.MAINTENANCE_ID]) {
+                    
+                }
+                return acc;
+            }, [])
+            
+
+            console.log("initialSpecifications: ", initialSpecifications);
+            console.log("changesSpecifications: ", changesSpecifications);
+
+            res.json(createResponse({
+                initialSpecifications: initialSpecifications.rows,
+                changesSpecifications: changesSpecifications.rows,
+            }));
+         }
+    } catch(err) {
+        next(err.message)
+    }
+}
+
+
 module.exports = {
     getEntriesProductReport,
     getRequisitionReport,
-    getMaintananceReport
+    getMaintananceReport,
+    getSpecificationsByIndProdIdReport
 };

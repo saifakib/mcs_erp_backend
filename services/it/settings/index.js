@@ -114,6 +114,7 @@ const insertSpecification = ({ model_id, name, value }) =>
     ExecuteIT(
         `INSERT INTO SPECIFICATION (MODEL_ID, NAME, S_VALUE) VALUES ('${Number(model_id)}', '${name}', '${value}')`
     );
+    
 const insertManySpecification = (model_id, array) => {
     let newArray = array;
     const statement = `INSERT INTO SPECIFICATION (MODEL_ID, NAME, S_VALUE) VALUES ('${Number(model_id)}', :name, :value)`;

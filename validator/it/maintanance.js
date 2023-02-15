@@ -42,7 +42,14 @@ const checkServicing = (req, res, next) => {
         checkServicingSchema = Joi.object().keys({
             maintanance_id: Joi.number().required(),
             remarks: Joi.string().required(),
-            cost: Joi.number().required()
+            cost: Joi.number().required(),
+            specifications: Joi.array().min(0).items(
+                Joi.object().keys({
+                    name: Joi.string().min(2).required(),
+                    value: Joi.string().required(),
+                }).required()
+            ).unique((a, b) => a.name === b.name).required(),
+            ind_prod_id: Joi.number().required(),
         })
     }
 

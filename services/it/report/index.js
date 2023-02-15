@@ -71,7 +71,7 @@ const selectRequisitionByDateHrid = (hrid, fdate, tdate) =>
   WHERE trunc(R.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD')  AND TO_DATE('${tdate}','YYYY-MM-DD')
   AND R.HR_ID = ${Number(hrid)}`);
 
-const selectMaintananceByDate = (fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
+const selectMaintananceByDate = (fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, TO_CHAR(M.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
   PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
       WHEN M.STATUS = 0 THEN 'Pending'
@@ -96,7 +96,7 @@ const selectMaintananceByDate = (fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANC
   WHERE trunc(M.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD')`);
 
 
-const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
+const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, TO_CHAR(M.REQ_DATE,'DD-MM-YYYY')  AS REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
   PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
       WHEN M.STATUS = 0 THEN 'Pending'
@@ -120,7 +120,7 @@ const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELE
   LEFT OUTER JOIN UNIT U ON U.UNIT_ID = S.UNIT_ID
   WHERE trunc(M.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD') AND PL.PRODUCT_ID=${product_id}`);
 
-  const selectMaintananceByProId = (product_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
+  const selectMaintananceByProId = (product_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, TO_CHAR(M.REQ_DATE,'DD-MM-YYYY')  AS REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
   PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
       WHEN M.STATUS = 0 THEN 'Pending'
@@ -145,7 +145,7 @@ const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELE
   WHERE PL.PRODUCT_ID=${product_id}`);
 
 
-  const selectMaintananceByHrDate = (hrid, fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
+  const selectMaintananceByHrDate = (hrid, fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID,  TO_CHAR(M.REQ_DATE,'DD-MM-YYYY')  AS REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
   PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
       WHEN M.STATUS = 0 THEN 'Pending'
@@ -169,7 +169,7 @@ const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELE
   LEFT OUTER JOIN UNIT U ON U.UNIT_ID = S.UNIT_ID
   WHERE trunc(M.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD') AND TO_DATE('${tdate}','YYYY-MM-DD') AND M.HR_ID=${hrid}`);
 
-  const selectMaintananceByHrId = (hrid) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, M.REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
+  const selectMaintananceByHrId = (hrid) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID,  TO_CHAR(M.REQ_DATE,'DD-MM-YYYY')  AS REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
   PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
       WHEN M.STATUS = 0 THEN 'Pending'
@@ -193,6 +193,21 @@ const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELE
   LEFT OUTER JOIN UNIT U ON U.UNIT_ID = S.UNIT_ID
   WHERE M.HR_ID=${hrid}`);
 
+
+
+  const selectSpecificationsByIndProdId = (ind_prod_id) => ExecuteIT(`SELECT M.MODEL_NAME, S.NAME, S.S_VALUE FROM SPECIFICATION S 
+  LEFT OUTER JOIN MODELS M ON S.MODEL_ID = M.MODEL_ID
+  LEFT OUTER JOIN STORE_PRODUCTS SP ON SP.MODEL_ID = M.MODEL_ID
+  LEFT OUTER JOIN IND_PRODUCT IP ON IP.STR_PRO_ID = SP.STR_PRO_ID
+  WHERE IP.IND_PRODUCT_ID =${ind_prod_id}`);
+
+
+  const selectChangesSpecificationsByIndProdId = (ind_prod_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.REQ_DATE, M.COST, CS.NAME, CS.S_VALUE FROM CUS_SPECIFICATION CS
+  LEFT OUTER JOIN MAINTENANCE M ON M.MAINTENANCE_ID = CS.MAINTENANCE_ID WHERE IND_PROD_ID =${ind_prod_id}`);
+
+
+
+
 /*--------------------- End Entries Report ----------------- */
 
 
@@ -210,5 +225,7 @@ module.exports = {
   selectMaintananceByProDate,
   selectMaintananceByProId,
   selectMaintananceByHrDate,
-  selectMaintananceByHrId
+  selectMaintananceByHrId,
+  selectSpecificationsByIndProdId,
+  selectChangesSpecificationsByIndProdId
 };
