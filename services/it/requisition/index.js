@@ -99,7 +99,7 @@ const selectRequisitionById = (req_id, status) => ExecuteIT(`  SELECT VE.NAME_EN
   LEFT OUTER JOIN UNIT U ON U.UNIT_ID = SP.UNIT_ID
   WHERE R.REQ_ID = ${Number(req_id)} AND R.REQ_STATUS = ${Number(status)}`);
 
-const selectAllDetailsRequisitionById = (req_id) => ExecuteIT(`  SELECT VE.NAME_ENGLISH, VE.MOBILE_PHONE, VE.DEPARTEMENT, VE.DESIGNATION, R.REQ_ID, 
+const selectAllDetailsRequisitionById = (req_id) => ExecuteIT(`SELECT VE.NAME_ENGLISH, VE.MOBILE_PHONE, VE.DEPARTEMENT, VE.DESIGNATION, R.REQ_ID, 
   TO_CHAR(R.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, TO_CHAR(R.REQ_DATE,'HH12:MI AM') AS REQ_TIME, IP.UNIQUE_V, B.BRAND_NAME, U.UNIT_NAME,
   R.USER_REMARKS, PR.PRO_REQ_ID, PR.QUNTITY, PR.APR_QTY, PL.PRODUCT_ID, PL.PRODUCT_NAME,
   sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as T_REQQUNTITY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as T_APR_QTY FROM REQUISITION R
@@ -113,6 +113,8 @@ const selectAllDetailsRequisitionById = (req_id) => ExecuteIT(`  SELECT VE.NAME_
   LEFT OUTER JOIN UNIT U ON U.UNIT_ID = SP.UNIT_ID
   WHERE R.REQ_ID = ${Number(req_id)}`);
 
+
+const selectIndRequisitionById = (ind_pro_req_id) => ExecuteIT(`SELECT IND_PRODUCT_ID FROM IND_PRO_REQUISITION WHERE IND_PRO_ID = ${Number(ind_pro_req_id)}`);
 
 
 /*------------- INSERT ------------*/
@@ -228,6 +230,7 @@ module.exports = {
   selectIndProductList,
   selectRequisitionById,
   selectAllDetailsRequisitionById,
+  selectIndRequisitionById,
   insertRequisitionInfo,
   insertManyProRequisition,
   insertManyIndProRequisition,

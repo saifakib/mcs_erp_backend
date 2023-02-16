@@ -1,5 +1,7 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectUserReqIsPending, selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, selectAllDetailsRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct, updateReqGivenByIT } = require("../../../services/it/requisition");
+const { selectUserReqIsPending, selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, selectAllDetailsRequisitionById, selectIndRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct, updateReqGivenByIT, updateIndProReq } = require("../../../services/it/requisition");
+
+const { updateIndProduct } = require("../../../services/it/product")
 
 
 /*------------- get ------------*/
@@ -443,6 +445,43 @@ const putRequisitionGivenStatus = async (req, res, next) => {
     }
   }
 
+// Update Individual Requisition Status
+const putIndRequisition = async(req, res, next) => {
+    try {
+        const { ind_pro_req_id } = req.params;
+
+        if(!ind_pro_req_id) {
+            res.json(createResponse(null, "Requisitions id missing", true));
+        } 
+        else {
+            const findIndRequisition = await selectIndRequisitionById(ind_pro_req_id);
+            
+            if(findIndRequisition.rows.length > 0) {
+                const updateIndRequisition = await updateIndProReq(ind_pro_req_id, 3);  // STATUS 3 FOR RETURN PRODUCT TO IT
+                
+                if(updateIndRequisition.rowsAffected === 1) {
+                    const updateIndProd = await updateIndProduct(findIndRequisition.rows[0]["IND_PRODUCT_ID"], 0);
+                    
+                    if(updateIndProd.rowsAffected === 1) {
+                        res.json(createResponse(null, "Requisition Update Successfull"));
+                    } 
+                    else {
+                        res.json(createResponse(null, "Something error occured", true));
+                    }
+                } 
+                else {
+                    res.json(createResponse(null, "Requisitions not updated", true));
+                }
+            } 
+            else {
+                res.json(createResponse(null, "Requisitions id not found", true));
+            }
+        }
+    } catch (err) {
+        next(err.message)
+    }
+}
+
 
 
 module.exports = {
@@ -457,6 +496,7 @@ module.exports = {
     postRequisition,
     putReqByItStoreOfficer,
     putRequisitionGivenStatus,
+    putIndRequisition,
     denyRequisition,
     acceptUserRequisition
 }

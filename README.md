@@ -52,12 +52,20 @@ This repository uses a number libraries to work:
 | 3 | Deny |
 
 
+**Requisition Given Status**
+| Status  | Meaning |
+| ------------- | ------------- |
+| 0 | Not Given  |
+| 1 | Given  |
+
+
 **Individual Pro Requisition Status**
 | Status  | Meaning |
 | ------------- | ------------- |
 | 0 | Approved  |
 | 1 | Maintenance  |
 | 2 | Dead  |
+| 3 | Return |
 
 
 **Maintenance Status**
