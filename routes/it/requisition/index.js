@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { getUserRequitions, getUserReqIsPending, getUserAcceptRequitions, getUserAcceptRequition, getUserAcceptActiveRequitions, getAdminRequisitions, getRequsition, getAllDetailsRequisition, postRequisition, putReqByItStoreOfficer, denyRequisition, acceptUserRequisition, putRequisitionGivenStatus, putIndRequisition } = require("../../../controllers/it/requisition");
+const { getUserRequitions, getUserReqIsPending, getUserAcceptRequitions, getUserAcceptRequition, getUserAcceptActiveRequitions, getAdminRequisitions, getRequsition, getAllDetailsRequisition, getIndividualUserRequitions, postRequisition, putReqByItStoreOfficer, denyRequisition, acceptUserRequisition, putRequisitionGivenStatus, putIndRequisition } = require("../../../controllers/it/requisition");
 const { checkUserRequisition, checkUserAcceptRequisition, checkPostRequisition, checkApproveRequisition, checkDenyRequisition, checkAcceptRequisition } = require("../../../validator/it/requisition");
 
 // post route
@@ -27,6 +27,8 @@ router.get("/details/:req_id", getAllDetailsRequisition);
 // User Requsition Is Pending Until Accept
 router.get("/isPending/:user_id", getUserReqIsPending);
 
+
+router.get("/individual/user/:user_id", getIndividualUserRequitions);
 
 // Update Individual Pro Requisition 
 router.put("/individual/:ind_pro_req_id", putIndRequisition);

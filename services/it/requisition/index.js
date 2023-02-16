@@ -116,6 +116,24 @@ const selectAllDetailsRequisitionById = (req_id) => ExecuteIT(`SELECT VE.NAME_EN
 
 const selectIndRequisitionById = (ind_pro_req_id) => ExecuteIT(`SELECT IND_PRODUCT_ID FROM IND_PRO_REQUISITION WHERE IND_PRO_ID = ${Number(ind_pro_req_id)}`);
 
+const selectIndividualUserRequisitions = (user_id) =>
+  ExecuteIT(`SELECT I.IND_PRO_ID AS IND_PRO_REQ_ID, I.STR_PRO_ID, R.HR_ID, IP.IND_PRODUCT_ID, PL.PRODUCT_NAME, IP.UNIQUE_V, B.BRAND_NAME, M.MODEL_NAME, C.CATEGORY_NAME, I.STATUS,
+  case
+    when I.STATUS = 0 then 'Approved'
+    when I.STATUS = 1 then 'Maintanance'
+    when I.STATUS = 2 then 'Dead'
+    when I.STATUS = 3 then 'Return'
+  end STATUSS FROM IND_PRO_REQUISITION I 
+  LEFT OUTER JOIN IND_PRODUCT IP ON IP.IND_PRODUCT_ID = I.IND_PRODUCT_ID 
+  LEFT OUTER JOIN PRO_REQUISITION P ON P.PRO_REQ_ID  = I.PRO_REQ_ID 
+  LEFT OUTER JOIN REQUISITION R ON R.REQ_ID = P.REQ_ID 
+  LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = P.PRO_ID
+  LEFT OUTER JOIN STORE_PRODUCTS SP ON SP.STR_PRO_ID = I.STR_PRO_ID
+  LEFT OUTER JOIN BRAND B ON B.BRAND_ID = SP.BRAND_ID
+  LEFT OUTER JOIN MODELS M ON M.MODEL_ID = SP.MODEL_ID
+  LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID
+  WHERE R.REQ_STATUS = 2 AND R.HR_ID =  ${Number(user_id)}`);
+
 
 /*------------- INSERT ------------*/
 // INSERT requisition information
@@ -231,6 +249,7 @@ module.exports = {
   selectRequisitionById,
   selectAllDetailsRequisitionById,
   selectIndRequisitionById,
+  selectIndividualUserRequisitions,
   insertRequisitionInfo,
   insertManyProRequisition,
   insertManyIndProRequisition,

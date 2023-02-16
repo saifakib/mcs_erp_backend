@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectUserReqIsPending, selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, selectAllDetailsRequisitionById, selectIndRequisitionById, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct, updateReqGivenByIT, updateIndProReq } = require("../../../services/it/requisition");
+const { selectUserReqIsPending, selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, selectAllDetailsRequisitionById, selectIndRequisitionById, selectIndividualUserRequisitions, insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries, updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct, updateReqGivenByIT, updateIndProReq } = require("../../../services/it/requisition");
 
 const { updateIndProduct } = require("../../../services/it/product")
 
@@ -215,6 +215,16 @@ const getAllDetailsRequisition = async (req, res, next) => {
 
             }, "User SingleRequisition Details"));
         }
+    } catch (err) {
+        next(err.message);
+    }
+}
+
+const getIndividualUserRequitions = async (req, res, next) => {
+    try {
+        const { user_id } = req.params;
+        const userRequisitions = await selectIndividualUserRequisitions(user_id);
+        res.json(createResponse(userRequisitions.rows, "Users Product"));
     } catch (err) {
         next(err.message);
     }
@@ -493,6 +503,7 @@ module.exports = {
     getUserAcceptActiveRequitions,
     getAdminRequisitions,
     getAllDetailsRequisition,
+    getIndividualUserRequitions,
     postRequisition,
     putReqByItStoreOfficer,
     putRequisitionGivenStatus,
