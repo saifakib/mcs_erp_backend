@@ -1,5 +1,6 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, selectRequisitionByHrid, selectRequisitionByDateHrid, selectMaintananceByDate, selectMaintananceByProDate, selectMaintananceByProId, selectMaintananceByHrDate, selectMaintananceByHrId, selectSpecificationsByIndProdId, selectChangesSpecificationsByIndProdId } = require("../../../services/it/report");
+const { selectIndProductWIthDetails } = require("../../../services/it/product");
 const { format } = require('date-fns')
 
 
@@ -205,32 +206,51 @@ const getMaintananceReport = async (req, res, next) => {
 */
 const getSpecificationsByIndProdIdReport = async (req, res, next) => {
     try {
-         const { ind_prod_id } = req.query;
-         if(!ind_prod_id) {
+        const { ind_prod_id } = req.query;
+        if (!ind_prod_id) {
             res.json(createResponse(null, "Required query missing", true));
-         } else  {
+        } else {
+            const prodInfo = await selectIndProductWIthDetails(ind_prod_id);
             const initialSpecifications = await selectSpecificationsByIndProdId(ind_prod_id);
             const changesSpecifications = await selectChangesSpecificationsByIndProdId(ind_prod_id);
 
-
-            // TODO::Need TO Modified
-            const changes = changesSpecifications.rows.reduce((acc, obj) => {
-                if(acc[obj.MAINTENANCE_ID]) {
-                    
+            const changesSpecificationsFilter = changesSpecifications.rows.reduce((acc, obj) => {
+                if (acc[obj.MAINTENANCE_ID]) {
+                    acc[obj.MAINTENANCE_ID].push({
+                        REQ_DATE: obj.REQ_DATE,
+                        COST: obj.COST,
+                        NAME: obj.NAME,
+                        S_VALUE: obj.S_VALUE
+                    })
+                } else {
+                    acc[obj.MAINTENANCE_ID] = []
+                    acc[obj.MAINTENANCE_ID].push({
+                        REQ_DATE: obj.REQ_DATE,
+                        COST: obj.COST,
+                        NAME: obj.NAME,
+                        S_VALUE: obj.S_VALUE
+                    })
                 }
                 return acc;
-            }, [])
-            
+            }, {});
 
-            console.log("initialSpecifications: ", initialSpecifications);
-            console.log("changesSpecifications: ", changesSpecifications);
+            const responseChangesFilter = Object.keys(changesSpecificationsFilter).reduce((acc, key, index) => {
+                acc[index] = { 
+                    MAINTENANCE_ID: key,
+                    COST: changesSpecificationsFilter[key][0]["COST"],
+                    REQ_DATE: changesSpecificationsFilter[key][0]["REQ_DATE"],
+                    DATA: changesSpecificationsFilter[key]
+                 }
+                return acc;
+            }, []);
 
             res.json(createResponse({
+                productInfo: prodInfo.rows[0],
                 initialSpecifications: initialSpecifications.rows,
-                changesSpecifications: changesSpecifications.rows,
+                changesSpecifications: responseChangesFilter,
             }));
-         }
-    } catch(err) {
+        }
+    } catch (err) {
         next(err.message)
     }
 }

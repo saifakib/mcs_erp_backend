@@ -202,7 +202,7 @@ const selectMaintananceByProDate = (product_id, fdate, tdate) => ExecuteIT(`SELE
   WHERE IP.IND_PRODUCT_ID =${ind_prod_id}`);
 
 
-  const selectChangesSpecificationsByIndProdId = (ind_prod_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.REQ_DATE, M.COST, CS.NAME, CS.S_VALUE FROM CUS_SPECIFICATION CS
+  const selectChangesSpecificationsByIndProdId = (ind_prod_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, TO_CHAR(M.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, M.COST, CS.NAME, CS.S_VALUE FROM CUS_SPECIFICATION CS
   LEFT OUTER JOIN MAINTENANCE M ON M.MAINTENANCE_ID = CS.MAINTENANCE_ID WHERE IND_PROD_ID =${ind_prod_id}`);
 
 

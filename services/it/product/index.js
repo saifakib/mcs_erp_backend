@@ -7,7 +7,9 @@ const selectNewProductListByCatId = (CAT_ID) =>
         `SELECT * FROM PRODUCT_LIST PL WHERE PL.CATEGORY_ID = ${CAT_ID} AND PL.PRODUCT_ID NOT IN (SELECT SP.PRO_ID FROM STORE_PRODUCTS SP)`
     );
 
-const selectIndProduct = (id) => ExecuteIT(`SELECT * FROM IND_PRODUCT WHERE IND_PRODUCT_ID = ${Number(id)}`)
+const selectIndProduct = (id) => ExecuteIT(`SELECT * FROM IND_PRODUCT WHERE IND_PRODUCT_ID = ${Number(id)}`);
+
+const selectIndProductWIthDetails = (id) => ExecuteIT(`SELECT PL.PRODUCT_NAME, IP.UNIQUE_V FROM IND_PRODUCT IP LEFT OUTER JOIN STORE_PRODUCTS SP ON SP.STR_PRO_ID = IP.STR_PRO_ID LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID WHERE IP.IND_PRODUCT_ID = ${Number(id)}`)
 
 
 const selectCategoryWithStore = () =>
@@ -236,7 +238,7 @@ module.exports = {
     selectLastMrrNumber, selectIndProduct,
     selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId, 
     selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
-    selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList,
+    selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList, selectIndProductWIthDetails,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
     updateStoreProduct, updateIndProduct, updateStrProNonWCount,
     insertExProdSummaries,
