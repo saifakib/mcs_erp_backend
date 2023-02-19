@@ -108,12 +108,12 @@ const getAdminRequisitions = async (req, res, next) => {
     let { status, given } = req.query;
     try {
         let allPendingRequitions = {};
-        if(status == 2) {
+        if (status == 2) {
             if (typeof given === "undefined") {
                 allPendingRequitions = await selectStatusRequisitions(status, ts = false);
             } else {
                 let statusNum = [0, 1];
-                if(statusNum.includes(Number(given))) {
+                if (statusNum.includes(Number(given))) {
                     allPendingRequitions = await selectStatusRequisitions(status, ts = true, given);
                 } else {
                     allPendingRequitions = await selectStatusRequisitions(status, ts = false);
@@ -223,8 +223,12 @@ const getAllDetailsRequisition = async (req, res, next) => {
 const getIndividualUserRequitions = async (req, res, next) => {
     try {
         const { user_id } = req.params;
-        const userRequisitions = await selectIndividualUserRequisitions(user_id);
-        res.json(createResponse(userRequisitions.rows, "Users Product"));
+        if (typeof (user_id) !== 'number' && !user_id) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const userRequisitions = await selectIndividualUserRequisitions(user_id);
+            res.json(createResponse(userRequisitions.rows, "Users Product"));
+        }
     } catch (err) {
         next(err.message);
     }
@@ -441,48 +445,48 @@ const acceptUserRequisition = async (req, res, next) => {
 // given status change
 const putRequisitionGivenStatus = async (req, res, next) => {
     try {
-      const { id } = req.params;
-      if (!id) {
-        res.json(createResponse(null, "Requisitions id missing", true));
-      } else {
-        const result = await updateReqGivenByIT(id);
-        if (result.rowsAffected === 1) {
-          res.json(createResponse(null, "Requisition Given"));
+        const { id } = req.params;
+        if (!id) {
+            res.json(createResponse(null, "Requisitions id missing", true));
+        } else {
+            const result = await updateReqGivenByIT(id);
+            if (result.rowsAffected === 1) {
+                res.json(createResponse(null, "Requisition Given"));
+            }
         }
-      }
     } catch (err) {
-      next(err)
+        next(err)
     }
-  }
+}
 
 // Update Individual Requisition Status
-const putIndRequisition = async(req, res, next) => {
+const putIndRequisition = async (req, res, next) => {
     try {
         const { ind_pro_req_id } = req.params;
 
-        if(!ind_pro_req_id) {
+        if (!ind_pro_req_id) {
             res.json(createResponse(null, "Requisitions id missing", true));
-        } 
+        }
         else {
             const findIndRequisition = await selectIndRequisitionById(ind_pro_req_id);
-            
-            if(findIndRequisition.rows.length > 0) {
+
+            if (findIndRequisition.rows.length > 0) {
                 const updateIndRequisition = await updateIndProReq(ind_pro_req_id, 3);  // STATUS 3 FOR RETURN PRODUCT TO IT
-                
-                if(updateIndRequisition.rowsAffected === 1) {
+
+                if (updateIndRequisition.rowsAffected === 1) {
                     const updateIndProd = await updateIndProduct(findIndRequisition.rows[0]["IND_PRODUCT_ID"], 0);
-                    
-                    if(updateIndProd.rowsAffected === 1) {
+
+                    if (updateIndProd.rowsAffected === 1) {
                         res.json(createResponse(null, "Requisition Update Successfull"));
-                    } 
+                    }
                     else {
                         res.json(createResponse(null, "Something error occured", true));
                     }
-                } 
+                }
                 else {
                     res.json(createResponse(null, "Requisitions not updated", true));
                 }
-            } 
+            }
             else {
                 res.json(createResponse(null, "Requisitions id not found", true));
             }

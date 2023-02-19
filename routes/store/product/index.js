@@ -16,7 +16,7 @@ const {
   getStockProductsFR
 } = require("../../../controllers/store/product");
 
-const { checkBoth } = require('../../../middlewares/checkAuthorization')
+const { checkBoth } = require('../../../middlewares/checkStoreAuthorization')
 
 // Get Routes
 router.get("/manageproducts", checkBoth, manageProducts);

@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { newProductList, getStoreProducts, getStoreProductsById, getStoreProdCountByProId, getIndStrProductsbyProId, getIndStrProductsbyStrId, manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId,postProductEntrilist, putIndProduct } = require("../../../controllers/it/product");
+const { newProductList, getStoreProducts, getStoreProductsById, getStoreProdCountByProId, getIndStrProductsbyProId, getIndStrProductsbyStrId, manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId, getIndividualListByProId, postProductEntrilist, putIndProduct } = require("../../../controllers/it/product");
 
 const { checkProdEntries, checkStrProdList, checkIndProdList } = require("../../../validator/it/product");
 
@@ -22,6 +22,8 @@ router.put("/individual", checkIndProdList, putIndProduct)
 router.route("/strProdEntry")
     .post(checkProdEntries, postProductEntrilist)
     // .put(checkProdEntries, putProductEntrilist)
+
+router.get("/individuals/:pro_id", getIndividualListByProId)
 
 
 

@@ -15,7 +15,7 @@ const {
   getSingleEntry,
 } = require("../../../controllers/store/mrr");
 
-const { checkStoreAdmin } = require("../../../middlewares/checkAuthorization");
+const { checkStoreAdmin } = require("../../../middlewares/checkStoreAuthorization");
 
 // get route
 router.get("/manageSupplier", manageSupplier);

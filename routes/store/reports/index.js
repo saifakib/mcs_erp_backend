@@ -8,7 +8,7 @@ const {
   viewUserReqReport,
 } = require("../../../controllers/store/reports");
 
-const { checkBoth } = require("../../../middlewares/checkAuthorization");
+const { checkBoth } = require("../../../middlewares/checkStoreAuthorization");
 const { validateToken } = require("../../../middlewares/JWT");
 
 // get route

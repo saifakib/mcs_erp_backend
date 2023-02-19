@@ -7,7 +7,7 @@ const reportsRoute = require("./reports");
 const wareHouseRoute = require("./warehouse");
 const logActivityRoute = require("./logActivity");
 const permissionRoute = require("./systemAccess");
-const { checkBoth } = require("../../middlewares/checkAuthorization");
+const { checkBoth } = require("../../middlewares/checkStoreAuthorization");
 
 router.use("/settings", checkBoth, settingsRoute);
 router.use("/requisition", requisitionRoute);

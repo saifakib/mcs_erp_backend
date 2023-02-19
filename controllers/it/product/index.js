@@ -1,7 +1,7 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { commitConnect, rollbackConnect, randConnect } = require('../../../utils/dbtransactions');
 
-const { selectLastMrrNumber, selectIndProduct, selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct, updateIndProduct, updateStrProNonWCount } = require("../../../services/it/product");
+const { selectLastMrrNumber, selectIndProduct, selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList, selectIndividualListByProId, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct, updateIndProduct, updateStrProNonWCount } = require("../../../services/it/product");
 const { selectProductLists } = require("../../../services/it/settings")
 const { number } = require("joi");
 const shortid = require('shortid');
@@ -169,6 +169,21 @@ const getStoreProdCountByProId = async (req, res, next) => {
     }
 };
 
+
+const getIndividualListByProId = async (req, res, next) => {
+    try {
+        const { pro_id } = req.params;
+        if ((typeof (pro_id) !== number && !pro_id)) {
+            res.json(createResponse(null, "Something went wrong", true))
+        } else {
+            const response = await selectIndividualListByProId(pro_id);
+            res.json(createResponse(response.rows, "Individuals Product Lists"));
+        }
+
+    } catch (err) {
+        next(err);
+    }
+}
 
 /*------------- All Post Controllers ---------------*/
 const postProductEntrilist = async (req, res, next) => {
@@ -416,8 +431,8 @@ const putIndProduct = async (req, res, next) => {
 
 
 module.exports = {
-    newProductList, getStoreProducts, getStoreProductsById, getStoreProdCountByProId, getIndStrProductsbyProId, getIndStrProductsbyStrId,
-    manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId,
+    newProductList, getStoreProducts, getStoreProductsById, getStoreProdCountByProId, getIndStrProductsbyProId, getIndStrProductsbyStrId, 
+    manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId, getIndividualListByProId,
     postProductEntrilist,
     putIndProduct
 }
