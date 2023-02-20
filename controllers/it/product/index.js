@@ -1,7 +1,7 @@
 const { createResponse } = require("../../../utils/responseGenerator");
 const { commitConnect, rollbackConnect, randConnect } = require('../../../utils/dbtransactions');
 
-const { selectLastMrrNumber, selectIndProduct, selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList, selectIndividualListByProId, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct, updateIndProduct, updateStrProNonWCount } = require("../../../services/it/product");
+const { selectLastMrrNumber, selectIndProduct, selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList, selectIndividualListByProId, selectMaintananceProducts, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct, updateIndProduct, updateStrProNonWCount } = require("../../../services/it/product");
 const { selectProductLists } = require("../../../services/it/settings")
 const { number } = require("joi");
 const shortid = require('shortid');
@@ -185,6 +185,15 @@ const getIndividualListByProId = async (req, res, next) => {
     }
 }
 
+const getMaintananceProducts = async (_, res, next) => {
+    try {
+        const response = await selectMaintananceProducts();
+        res.json(createResponse(response.rows, "Maintanance Product Lists"));
+    } catch (err) {
+        next(err);
+    }
+}
+
 /*------------- All Post Controllers ---------------*/
 const postProductEntrilist = async (req, res, next) => {
     const {
@@ -204,15 +213,15 @@ const postProductEntrilist = async (req, res, next) => {
 
                     if (postStorePro.rowsAffected === 1) {
                         const productInfo = await selectProductLists(product.pro_id);
-                        const unique =  productInfo.rows[0].PRODUCT_NAME.slice(0, 3).toUpperCase() + "-" + postStorePro.outBinds.id[0].toString();
+                        const unique = productInfo.rows[0].PRODUCT_NAME.slice(0, 3).toUpperCase() + "-" + postStorePro.outBinds.id[0].toString();
 
                         let gen;
                         //const lastStrProdIndList = await selectLastStrProdIndList(product.pro_id);
                         console.log(lastStrProdIndList)
-                        if(lastStrProdIndList.rows.length > 0) {
+                        if (lastStrProdIndList.rows.length > 0) {
                             let Uvalue = lastStrProdIndList.rows[0].UNIQUE_V;
                             let lastStrProdIndNumber = Number(Uvalue.substr(Uvalue.length - 4));
-                            gen = generator(Number(lastStrProdIndNumber+1));
+                            gen = generator(Number(lastStrProdIndNumber + 1));
                         } else {
                             gen = generator(0001)
                         }
@@ -431,8 +440,8 @@ const putIndProduct = async (req, res, next) => {
 
 
 module.exports = {
-    newProductList, getStoreProducts, getStoreProductsById, getStoreProdCountByProId, getIndStrProductsbyProId, getIndStrProductsbyStrId, 
-    manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId, getIndividualListByProId,
+    newProductList, getStoreProducts, getStoreProductsById, getStoreProdCountByProId, getIndStrProductsbyProId, getIndStrProductsbyStrId,
+    manageProducts, getStrProductsbyCategoryId, getStrProductsbyCatIdProdId, getIndividualListByProId, getMaintananceProducts, 
     postProductEntrilist,
     putIndProduct
 }

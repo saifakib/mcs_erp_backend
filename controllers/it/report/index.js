@@ -162,9 +162,6 @@ const getMaintananceReport = async (req, res, next) => {
                 const { ind_prod_id } = req.query;
                 let have = ind_prod_id ? true : false;
 
-                console.log(ind_prod_id)
-                console.log(have)
-
                 if(have) {
                     if (fdate && tdate) {
                         response = await selectMaintananceByProDate(product_id, fdate, tdate, have, ind_prod_id);

@@ -52,7 +52,6 @@ module.exports.ExecuteMany = (QuertyString, binds, options = {}) => {
       resolve(result);
       await connection.close();
     } catch (err) {
-      console.log("error on executeMany", err);
       reject(err);
     }
   });

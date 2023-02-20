@@ -100,6 +100,11 @@ const selectIndividualListByProId = (pro_id) => ExecuteIT(`SELECT DISTINCT(I.IND
     LEFT OUTER JOIN STORE_PRODUCTS S ON S.STR_PRO_ID = I.STR_PRO_ID
     WHERE S.PRO_ID=${Number(pro_id)}`);
 
+const selectMaintananceProducts = () => ExecuteIT(`SELECT DISTINCT(PL.PRODUCT_ID), PL.PRODUCT_ID AS PRO_ID, PL.PRODUCT_NAME FROM MAINTENANCE M
+LEFT OUTER JOIN IND_PRODUCT I ON M.IND_PRO_ID = I.IND_PRODUCT_ID
+LEFT OUTER JOIN STORE_PRODUCTS S ON S.STR_PRO_ID = I.STR_PRO_ID
+LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = S.PRO_ID`);
+
 
 const selectProductWithSup = (product_id, category_id) =>
     ExecuteIT(`SELECT DISTINCT S.SUPPLIER_ID, S.SUP_NAME, PL.PRODUCT_ID, PL.PRODUCT_NAME, SP.STR_PRO_ID, TO_CHAR(PEL.ENTRY_DATE, 'DD-MM-YYYY') AS STR_DATE, COUNT(IND_PRODUCT_ID) OVER(PARTITION BY  IP.STR_PRO_ID) AS TOTAL_QTY,
@@ -243,7 +248,7 @@ module.exports = {
     selectLastMrrNumber, selectIndProduct,
     selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId,
     selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
-    selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList, selectIndProductWIthDetails, selectIndividualListByProId,
+    selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList, selectIndProductWIthDetails, selectIndividualListByProId, selectMaintananceProducts,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
     updateStoreProduct, updateIndProduct, updateStrProNonWCount,
     insertExProdSummaries,
