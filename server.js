@@ -34,10 +34,13 @@ const port = process.env.PORT || 4000;
 
 app.get("/routes", (req, res) => {
   res.json({
-    Server: `Server is running at ${req.protocol}://${req.hostname}:${port}`,
-    Routes: route_lists(app)
+    Server: `${req.protocol}://${req.hostname}:${port}`,
+    Routes: route_lists(app).reduce((acc, route) => {
+      acc += route.methods.length;
+      return acc;
+    }, 0)
   });
-});
+});0
 
 // error handling
 app.use([notFoundHandler, errorHandler]);

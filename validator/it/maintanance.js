@@ -45,10 +45,10 @@ const checkServicing = (req, res, next) => {
             cost: Joi.number().required(),
             specifications: Joi.array().min(0).items(
                 Joi.object().keys({
-                    name: Joi.string().min(2).required(),
-                    value: Joi.string().required(),
-                }).required()
-            ).unique((a, b) => a.name === b.name).required(),
+                    name: Joi.string().min(2),
+                    value: Joi.string(),
+                })
+            ).unique((a, b) => a.name === b.name),
             ind_prod_id: Joi.number().required(),
         })
     }

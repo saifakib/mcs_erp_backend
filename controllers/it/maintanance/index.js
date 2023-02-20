@@ -43,12 +43,15 @@ const postMaintanance = async (req, res, next) => {
         //const { user_id } = req.headers;
         const { user_id, ind_pro_id, ind_pro_req_id, user_remarks } = req.body;
 
+        const OTP = Math.floor(1000 + Math.random() * 9999);
+
         const maintananceRequest = {
             hrid: user_id,
             indProReqId: ind_pro_req_id,
             indProId: ind_pro_id,
             userRemarks: user_remarks,
-            status: 0
+            status: 0,
+            otp: OTP
         };
 
         const maintananceRequestR = await insertMaintananceReq(maintananceRequest);
@@ -86,36 +89,49 @@ const postServicing = async (req, res, next) => {
 
 const putMaintanance = async (req, res, next) => {
     try {
-        const { status, maintanance_id } = req.body;
+        const { status, maintanance_id, otp } = req.body;
         if (typeof (status) !== 'number' && typeof (maintanance_id) !== 'number') {
             res.json(createResponse("Error Occured", "Value should be a number", true));
         }
         else {
-            const accept = await updateMaintanance(status, maintanance_id);
-
-            const conStatus = [5, 7];
-            if (conStatus.includes(status)) {
-                const { rows } = await selectMaintanance(maintanance_id);
-                if (status === 5) {      // Maintanace Dead Status 5
-                    const updateIndProReqU = await updateIndProReq(rows[0].IND_PRO_REQ_ID, 2);
-                    const updateIndPro = await updateIndProduct(rows[0].IND_PRO_ID, 4);
-
-                    if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
+            if (status === 6) {
+                const maintanance = await selectMaintanance(maintanance_id);
+                if (maintanance.rows[0].otp === otp) {
+                    const accept = await updateMaintanance(status, maintanance_id);
+                    if (accept.rowsAffected === 1) {
                         res.json(createResponse(null, "Maintanance status has been Updated"));
+                    }
+                } else {
+                    res.json(createResponse(null, "Incorrect OTP"));
+                }
+
+            } else {
+                const accept = await updateMaintanance(status, maintanance_id);
+
+                const conStatus = [5, 7];
+                if (conStatus.includes(status)) {
+                    const { rows } = await selectMaintanance(maintanance_id);
+                    if (status === 5) {      // Maintanace Dead Status 5
+                        const updateIndProReqU = await updateIndProReq(rows[0].IND_PRO_REQ_ID, 2);
+                        const updateIndPro = await updateIndProduct(rows[0].IND_PRO_ID, 4);
+
+                        if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
+                            res.json(createResponse(null, "Maintanance status has been Updated"));
+                        }
+                    }
+                    else {
+                        const updateIndProReqU = await updateIndProReq(rows[0].IND_PRO_REQ_ID, 0);
+                        const updateIndPro = await updateIndProduct(rows[0].IND_PRO_ID, 1);
+
+                        if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
+                            res.json(createResponse(null, "Maintanance status has been Updated"));
+                        }
                     }
                 }
                 else {
-                    const updateIndProReqU = await updateIndProReq(rows[0].IND_PRO_REQ_ID, 0);
-                    const updateIndPro = await updateIndProduct(rows[0].IND_PRO_ID, 1);
-
-                    if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
+                    if (accept.rowsAffected === 1) {
                         res.json(createResponse(null, "Maintanance status has been Updated"));
                     }
-                }
-            }
-            else {
-                if (accept.rowsAffected === 1) {
-                    res.json(createResponse(null, "Maintanance status has been Updated"));
                 }
             }
         }
@@ -133,10 +149,10 @@ const putServicing = async (req, res, next) => {
         else {
             const putServing = await updateServicing(maintanance_id, remarks);
             const updateMaintananceR = await updateMaintanance(Number(4), maintanance_id, cost);
-            if(specifications.length > 0) {
+            if (specifications.length > 0) {
                 const postManySpecifications = await insertManySpecifications(maintanance_id, ind_prod_id, specifications);
             }
-            
+
             if (updateMaintananceR.rowsAffected === 1 && putServing.rowsAffected === 1) {
                 res.json(createResponse(null, "Maintanance and Servicing status has been Updated"));
             }

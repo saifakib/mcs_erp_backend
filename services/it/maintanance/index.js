@@ -6,7 +6,7 @@ const { oracledb } = require("../../../db/db");
 const selectMaintanances = (hrid) => {
     if (hrid) {
         return ExecuteIT(`SELECT M.MAINTENANCE_ID, M.IND_PRO_ID, M.IND_PRO_REQ_ID, TO_CHAR(M.REQ_DATE, 'MON DD, YYYY') AS REQUEST_DATE, C.CATEGORY_NAME, M.STATUS, PL.PRODUCT_NAME,
-        IP.UNIQUE_V, M.HR_ID, VE.NAME_ENGLISH, VE.DEPARTEMENT, VE.DESIGNATION, B.BRAND_NAME, MO.MODEL_NAME,
+        IP.UNIQUE_V, M.HR_ID, VE.NAME_ENGLISH, VE.DEPARTEMENT, VE.DESIGNATION, B.BRAND_NAME, MO.MODEL_NAME, M.OTP,
         CASE
           WHEN M.STATUS = 0 THEN 'Pending'
           WHEN M.STATUS = 1 THEN 'Approved'
@@ -27,7 +27,7 @@ const selectMaintanances = (hrid) => {
         LEFT OUTER JOIN MODELS MO ON MO.MODEL_ID = SP.MODEL_ID WHERE M.HR_ID = ${Number(hrid)}`);
     } else {
         return ExecuteIT(`  SELECT M.MAINTENANCE_ID, M.IND_PRO_ID, M.IND_PRO_REQ_ID, TO_CHAR(M.REQ_DATE, 'MON DD, YYYY') AS REQUEST_DATE, C.CATEGORY_NAME, M.STATUS, PL.PRODUCT_NAME,
-        IP.UNIQUE_V, M.HR_ID, VE.NAME_ENGLISH, VE.DEPARTEMENT, VE.DESIGNATION, B.BRAND_NAME, MO.MODEL_NAME,
+        IP.UNIQUE_V, M.HR_ID, VE.NAME_ENGLISH, VE.DEPARTEMENT, VE.DESIGNATION, B.BRAND_NAME, MO.MODEL_NAME, M.OTP,
         CASE
           WHEN M.STATUS = 0 THEN 'Pending'
           WHEN M.STATUS = 1 THEN 'Approved'
@@ -51,7 +51,7 @@ const selectMaintanances = (hrid) => {
 
 const selectMaintanance = (maintanance_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.IND_PRO_ID, M.IND_PRO_REQ_ID, 
     TO_CHAR(M.REQ_DATE, 'MON DD, YYYY') AS REQUEST_DATE, C.CATEGORY_NAME, M.STATUS, PL.PRODUCT_NAME,
-    IP.UNIQUE_V, M.HR_ID, VE.NAME_ENGLISH, VE.NAME_BANGLA, VE.DEPARTEMENT, VE.DESIGNATION, VE.DESIGNATION_BANGLA, B.BRAND_NAME, MO.MODEL_NAME, M.USER_REMARKS,  
+    IP.UNIQUE_V, M.HR_ID, VE.NAME_ENGLISH, VE.NAME_BANGLA, VE.DEPARTEMENT, VE.DESIGNATION, VE.DESIGNATION_BANGLA, B.BRAND_NAME, MO.MODEL_NAME, M.USER_REMARKS, M.OTP,
     CASE
         WHEN M.STATUS = 0 THEN 'Pending'
         WHEN M.STATUS = 1 THEN 'Approved'
@@ -75,7 +75,7 @@ const selectMaintanance = (maintanance_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID
 // INSERT maintanance request
 const insertMaintananceReq = (data) =>
     ExecuteIT(
-        `INSERT INTO MAINTENANCE (HR_ID, IND_PRO_ID, IND_PRO_REQ_ID, STATUS, USER_REMARKS) VALUES (${Number(data.hrid)}, ${Number(data.indProId)}, ${Number(data.indProReqId)}, ${Number(data.status)}, '${data.userRemarks}')`
+        `INSERT INTO MAINTENANCE (HR_ID, IND_PRO_ID, IND_PRO_REQ_ID, STATUS, USER_REMARKS, OTP) VALUES (${Number(data.hrid)}, ${Number(data.indProId)}, ${Number(data.indProReqId)}, ${Number(data.status)}, '${data.userRemarks}', ${Number(otp)})`
     );
 
 // INSERT servicing request
