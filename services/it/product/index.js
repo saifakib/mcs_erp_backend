@@ -88,15 +88,17 @@ const selectStoreProductsById = (str_pro_id) => ExecuteIT(`SELECT SP.STR_PRO_ID,
     LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
     LEFT OUTER JOIN BRAND B ON SP.BRAND_ID = B.BRAND_ID WHERE SP.STR_PRO_ID = ${Number(str_pro_id)}`);
 
-const selectStoreProdCountByProId = (pro_id) => ExecuteIT(`
-    SELECT sp.str_pro_id, sp.pro_id, pl.product_name , b.brand_name, m.model_name, SP.QUANTITY - SP.NON_WORKABLE AS quantity FROM  STORE_PRODUCTS SP  
+const selectStoreProdCountByProId = (pro_id) => ExecuteIT(`SELECT SP.STR_PRO_ID, SP.PRO_ID, PL.PRODUCT_NAME , B.BRAND_NAME, M.MODEL_NAME, SP.   QUANTITY - SP.NON_WORKABLE AS QUANTITY FROM  STORE_PRODUCTS SP  
     LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID
-    left outer join brand b on b.brand_id = sp.brand_id
-    left outer join models m on m.model_id = sp.model_id
-    WHERE PL.PRODUCT_ID = ${Number(pro_id)} order by sp.str_pro_id`);
+    LEFT OUTER JOIN BRAND B ON B.BRAND_ID = SP.BRAND_ID
+    LEFT OUTER JOIN MODELS M ON M.MODEL_ID = SP.MODEL_ID
+    WHERE PL.PRODUCT_ID = ${Number(pro_id)} ORDER BY SP.STR_PRO_ID`);
 
-const selectIndividualListByProId = (pro_id) =>
-    ExecuteIT(` SELECT IP.* FROM STORE_PRODUCTS SP LEFT OUTER JOIN IND_PRODUCT IP ON SP.STR_PRO_ID = IP.STR_PRO_ID WHERE SP.PRO_ID = ${Number(pro_id)}`);
+
+const selectIndividualListByProId = (pro_id) => ExecuteIT(`SELECT DISTINCT(I.IND_PRODUCT_ID),I.* FROM MAINTENANCE M 
+    LEFT OUTER JOIN IND_PRODUCT I ON M.IND_PRO_ID = I.IND_PRODUCT_ID
+    LEFT OUTER JOIN STORE_PRODUCTS S ON S.STR_PRO_ID = I.STR_PRO_ID
+    WHERE S.PRO_ID=${Number(pro_id)}`);
 
 
 const selectProductWithSup = (product_id, category_id) =>

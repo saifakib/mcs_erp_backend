@@ -159,11 +159,27 @@ const getMaintananceReport = async (req, res, next) => {
                 res.json(createResponse(null, "Required query missing", true));
             }
             else {
-                if (fdate && tdate) {
-                    response = await selectMaintananceByProDate(product_id, fdate, tdate);
-                }
+                const { ind_prod_id } = req.query;
+                let have = ind_prod_id ? true : false;
+
+                console.log(ind_prod_id)
+                console.log(have)
+
+                if(have) {
+                    if (fdate && tdate) {
+                        response = await selectMaintananceByProDate(product_id, fdate, tdate, have, ind_prod_id);
+                    }
+                    else {
+                        response = await selectMaintananceByProId(product_id, have, ind_prod_id);
+                    }
+                } 
                 else {
-                    response = await selectMaintananceByProId(product_id);
+                    if (fdate && tdate) {
+                        response = await selectMaintananceByProDate(product_id, fdate, tdate, have, {});
+                    }
+                    else {
+                        response = await selectMaintananceByProId(product_id, have, {});
+                    }
                 }
             }
         }
