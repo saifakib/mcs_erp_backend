@@ -17,7 +17,8 @@ const checkMaintanance = (req, res, next) => {
     else if (req.method == 'PUT') {
         checkMaintananceSchema = Joi.object().keys({
             status: Joi.number().required(),
-            maintanance_id: Joi.number().required()
+            maintanance_id: Joi.number().required(),
+            otp: Joi.number()
         })
     }
 

@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, selectRequisitionByHrid, selectRequisitionByDateHrid, selectMaintananceByDate, selectMaintananceByProDate, selectMaintananceByProId, selectMaintananceByHrDate, selectMaintananceByHrId, selectSpecificationsByIndProdId, selectChangesSpecificationsByIndProdId } = require("../../../services/it/report");
+const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, selectRequisitionByHrid, selectRequisitionByDateHrid, selectIndividualProdRequisitions, selectMaintananceByDate, selectMaintananceByProDate, selectMaintananceByProId, selectMaintananceByHrDate, selectMaintananceByHrId, selectSpecificationsByIndProdId, selectChangesSpecificationsByIndProdId } = require("../../../services/it/report");
 const { selectIndProductWIthDetails } = require("../../../services/it/product");
 const { format } = require('date-fns')
 
@@ -137,6 +137,18 @@ const getRequisitionReport = async (req, res, next) => {
     }
 };
 
+/**
+ * Report - Requisitions Show by a individual product
+ */
+const getIndividualProdRequisitionHistory = async (req, res, next) => {
+    const { ind_prod_id } = req.query;
+    try {
+        const response = await selectIndividualProdRequisitions(ind_prod_id);
+        res.json(response.rows)
+    } catch(err) {
+        next(err.message)
+    }
+}
 
 /**
  * Report - Maintanance by date, product and person
@@ -272,6 +284,7 @@ const getSpecificationsByIndProdIdReport = async (req, res, next) => {
 module.exports = {
     getEntriesProductReport,
     getRequisitionReport,
+    getIndividualProdRequisitionHistory,
     getMaintananceReport,
     getSpecificationsByIndProdIdReport
 };

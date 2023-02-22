@@ -23,7 +23,6 @@ router.get("/:req_id", getUserAcceptRequition);
 router.get("/details/:req_id", getAllDetailsRequisition);
 
 
-
 // User Requsition Is Pending Until Accept
 router.get("/isPending/:user_id", getUserReqIsPending);
 

@@ -4,7 +4,7 @@ const { updateIndProReq } = require("../../../services/it/requisition");
 const { updateIndProduct } = require("../../../services/it/product")
 
 /**
- * IT Maintanance Status Meaning
+ * IT Maintanance Status Code Meaning
  * 0 - Pending
  * 1 - Approve By IT
  * 2 - Accept By IT
@@ -66,9 +66,10 @@ const postMaintanance = async (req, res, next) => {
             status: 0,
             otp: OTP
         };
+
         const checkExitMaintanance = await selectExitMaintanace(user_id, ind_pro_req_id, ind_pro_id);
         if(checkExitMaintanance.rows.length > 0) {
-            res.json(createResponse(null, "Allready in maintanace process", false));
+            res.json(createResponse(null, "Allready in maintanace process", true));
         } else {
             const maintananceRequestR = await insertMaintananceReq(maintananceRequest);
             const updateIndProReqU = await updateIndProReq(ind_pro_req_id, 1);
@@ -112,9 +113,10 @@ const putMaintanance = async (req, res, next) => {
         }
         else {
             const maintanance = await selectMaintanance(maintanance_id);
+
             if (status === 7) {
-                if (maintanance.rows[0].otp !== otp) {
-                    res.json(createResponse(null, "Incorrect OTP"));
+                if (maintanance.rows[0].OTP !== otp) {
+                    res.json(createResponse(null, "Incorrect OTP", true));
                 } else {
                     const accept = await updateMaintanance(status, maintanance_id);
                     const updateIndProReqU = await updateIndProReq(maintanance.rows[0].IND_PRO_REQ_ID, 0);
@@ -124,7 +126,8 @@ const putMaintanance = async (req, res, next) => {
                         res.json(createResponse(null, "Maintanance status has been Updated"));
                     }
                 }
-            } else {
+            } 
+            else {
                 const accept = await updateMaintanance(status, maintanance_id);
 
                 //const conStatus = [5, 7];

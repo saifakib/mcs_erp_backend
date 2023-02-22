@@ -4,8 +4,17 @@ const { commitConnect, rollbackConnect, randConnect } = require('../../../utils/
 const { selectLastMrrNumber, selectIndProduct, selectStoreProducts, selectStoreProductsById, selectStoreProdCountByProId, selectIndStrProductsByStrId, selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore, selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList, selectIndividualListByProId, selectMaintananceProducts, insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries, insertExProdSummaries, updateStoreProduct, updateIndProduct, updateStrProNonWCount } = require("../../../services/it/product");
 const { selectProductLists } = require("../../../services/it/settings")
 const { number } = require("joi");
-const shortid = require('shortid');
 const { generator } = require("../../../utils/responseGenerator");
+
+
+/**
+ * IT Individual Product Status Code
+ * 0 - Active
+ * 1 - Requisition
+ * 2 - Maintanance
+ * 3 - Inactive
+ * 4 - Dead
+ */
 
 
 /*------------- All Get Controllers ---------------*/

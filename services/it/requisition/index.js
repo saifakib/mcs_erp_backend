@@ -180,15 +180,15 @@ const insertSummaries = (data) =>
 
 /*----------- UPDATE ----------- */
 // TODO: working letter, should be modified 
-const updateRequisition = (data, given) => {
+const updateRequisition = (data, given, OTP) => {
   if (data.REQ_STATUS == 2) {
     if (given) {
       return ExecuteIT(
-        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)}, GIVEN = ${Number(1)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
+        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)}, GIVEN = ${Number(1)}, OTP = ${Number(OTP)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
       )
     } else {
       return ExecuteIT(
-        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
+        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)}, OTP = ${Number(OTP)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
       )
     }
   } else {

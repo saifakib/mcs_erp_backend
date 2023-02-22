@@ -71,6 +71,14 @@ const selectRequisitionByDateHrid = (hrid, fdate, tdate) =>
   WHERE trunc(R.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD')  AND TO_DATE('${tdate}','YYYY-MM-DD')
   AND R.HR_ID = ${Number(hrid)}`);
 
+
+const selectIndividualProdRequisitions = (ind_prod_id) => ExecuteIT(`SELECT IPR.PRO_REQ_ID, PR.REQ_ID, TO_CHAR(R.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, VE.*  FROM   IND_PRO_REQUISITION IPR 
+  LEFT OUTER JOIN PRO_REQUISITION PR ON PR.PRO_REQ_ID = IPR.PRO_REQ_ID
+  LEFT OUTER JOIN REQUISITION R ON R.REQ_ID = PR.REQ_ID
+  LEFT OUTER JOIN VIEW_EMP_DETAILS VE ON VE.EMPLOYE_ID = R.HR_ID
+  LEFT OUTER JOIN STORE_PRODUCTS SP ON SP.STR_PRO_ID = R.HR_ID
+  WHERE IPR.IND_PRODUCT_ID = ${Number(ind_prod_id)} ORDER BY IPR.PRO_REQ_ID DESC`);
+
 const selectMaintananceByDate = (fdate, tdate) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.HR_ID, TO_CHAR(M.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, E.NAME_ENGLISH, E.DEPARTEMENT, E.DESIGNATION, C.CATEGORY_NAME,
   PL.PRODUCT_NAME, B.BRAND_NAME, MD.MODEL_NAME, U.UNIT_ID, U.UNIT_NAME, IP.UNIQUE_V, M.COST,
   CASE
@@ -276,6 +284,7 @@ module.exports = {
   selectRequisitionByProId,
   selectRequisitionByHrid,
   selectRequisitionByDateHrid,
+  selectIndividualProdRequisitions,
   selectMaintananceByDate,
   selectMaintananceByProDate,
   selectMaintananceByProId,

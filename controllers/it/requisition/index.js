@@ -3,6 +3,24 @@ const { selectUserReqIsPending, selectUserRequisitions, selectUserAcceptRequisit
 
 const { updateIndProduct } = require("../../../services/it/product")
 
+/**
+ * IT Requisition Status Code
+ * 0 - Pending
+ * 1 - Approve
+ * 2 - Accept
+ * 3 - Deny
+ * 
+ * IT Requisition Given Status Code
+ * 1 - Given
+ * 0 - Not Given
+ * 
+ * IT Individual Product Requisition Status Code
+ * 0 - Approve
+ * 1 - Maintanance
+ * 2 - Dead
+ * 3 - Return
+ */
+
 
 /*------------- get ------------*/
 const getUserRequitions = async (req, res, next) => {
@@ -392,7 +410,10 @@ const putReqByItStoreOfficer = async (req, res, next) => {
                     REQ_ID: Number(req_id),
                 };
 
-                const requistionUpdate = await updateRequisition(updateObj, given);
+                // Generate 4 digits OTP
+                const OTP = Math.floor(1000 + Math.random() * 9000);
+
+                const requistionUpdate = await updateRequisition(updateObj, given, OTP);
                 if (requistionUpdate.rowsAffected === 1) {
                     res.json(createResponse(null, "Requisition Approved"));
                 }

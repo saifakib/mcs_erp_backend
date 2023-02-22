@@ -14,7 +14,6 @@ This repository uses a number libraries to work:
 - [BcryptJs]
 - [Joi]
 - [jsonwebtoken]
-- [shortid]
 
 
 
