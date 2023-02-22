@@ -164,16 +164,32 @@ const insertStoreProduct = ({
     non_workable,
     price,
     stock_alert,
-    remarks
-}) =>
-    ExecuteIT(
-        `INSERT INTO STORE_PRODUCTS (MODEL_ID, PRO_ID, BRAND_ID, UNIT_ID, QUANTITY, NON_WORKABLE, PRICE, STOCK_ALERT, REMARKS) VALUES (${Number(model_id)}, ${Number(pro_id)}, ${Number(
-            brand_id
-        )}, ${Number(unit_id)}, ${Number(qty)}, ${Number(non_workable)}, ${Number(price)}, ${Number(
-            stock_alert
-        )}, '${remarks}') RETURN STR_PRO_ID INTO :id`,
-        { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
-    );
+    remarks,
+    license_expire_date,
+    files=[]
+}) => {
+    if(typeof license_expire_date !== 'undefined') {
+        return ExecuteIT(
+            `INSERT INTO STORE_PRODUCTS (MODEL_ID, PRO_ID, BRAND_ID, UNIT_ID, QUANTITY, NON_WORKABLE, PRICE, STOCK_ALERT, REMARKS, LICENSE_E_DATE, FILES) VALUES (${Number(model_id)}, ${Number(pro_id)}, ${Number(
+                brand_id
+            )}, ${Number(unit_id)}, ${Number(qty)}, ${Number(non_workable)}, ${Number(price)}, ${Number(
+                stock_alert
+            )}, '${remarks}', TO_DATE('${license_expire_date}', 'YYYY-MM-DD'), '${files}') RETURN STR_PRO_ID INTO :id`,
+            { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+        );
+    } else {
+        return ExecuteIT(
+            `INSERT INTO STORE_PRODUCTS (MODEL_ID, PRO_ID, BRAND_ID, UNIT_ID, QUANTITY, NON_WORKABLE, PRICE, STOCK_ALERT, REMARKS, FILES) VALUES (${Number(model_id)}, ${Number(pro_id)}, ${Number(
+                brand_id
+            )}, ${Number(unit_id)}, ${Number(qty)}, ${Number(non_workable)}, ${Number(price)}, ${Number(
+                stock_alert
+            )}, '${remarks}', '${files}') RETURN STR_PRO_ID INTO :id`,
+            { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
+        );
+    }
+    
+}
+    
 
 const insertManyInd_Product = (array) => {
     let newArray = array;

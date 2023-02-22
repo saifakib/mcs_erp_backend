@@ -1,7 +1,19 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectMaintanances, selectMaintanance, insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateServicing } = require("../../../services/it/maintanance");
+const { selectMaintanances, selectMaintanance, selectExitMaintanace, insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateServicing } = require("../../../services/it/maintanance");
 const { updateIndProReq } = require("../../../services/it/requisition");
 const { updateIndProduct } = require("../../../services/it/product")
+
+/**
+ * IT Maintanance Status Meaning
+ * 0 - Pending
+ * 1 - Approve By IT
+ * 2 - Accept By IT
+ * 3 - Servicing
+ * 4 - Back To IT
+ * 5 - Dead
+ * 6 - Send to User Notify
+ * 7 - User Accept 
+ */
 
 
 /*------------- get ------------*/
@@ -43,7 +55,8 @@ const postMaintanance = async (req, res, next) => {
         //const { user_id } = req.headers;
         const { user_id, ind_pro_id, ind_pro_req_id, user_remarks } = req.body;
 
-        const OTP = Math.floor(1000 + Math.random() * 9999);
+        // Generate 4 digits OTP
+        const OTP = Math.floor(1000 + Math.random() * 9000);
 
         const maintananceRequest = {
             hrid: user_id,
@@ -53,13 +66,17 @@ const postMaintanance = async (req, res, next) => {
             status: 0,
             otp: OTP
         };
-
-        const maintananceRequestR = await insertMaintananceReq(maintananceRequest);
-        const updateIndProReqU = await updateIndProReq(ind_pro_req_id, 1);
-        const updateIndPro = await updateIndProduct(ind_pro_id, 2);
-
-        if (maintananceRequestR.rowsAffected >= 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
-            res.json(createResponse(null, "Maintanance Request Success", false));
+        const checkExitMaintanance = await selectExitMaintanace(user_id, ind_pro_req_id, ind_pro_id);
+        if(checkExitMaintanance.rows.length > 0) {
+            res.json(createResponse(null, "Allready in maintanace process", false));
+        } else {
+            const maintananceRequestR = await insertMaintananceReq(maintananceRequest);
+            const updateIndProReqU = await updateIndProReq(ind_pro_req_id, 1);
+            const updateIndPro = await updateIndProduct(ind_pro_id, 2);
+    
+            if (maintananceRequestR.rowsAffected >= 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
+                res.json(createResponse(null, "Maintanance Request Success", false));
+            }
         }
     } catch (err) {
         next(err.message);
@@ -94,41 +111,32 @@ const putMaintanance = async (req, res, next) => {
             res.json(createResponse("Error Occured", "Value should be a number", true));
         }
         else {
-            if (status === 6) {
-                const maintanance = await selectMaintanance(maintanance_id);
-                if (maintanance.rows[0].otp === otp) {
+            const maintanance = await selectMaintanance(maintanance_id);
+            if (status === 7) {
+                if (maintanance.rows[0].otp !== otp) {
+                    res.json(createResponse(null, "Incorrect OTP"));
+                } else {
                     const accept = await updateMaintanance(status, maintanance_id);
-                    if (accept.rowsAffected === 1) {
+                    const updateIndProReqU = await updateIndProReq(maintanance.rows[0].IND_PRO_REQ_ID, 0);
+                    const updateIndPro = await updateIndProduct(maintanance.rows[0].IND_PRO_ID, 1);
+
+                    if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
                         res.json(createResponse(null, "Maintanance status has been Updated"));
                     }
-                } else {
-                    res.json(createResponse(null, "Incorrect OTP"));
                 }
-
             } else {
                 const accept = await updateMaintanance(status, maintanance_id);
 
-                const conStatus = [5, 7];
-                if (conStatus.includes(status)) {
-                    const { rows } = await selectMaintanance(maintanance_id);
-                    if (status === 5) {      // Maintanace Dead Status 5
-                        const updateIndProReqU = await updateIndProReq(rows[0].IND_PRO_REQ_ID, 2);
-                        const updateIndPro = await updateIndProduct(rows[0].IND_PRO_ID, 4);
+                //const conStatus = [5, 7];
+                // if (conStatus.includes(status))
+                if (status === 5) {      // Maintanace Dead Status 5
+                    const updateIndProReqU = await updateIndProReq(maintanance.rows[0].IND_PRO_REQ_ID, 2);
+                    const updateIndPro = await updateIndProduct(maintanance.rows[0].IND_PRO_ID, 4);
 
-                        if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
-                            res.json(createResponse(null, "Maintanance status has been Updated"));
-                        }
+                    if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
+                        res.json(createResponse(null, "Maintanance status has been Updated"));
                     }
-                    else {
-                        const updateIndProReqU = await updateIndProReq(rows[0].IND_PRO_REQ_ID, 0);
-                        const updateIndPro = await updateIndProduct(rows[0].IND_PRO_ID, 1);
-
-                        if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
-                            res.json(createResponse(null, "Maintanance status has been Updated"));
-                        }
-                    }
-                }
-                else {
+                } else {
                     if (accept.rowsAffected === 1) {
                         res.json(createResponse(null, "Maintanance status has been Updated"));
                     }

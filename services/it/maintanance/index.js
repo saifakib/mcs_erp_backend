@@ -71,11 +71,13 @@ const selectMaintanance = (maintanance_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID
     LEFT OUTER JOIN BRAND B ON B.BRAND_ID = SP.BRAND_ID
     LEFT OUTER JOIN MODELS MO ON MO.MODEL_ID = SP.MODEL_ID WHERE M.MAINTENANCE_ID = ${Number(maintanance_id)}`);
 
+const selectExitMaintanace = (hrid, indProReqId, indProId) => ExecuteIT(`SELECT * FROM MAINTENANCE WHERE HR_ID = ${Number(hrid)} AND IND_PRO_ID = ${Number(indProId)} AND IND_PRO_REQ_ID = ${Number(indProReqId)} AND STATUS IN (0, 1, 2, 3, 4, 5, 6)`)
+
 /*------------- INSERT ------------*/
 // INSERT maintanance request
 const insertMaintananceReq = (data) =>
     ExecuteIT(
-        `INSERT INTO MAINTENANCE (HR_ID, IND_PRO_ID, IND_PRO_REQ_ID, STATUS, USER_REMARKS, OTP) VALUES (${Number(data.hrid)}, ${Number(data.indProId)}, ${Number(data.indProReqId)}, ${Number(data.status)}, '${data.userRemarks}', ${Number(otp)})`
+        `INSERT INTO MAINTENANCE (HR_ID, IND_PRO_ID, IND_PRO_REQ_ID, STATUS, USER_REMARKS, OTP) VALUES (${Number(data.hrid)}, ${Number(data.indProId)}, ${Number(data.indProReqId)}, ${Number(data.status)}, '${data.userRemarks}', ${Number(data.otp)})`
     );
 
 // INSERT servicing request
@@ -105,5 +107,5 @@ const updateMaintanance = (status, maintanance_id, cost) => {
 const updateServicing = (maintanance_id, remarks) => ExecuteIT(`UPDATE SERVICES SET STATUS = ${Number(1)}, REMARKS = '${remarks}' WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
 
 module.exports = {
-    selectMaintanances, selectMaintanance, insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateServicing
+    selectMaintanances, selectMaintanance, selectExitMaintanace,  insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateServicing
 }
