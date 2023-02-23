@@ -1,6 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, 
-    selectProductRequisitionsByProId, selectRequisitionByHrid, selectRequisitionByDateHrid, selectIndividualProdRequisitions, selectMaintananceByDate, selectMaintananceByProDate, selectMaintananceByProId, selectMaintananceByHrDate, selectMaintananceByHrId, selectSpecificationsByIndProdId, selectChangesSpecificationsByIndProdId } = require("../../../services/it/report");
+const { selectAllEntriesReports, selectsingleEntriesReports, selectRequisitionByDate, selectRequisitionByProdDate, selectRequisitionByProId, selectProductListRequisitions, selectProductRequisitionsByProId, selectRequisitionByHrid, selectRequisitionByDateHrid, selectIndividualProdRequisitions, selectMaintananceByDate, selectMaintananceByProDate, selectMaintananceByProId, selectMaintananceByHrDate, selectMaintananceByHrId, selectSpecificationsByIndProdId, selectChangesSpecificationsByIndProdId } = require("../../../services/it/report");
 const { selectIndProductWIthDetails } = require("../../../services/it/product");
 const { format } = require('date-fns')
 
@@ -139,6 +138,18 @@ const getRequisitionReport = async (req, res, next) => {
 };
 
 /**
+ * Report - Requisitions Show Product List
+ */
+const getProductListRequisitions = async (req, res, next) => {
+    try {
+        const response = await selectProductListRequisitions();
+        res.json(response.rows)
+    } catch (err) {
+        next(err.message)
+    }
+}
+
+/**
  * Report - Requisitions Show by a individual product
  */
 const getProductRequisitionsByProId = async (req, res, next) => {
@@ -146,7 +157,7 @@ const getProductRequisitionsByProId = async (req, res, next) => {
     try {
         const response = await selectProductRequisitionsByProId(pro_id);
         res.json(response.rows)
-    } catch(err) {
+    } catch (err) {
         next(err.message)
     }
 }
@@ -159,7 +170,7 @@ const getIndividualProdRequisitionHistory = async (req, res, next) => {
     try {
         const response = await selectIndividualProdRequisitions(ind_prod_id);
         res.json(response.rows)
-    } catch(err) {
+    } catch (err) {
         next(err.message)
     }
 }
@@ -188,14 +199,14 @@ const getMaintananceReport = async (req, res, next) => {
                 const { ind_prod_id } = req.query;
                 let have = ind_prod_id ? true : false;
 
-                if(have) {
+                if (have) {
                     if (fdate && tdate) {
                         response = await selectMaintananceByProDate(product_id, fdate, tdate, have, ind_prod_id);
                     }
                     else {
                         response = await selectMaintananceByProId(product_id, have, ind_prod_id);
                     }
-                } 
+                }
                 else {
                     if (fdate && tdate) {
                         response = await selectMaintananceByProDate(product_id, fdate, tdate, have, {});
@@ -274,12 +285,12 @@ const getSpecificationsByIndProdIdReport = async (req, res, next) => {
             }, {});
 
             const responseChangesFilter = Object.keys(changesSpecificationsFilter).reduce((acc, key, index) => {
-                acc[index] = { 
+                acc[index] = {
                     MAINTENANCE_ID: key,
                     COST: changesSpecificationsFilter[key][0]["COST"],
                     REQ_DATE: changesSpecificationsFilter[key][0]["REQ_DATE"],
                     DATA: changesSpecificationsFilter[key]
-                 }
+                }
                 return acc;
             }, []);
 
@@ -298,6 +309,7 @@ const getSpecificationsByIndProdIdReport = async (req, res, next) => {
 module.exports = {
     getEntriesProductReport,
     getRequisitionReport,
+    getProductListRequisitions,
     getProductRequisitionsByProId,
     getIndividualProdRequisitionHistory,
     getMaintananceReport,

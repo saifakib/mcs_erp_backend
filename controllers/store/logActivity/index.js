@@ -4,7 +4,7 @@ const { queryFieldValidator } = require("../../../utils/queryFieldValidator");
 
 
 /*------------- All GET Routes ---------------*/
-
+//TODO::Lots of things to modify
 const getLogActivity = async (req, res, next) => {
   try {
     let resp = queryFieldValidator(['hrid', 'module'], req.query);

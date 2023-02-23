@@ -59,7 +59,7 @@ const selectIndStrProductsByProId = (product_id, supplier_id) =>
 
 const selectIndStrProductsByStrId = (product_id, supplier_id, str_pro_id) =>
     ExecuteIT(`SELECT  
-    S.SUPPLIER_ID,S.SUP_NAME, PL.PRODUCT_NAME, IP.IND_PRODUCT_ID, IP.STR_PRO_ID, IP.UNIQUE_V,
+    S.SUPPLIER_ID,S.SUP_NAME, PL.PRODUCT_NAME, IP.IND_PRODUCT_ID, IP.STR_PRO_ID, IP.UNIQUE_V, IP.SERIAL_NUMBER,
     CASE 
     WHEN IP.STATUS = 0 THEN 'Active'
     WHEN IP.STATUS = 1 THEN 'Requisition'

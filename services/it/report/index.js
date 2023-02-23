@@ -71,6 +71,10 @@ const selectRequisitionByDateHrid = (hrid, fdate, tdate) =>
   WHERE trunc(R.REQ_DATE) BETWEEN TO_DATE('${fdate}','YYYY-MM-DD')  AND TO_DATE('${tdate}','YYYY-MM-DD')
   AND R.HR_ID = ${Number(hrid)}`);
 
+const selectProductListRequisitions = () => ExecuteIT(`SELECT DISTINCT PL.PRODUCT_ID,  PL.* FROM IND_PRO_REQUISITION INP
+LEFT OUTER JOIN STORE_PRODUCTS SP ON SP.STR_PRO_ID = INP.STR_PRO_ID
+LEFT OUTER JOIN PRODUCT_LIST PL ON PL.PRODUCT_ID = SP.PRO_ID`);
+
 const selectProductRequisitionsByProId = (pro_id) => ExecuteIT(`SELECT DISTINCT INP.IND_PRODUCT_ID,  IP.* FROM IND_PRO_REQUISITION INP
 LEFT OUTER JOIN IND_PRODUCT IP ON IP.IND_PRODUCT_ID = INP.IND_PRODUCT_ID
 LEFT OUTER JOIN STORE_PRODUCTS SP ON SP.STR_PRO_ID = INP.STR_PRO_ID WHERE SP.PRO_ID = ${Number(pro_id)}`);
@@ -294,7 +298,8 @@ module.exports = {
   selectMaintananceByHrDate,
   selectMaintananceByHrId,
   selectSpecificationsByIndProdId,
+  selectProductListRequisitions,
   selectProductRequisitionsByProId,
   selectChangesSpecificationsByIndProdId
-  
+
 };
