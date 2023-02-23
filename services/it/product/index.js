@@ -134,7 +134,7 @@ WHERE IP.STR_PRO_ID = (SELECT MAX(STR_PRO_ID) FROM STORE_PRODUCTS WHERE PRO_ID =
 // Product Entries
 const insertMrrLogs = (
     {
-        mrr_no,
+        mrr,
         supplier_id,
         suppdate,
         workorder,
@@ -146,7 +146,7 @@ const insertMrrLogs = (
 ) =>
     ExecuteIT(
         `INSERT INTO MRRLOGS (MRR_NO, SUP_ID, SUPP_DATE, WORK_ORDER, CASHMEMO_NO, CASHMEMO_DATE, ENTRY_BY, WORK_ORDER_DATE) VALUES (${Number(
-            mrr_no
+            mrr
         )}, ${Number(
             supplier_id
         )}, TO_DATE('${suppdate}', 'YYYY-MM-DD'), '${workorder}', '${cashmemono}', TO_DATE('${cashmemodate}', 'YYYY-MM-DD'), ${Number(user_id)}, TO_DATE('${workorderdate}', 'YYYY-MM-DD')) RETURN MRR_LOG_ID INTO :id`,
@@ -166,9 +166,9 @@ const insertStoreProduct = ({
     stock_alert,
     remarks,
     license_expire_date,
-    files=[]
+    files=""
 }) => {
-    if(typeof license_expire_date !== 'undefined') {
+    if(typeof license_expire_date != 'undefined') {
         return ExecuteIT(
             `INSERT INTO STORE_PRODUCTS (MODEL_ID, PRO_ID, BRAND_ID, UNIT_ID, QUANTITY, NON_WORKABLE, PRICE, STOCK_ALERT, REMARKS, LICENSE_E_DATE, FILES) VALUES (${Number(model_id)}, ${Number(pro_id)}, ${Number(
                 brand_id
@@ -193,7 +193,7 @@ const insertStoreProduct = ({
 
 const insertManyInd_Product = (array) => {
     let newArray = array;
-    const statement = `INSERT INTO IND_PRODUCT (STR_PRO_ID, STATUS, UNIQUE_V, PRICE) VALUES (:STR_PRO_ID, :STATUS, :UNIQUE_V, :PRICE)`;
+    const statement = `INSERT INTO IND_PRODUCT (STR_PRO_ID, STATUS, UNIQUE_V, PRICE, SERIAL_NUMBER) VALUES (:STR_PRO_ID, :STATUS, :UNIQUE_V, :PRICE, :SERIAL_NUMBER)`;
     return ExecuteITMany(statement, newArray);
 };
 

@@ -206,14 +206,15 @@ const getMaintananceProducts = async (_, res, next) => {
 /*------------- All Post Controllers ---------------*/
 const postProductEntrilist = async (req, res, next) => {
     const {
+        mrr,
         supplier_id,
         products,
     } = req.body;
 
     try {
-        const mrr_no = await lastMrrNum();
-        if (mrr_no) {
-            const postMrrLogs = await insertMrrLogs({ ...req.body, mrr_no });
+        //const mrr_no = await lastMrrNum();
+        if (mrr) {
+            const postMrrLogs = await insertMrrLogs({ ...req.body, mrr });
             if (postMrrLogs.rowsAffected === 1) {
                 let count = 0;
                 products.forEach(async (product) => {
@@ -226,7 +227,6 @@ const postProductEntrilist = async (req, res, next) => {
 
                         let gen;
                         //const lastStrProdIndList = await selectLastStrProdIndList(product.pro_id);
-                        console.log(lastStrProdIndList)
                         if (lastStrProdIndList.rows.length > 0) {
                             let Uvalue = lastStrProdIndList.rows[0].UNIQUE_V;
                             let lastStrProdIndNumber = Number(Uvalue.substr(Uvalue.length - 4));
@@ -242,14 +242,16 @@ const postProductEntrilist = async (req, res, next) => {
                                     //UNIQUE_V: unique + shortid.generate(),
                                     UNIQUE_V: unique + String(gen.next().value).padStart(4, '0'),
                                     STATUS: 3,   // product inactive
-                                    PRICE: product.price
+                                    PRICE: product.price,
+                                    SERIAL_NUMBER: product.serial_numbers[i]
                                 })
                             } else {
                                 indProducts.push({
                                     STR_PRO_ID: postStorePro.outBinds.id[0],
                                     UNIQUE_V: unique + String(gen.next().value).padStart(4, '0'),
                                     STATUS: 0,  // product active
-                                    PRICE: product.price
+                                    PRICE: product.price,
+                                    SERIAL_NUMBER: product.serial_numbers[i]
                                 })
                             }
                         }

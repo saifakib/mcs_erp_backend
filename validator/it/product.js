@@ -8,6 +8,7 @@ const checkProdEntries = (req, res, next) => {
 
     if (req.method == 'POST') {
         checkProdEntriesSchema = Joi.object().keys({
+            mrr: Joi.number().required(),
             supplier_id: Joi.number().required(),
             user_id: Joi.number().required(),
             workorder: Joi.string().required(),
@@ -16,20 +17,26 @@ const checkProdEntries = (req, res, next) => {
             suppdate: Joi.date().required(),
             cashmemodate: Joi.date().required(),
             products: Joi.array().min(1).items(
-                Joi.object().keys({
-                    model_id: Joi.number().required(),
-                    pro_id: Joi.number().required(),
-                    brand_id: Joi.number().required(),
-                    unit_id: Joi.number().required(),
-                    qty: Joi.number().min(0).required(),
-                    non_workable: Joi.number().min(0).default(0).required(),
-                    price: Joi.number().required(),
-                    stock_alert: Joi.number().min(1).required(),
-                    remarks: Joi.string(),
-                }).required()
-            ).unique((a, b) => a.pro_id === b.pro_id).required(),
-
-        })
+              Joi.object().keys({
+                model_id: Joi.number().required(),
+                pro_id: Joi.number().required(),
+                brand_id: Joi.number().required(),
+                unit_id: Joi.number().required(),
+                qty: Joi.number().min(0).required(),
+                non_workable: Joi.number().min(0).default(0).required(),
+                price: Joi.number().required(),
+                stock_alert: Joi.number().min(1).required(),
+                remarks: Joi.string(),
+                license_expire_date: Joi.date(),
+                files: Joi.string(),
+                serial_numbers: Joi.array().min(1).items(Joi.string())
+                  .required()
+                  .length(Joi.ref('qty'))
+                  .unique()
+                  .required()
+              }).required()
+            ).unique((a, b) => a.pro_id === b.pro_id).required()
+          });
     }
     const { error } = checkProdEntriesSchema.validate({ ...req.body });
     const valid = error == null;

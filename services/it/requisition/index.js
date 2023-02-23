@@ -19,7 +19,7 @@ FROM REQUISITION
 WHERE REQ_ID=(SELECT max(REQ_ID) FROM REQUISITION WHERE HR_ID = ${Number(user_id)})`);
 
 const selectUserRequisitions = (user_id) =>
-  ExecuteIT(`SELECT distinct(R.REQ_ID), R.HR_ID, R.USER_REMARKS, R.STR_REMARKS, TO_CHAR(R.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, D.DEPARTEMENT, DE.DESIGNATION,
+  ExecuteIT(`SELECT distinct(R.REQ_ID), R.HR_ID, R.USER_REMARKS, R.STR_REMARKS, R.OTP, TO_CHAR(R.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, D.DEPARTEMENT, DE.DESIGNATION,
   case
     when R.REQ_STATUS = 0 then 'Pending'
     when R.REQ_STATUS = 1 then 'Approved'
@@ -65,22 +65,22 @@ const selectUserAcceptActiveRequisitions = (user_id) =>
 const selectStatusRequisitions = (status, ts, given) => {
   if (ts) {
     return ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
-    TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, R.GIVEN,
+    TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, R.GIVEN, R.OTP,
     sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 
     LEFT OUTER JOIN PRO_REQUISITION PR ON R.REQ_ID = PR.REQ_ID 
     LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.HR_ID 
     LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID 
     LEFT OUTER JOIN HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
-    WHERE R.REQ_STATUS = ${Number(status)} AND R.GIVEN = ${Number(given)}`)
+    WHERE R.REQ_STATUS = ${Number(status)} AND R.GIVEN = ${Number(given)} ORDER BY R.REQ_ID DESC`)
   } else {
     return ExecuteIT(`SELECT DISTINCT(R.REQ_ID), TO_CHAR(R.REQ_DATE, 'DD-MM-YYYY') AS REQ_DATE, 
-    TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, R.GIVEN,
+    TO_CHAR(R.REQ_DATE, 'hh12:mi am') AS REQ_TIME, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION, R.GIVEN, R.OTP,
     sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as REQ_QTY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as APR_QTY FROM REQUISITION R 
     LEFT OUTER JOIN PRO_REQUISITION PR ON R.REQ_ID = PR.REQ_ID 
     LEFT OUTER JOIN HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.HR_ID 
     LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID 
     LEFT OUTER JOIN HRM.DESIGNATION DG ON DG.DESIGNATION_ID = E.DESIGNATION_ID
-    WHERE R.REQ_STATUS = ${Number(status)}`)
+    WHERE R.REQ_STATUS = ${Number(status)} ORDER BY R.REQ_ID DESC`)
   }
 }
 
@@ -184,26 +184,25 @@ const updateRequisition = (data, given, OTP) => {
   if (data.REQ_STATUS == 2) {
     if (given) {
       return ExecuteIT(
-        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)}, GIVEN = ${Number(1)}, OTP = ${Number(OTP)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
+        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)}, GIVEN = ${Number(1)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
       )
     } else {
       return ExecuteIT(
-        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)}, OTP = ${Number(OTP)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
+        `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
       )
     }
   } else {
     if (given) {
       return ExecuteIT(
         `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)},
-          STR_REMARKS = '${data.STR_REMARKS}', GIVEN = ${Number(1)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
+          STR_REMARKS = '${data.STR_REMARKS}', GIVEN = ${Number(1)}, OTP = ${Number(OTP)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
       )
     } else {
       return ExecuteIT(
         `UPDATE REQUISITION SET REQ_STATUS = ${Number(data.REQ_STATUS)},
-          STR_REMARKS = '${data.STR_REMARKS}' WHERE REQ_ID = ${Number(data.REQ_ID)}`
+          STR_REMARKS = '${data.STR_REMARKS}', OTP = ${Number(OTP)} WHERE REQ_ID = ${Number(data.REQ_ID)}`
       )
     }
-
   }
 };
 
