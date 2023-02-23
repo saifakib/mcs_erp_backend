@@ -27,7 +27,7 @@ const checkProdEntries = (req, res, next) => {
                 price: Joi.number().required(),
                 stock_alert: Joi.number().min(1).required(),
                 remarks: Joi.string(),
-                license_expire_date: Joi.date(),
+                license_expire_date: Joi.date().greater('now'),
                 files: Joi.string(),
                 serial_numbers: Joi.array().min(1).items(Joi.string())
                   .required()
