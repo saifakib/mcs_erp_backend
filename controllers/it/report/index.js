@@ -143,7 +143,7 @@ const getRequisitionReport = async (req, res, next) => {
 const getProductListRequisitions = async (req, res, next) => {
     try {
         const response = await selectProductListRequisitions();
-        res.json(response.rows)
+        res.json(createResponse(response.rows))
     } catch (err) {
         next(err.message)
     }
@@ -156,7 +156,7 @@ const getProductRequisitionsByProId = async (req, res, next) => {
     const { pro_id } = req.query;
     try {
         const response = await selectProductRequisitionsByProId(pro_id);
-        res.json(response.rows)
+        res.json(createResponse(response.rows))
     } catch (err) {
         next(err.message)
     }
@@ -169,7 +169,7 @@ const getIndividualProdRequisitionHistory = async (req, res, next) => {
     const { ind_prod_id } = req.query;
     try {
         const response = await selectIndividualProdRequisitions(ind_prod_id);
-        res.json(response.rows)
+        res.json(createResponse(response.rows))
     } catch (err) {
         next(err.message)
     }

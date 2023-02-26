@@ -480,7 +480,7 @@ const putRequisitionGivenStatus = async (req, res, next) => {
     }
 }
 
-// Update Individual Requisition Status
+// Update Individual Requisition Status  // Return Product to Store
 const putIndRequisition = async (req, res, next) => {
     try {
         const { ind_pro_req_id } = req.params;
@@ -492,7 +492,8 @@ const putIndRequisition = async (req, res, next) => {
             const findIndRequisition = await selectIndRequisitionById(ind_pro_req_id);
 
             if (findIndRequisition.rows.length > 0) {
-                const updateIndRequisition = await updateIndProReq(ind_pro_req_id, 3);  // STATUS 3 FOR RETURN PRODUCT TO IT
+                const date = new Date();
+                const updateIndRequisition = await updateIndProReq(ind_pro_req_id, 3, date.toISOString().split("T")[0]);  // STATUS 3 FOR RETURN PRODUCT TO IT
 
                 if (updateIndRequisition.rowsAffected === 1) {
                     const updateIndProd = await updateIndProduct(findIndRequisition.rows[0]["IND_PRODUCT_ID"], 0);

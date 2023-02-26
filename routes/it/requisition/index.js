@@ -29,7 +29,7 @@ router.get("/isPending/:user_id", getUserReqIsPending);
 
 router.get("/individual/user/:user_id", getIndividualUserRequitions);
 
-// Update Individual Pro Requisition 
+// Update Individual Pro Requisition  // Return Product to Store
 router.put("/individual/:ind_pro_req_id", putIndRequisition);
 
 

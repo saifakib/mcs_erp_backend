@@ -234,8 +234,8 @@ const updateManyIndProduct = (array) => {
   return ExecuteITMany(statement, newArray)
 }
 
-const updateIndProReq = (ind_pro_req_id, status) =>
-  ExecuteIT(`UPDATE IND_PRO_REQUISITION SET STATUS = ${Number(status)} WHERE IND_PRO_ID = ${Number(ind_pro_req_id)}`)
+const updateIndProReq = (ind_pro_req_id, status, current_date) =>
+  ExecuteIT(`UPDATE IND_PRO_REQUISITION SET STATUS = ${Number(status)}, RETURN_DATE = TO_DATE('${current_date}', 'YYYY-MM-DD') WHERE IND_PRO_ID = ${Number(ind_pro_req_id)}`)
 
 module.exports = {
   // selectProductBalance,
