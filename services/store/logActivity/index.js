@@ -3,7 +3,7 @@ const { Execute } = require("../../../utils/dynamicController");
 
 /*-------------------------------- SELECT --------------------------------*/
 
-const selectLogActivityFilter = (query) => Execute(`SELECT * FROM STR_ACTIVITY_LOGS ${query}`)
+const selectLogActivityFilter = (query) => Execute(`SELECT hrid, UPPER(ACTION_TYPE) AS ACTION_TYPE, LOG_DETAIL, UPPER(MODULE) AS MODULE, UPPER(SUBMODULE) AS SUBMODULE, TO_CHAR(LOG_TIME,'MON DD,YYYY') AS DATES, TO_CHAR(LOG_TIME,'HH:MI SS AM') AS TIMES FROM STR_ACTIVITY_LOGS ${query}`)
 
 /*--------------------------------END SELECT --------------------------------*/
 

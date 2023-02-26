@@ -4,26 +4,36 @@ const { queryFieldValidator } = require("../../../utils/queryFieldValidator");
 
 
 /*------------- All GET Routes ---------------*/
-//TODO::Lots of things to modify
 const getLogActivity = async (req, res, next) => {
   try {
-    let resp = queryFieldValidator(['hrid', 'module'], req.query);
-    let modifyQuery = Object.keys(req.query).reduce((acc, key, index) => {
-      if (key == 'hrid') {
-        req.query[key] = Number(req.query[key]);
-      } else {
-        req.query[key] = `'${req.query[key]}'`;
-      }
-      if (index != 0) {
-        acc = acc.concat('', ` AND ${key} = ${req.query[key]}`);
-      } else {
-        acc = acc.concat(acc, `WHERE ${key} = ${req.query[key]}`);
-      }
-      return acc;
-    }, "");
+    let isExitsColoms = queryFieldValidator(['hrid', 'module', 'submodule', 'action_type'], req.query);
+    if (isExitsColoms.response) {
+      let modifyQuery = Object.keys(req.query).reduce((acc, key, index) => {
+        if (key == 'hrid') {
+          req.query[key] = Number(req.query[key]);
+        } else {
+          req.query[key] = `'${req.query[key]}'`;
+        }
+        if (index != 0) {
+          acc = acc.concat('', ` AND LOWER(${key}) = LOWER(${req.query[key].toLocaleLowerCase()})`);
+        } else {
+          if(key == 'hrid') {
+            acc = acc.concat(acc, `WHERE ${key} = ${req.query[key]}`);
+          } else {
+            acc = acc.concat(acc, `WHERE LOWER(${key}) = LOWER(${req.query[key].toLocaleLowerCase()})`);
+          }
+        }
+        return acc;
+      }, "");
 
-    const response = await selectLogActivityFilter(modifyQuery);
-    res.json(createResponse(response.rows));
+      console.log(modifyQuery)
+
+      const response = await selectLogActivityFilter(modifyQuery);
+      res.json(createResponse(response.rows));
+    } else {
+      res.json(createResponse(null, isExitsColoms.err, true));
+    }
+
   } catch (err) {
     next(err)
   }
