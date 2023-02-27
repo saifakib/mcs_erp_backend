@@ -89,9 +89,4 @@ const userDashboardInfo = async (req, res, next) => {
     }
 }
 
-module.exports = {
-    requisitionInfoWithStatusCount,
-    getStockAlertList,
-    requisitionStatusForAdmin,
-    userDashboardInfo
-}
+module.exports = { requisitionInfoWithStatusCount, getStockAlertList, requisitionStatusForAdmin, userDashboardInfo }

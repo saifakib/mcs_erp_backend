@@ -1,7 +1,7 @@
 const { ExecuteIT, ExecuteITMany } = require("../../../utils/itDynamicController");
 const { oracledb } = require("../../../db/db");
 
-/*------------- GET ------------*/
+/*--------------------------------------------- SELECT -----------------------------------------------*/
 // Get all maintanance
 const selectMaintanances = (hrid) => {
     if (hrid) {
@@ -71,9 +71,15 @@ const selectMaintanance = (maintanance_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID
     LEFT OUTER JOIN BRAND B ON B.BRAND_ID = SP.BRAND_ID
     LEFT OUTER JOIN MODELS MO ON MO.MODEL_ID = SP.MODEL_ID WHERE M.MAINTENANCE_ID = ${Number(maintanance_id)}`);
 
-const selectExitMaintanace = (hrid, indProReqId, indProId) => ExecuteIT(`SELECT * FROM MAINTENANCE WHERE HR_ID = ${Number(hrid)} AND IND_PRO_ID = ${Number(indProId)} AND IND_PRO_REQ_ID = ${Number(indProReqId)} AND STATUS IN (0, 1, 2, 3, 4, 5, 6)`)
+const selectExitMaintanace = (hrid, indProReqId, indProId) => ExecuteIT(`SELECT * FROM MAINTENANCE WHERE HR_ID = ${Number(hrid)} AND IND_PRO_ID = ${Number(indProId)} AND IND_PRO_REQ_ID = ${Number(indProReqId)} AND STATUS IN (0, 1, 2, 3, 4, 5, 6)`);
 
-/*------------- INSERT ------------*/
+/*--------------------------------------------- END SELECT -----------------------------------*/
+
+
+
+
+
+/*------------------------------------------------ INSERT -------------------------------------*/
 // INSERT maintanance request
 const insertMaintananceReq = (data) =>
     ExecuteIT(
@@ -93,7 +99,12 @@ const insertManySpecifications = (maintanance_id, ind_prod_id, array) => {
     return ExecuteITMany(statement, newArray);
 };
 
-/*-------------- UPDATE ---------------*/
+/*---------------------------------------------- END INSERT -------------------------------------*/
+
+
+
+
+/*------------------------------------------------ UPDATE ---------------------------------------*/
 // maintanance statue
 const updateMaintanance = (status, maintanance_id, cost) => {
     if (cost) {
@@ -105,6 +116,8 @@ const updateMaintanance = (status, maintanance_id, cost) => {
 
 // servicing statue
 const updateServicing = (maintanance_id, remarks) => ExecuteIT(`UPDATE SERVICES SET STATUS = ${Number(1)}, REMARKS = '${remarks}' WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
+
+/*---------------------------------------------- END UPDATE ---------------------------------------*/
 
 module.exports = {
     selectMaintanances, selectMaintanance, selectExitMaintanace,  insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateServicing

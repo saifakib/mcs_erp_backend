@@ -40,4 +40,6 @@ LEFT OUTER JOIN PRO_REQUISITION P ON R.REQ_ID = P.REQ_ID WHERE R.HR_ID = ${Numbe
 /*--------------------------------END SELECT --------------------------------*/
 
 
-module.exports = { selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert, selectUserRequisitionCount, selectUserReqQtyAndAprQtyProducts }
+module.exports = { 
+    selectRequisitionCountWithApprovd, selectTotalReqQtyAndAprQtyProducts, selectRequisitionStatusCount, selectCountStockAlert, selectUserRequisitionCount, selectUserReqQtyAndAprQtyProducts
+ }

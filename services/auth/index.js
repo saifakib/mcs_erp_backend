@@ -1,5 +1,7 @@
 const { ExecuteHR } = require("../../utils/hrDynamicController");
 
+
+/*-------------------------------- SELECT --------------------------------*/
 // get user by user_id
 module.exports.getUserByUserName = (user) =>
   ExecuteHR(
@@ -15,3 +17,5 @@ module.exports.getUserByUserName = (user) =>
 // get max employe_id
 module.exports.getMaxEMP = () =>
   ExecuteHR(`SELECT MAX(EMPLOYE_ID) as EMPLOYE_ID FROM EMPLOYEE`);
+
+/*-------------------------------- END SELECT --------------------------------*/

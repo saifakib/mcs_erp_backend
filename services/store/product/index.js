@@ -1,7 +1,7 @@
 const { oracledb } = require("../../../db/db");
 const { Execute, Executee } = require("../../../utils/dynamicController");
 
-/*------------- Get ------------*/
+/*------------------------------------------ SELECT ------------------------------------------*/
 
 // const getProducts = () =>
 //   Execute("SELECT * FROM STR_STOREPRODUCTS ORDER BY proid ASC");
@@ -101,15 +101,15 @@ const getNewProductList = (CAT_ID) =>
 
 const getSingleEntrylistByPrdId = (prodid, mrrno) => Execute(`SELECT PROLISTID FROM STR_PRODUCTENTRILISTS WHERE MRRNUMBER=${Number(mrrno)} AND PRODUCTIDNO=${Number(prodid)}`);
 
-/*-------------- Post -------------------*/
+/*------------------------------------------ END SELECT ------------------------------------------*/
 
+
+
+
+/*------------------------------------------  INSERT ------------------------------------------*/
 // Product Entries
 const postProductEntries = (
-  {
-    mrrnno,
-    supplier,
-    suppdate,
-    workorder,
+  {mrrnno, supplier, suppdate, workorder,
     workodate,
     cashmemono,
     cashmemodate,
@@ -129,16 +129,7 @@ const postProductEntries = (
   );
 
 // Store Product
-const postStoreProduct = ({
-  proname,
-  pro_name_two,
-  prod_list_id,
-  qty,
-  price,
-  category,
-  prod_unit,
-  stock_alert,
-}) =>
+const postStoreProduct = ({ proname, pro_name_two, prod_list_id, qty, price, category, prod_unit, stock_alert }) =>
   Executee(
     `INSERT INTO STR_STOREPRODUCTS (proname, pronametwo, proqty, stockprice, procate, produnit, stockalert, prodlistid) VALUES ('${proname}', '${pro_name_two}', ${Number(
       qty
@@ -150,14 +141,7 @@ const postStoreProduct = ({
 
 // Product Entries Lists
 const postProductEntriesLists = (
-  { qty, price },
-  mrrnno,
-  supplier,
-  storeproid,
-  entridate,
-  entrimonth,
-  username
-) =>
+  { qty, price }, mrrnno, supplier, storeproid, entridate, entrimonth, username) =>
   Execute(
     `INSERT INTO STR_PRODUCTENTRILISTS (mrrnumber, productfrom, productidno, quantities, proamount, prodate, promonth, prodentryby) VALUES (${Number(
       mrrnno
@@ -203,7 +187,13 @@ const postProductSummariesEntry = (
     { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
-/*--------------UPDATE-------------*/
+/*------------------------------------------ END INSERT ------------------------------------------*/
+
+
+
+
+
+/*------------------------------------------  UPDATE ------------------------------------------*/
 
 const updateStoreProduct = ({ proid, qty, price }) =>
   Execute(
@@ -213,18 +203,7 @@ const updateStoreProduct = ({ proid, qty, price }) =>
     { storeQuantity: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
-const updateStoreProductM = (
-  proid,
-  proname,
-  pro_name_two,
-  procate,
-  prounit,
-  stockalert,
-  proqty,
-  stockprice,
-  status,
-  proimage
-) =>
+const updateStoreProductM = (proid, proname, pro_name_two, procate, prounit, stockalert, proqty, stockprice, status, proimage) =>
   Execute(
     `UPDATE STR_STOREPRODUCTS SET proname = '${proname}', pronametwo='${pro_name_two}', procate = ${Number(
       procate
@@ -236,8 +215,14 @@ const updateStoreProductM = (
 
 const updateSingleEntrylistByPrdId = (prodid, mrrno, newqty, newPrice) => Execute(`UPDATE STR_PRODUCTENTRILISTS SET QUANTITIES = QUANTITIES + ${Number(newqty)}, PROAMOUNT = ${Number(newPrice)} WHERE MRRNUMBER=${Number(mrrno)} AND PRODUCTIDNO=${Number(prodid)}`);
 
+/*------------------------------------------ END UPDATE ------------------------------------------*/
 
-/*--------------DELETE-------------*/
+
+
+
+
+
+/*------------------------------------------ DELETE ------------------------------------------*/
 
 const deleteDynamically = (
   tableName, colomName, id
@@ -246,32 +231,11 @@ const deleteDynamically = (
     `DELETE FROM ${tableName} WHERE ${colomName} = ${id}`
   );
 
+/*------------------------------------------ END DELETE ------------------------------------------*/
+
 module.exports = {
-  getStoreProducts,
-  getStoreProductsFR,
-  selectProdFromStore,
-  totalQuantites,
-  getTotalEntQuantites,
-  totalQuantitesByCategoryId,
-  getProducListById,
-  selectProdFromStoreid,
-  getTotalStoreProducts,
-  getStoreProductByProdListId,
-  getStoreProductByCategoryId,
-  getProducListByCategoryId,
-  getLastMrrNumber,
-  getCategoryWithStoreLength,
-  getTotalStoreProdQty,
-  getExStoreProductByProdListId,
-  getSingleEntrylistByPrdId,
-  postProductEntries,
-  postStoreProduct,
-  updateStoreProduct,
-  updateSingleEntrylistByPrdId,
-  postProductEntriesLists,
-  postProductSummaries,
-  getNewProductList,
-  updateStoreProductM,
-  postProductSummariesEntry,
+  getStoreProducts, getStoreProductsFR, selectProdFromStore, totalQuantites, getTotalEntQuantites, totalQuantitesByCategoryId, getProducListById, selectProdFromStoreid, getTotalStoreProducts, getStoreProductByProdListId, getStoreProductByCategoryId, getProducListByCategoryId, getLastMrrNumber, getCategoryWithStoreLength, getTotalStoreProdQty, getExStoreProductByProdListId, getSingleEntrylistByPrdId, getNewProductList,
+  postProductEntries, postStoreProduct, postProductSummariesEntry, postProductEntriesLists, postProductSummaries,
+  updateStoreProduct, updateSingleEntrylistByPrdId, updateStoreProductM,
   deleteDynamically
 };

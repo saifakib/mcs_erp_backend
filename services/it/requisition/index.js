@@ -1,6 +1,8 @@
 const { ExecuteIT, ExecuteITMany } = require("../../../utils/itDynamicController");
 const { oracledb } = require("../../../db/db");
-/*------------- SELECT ------------*/
+
+
+/*------------------------------------------- SELECT --------------------------------------------*/
 
 // const selectProductBalance = (str_pro_id) =>
 //   ExecuteIT(`SELECT QUANTITY FROM STORE_PRODUCTS WHERE STR_PRO_ID = ${Number(str_pro_id)}`);
@@ -85,7 +87,7 @@ const selectStatusRequisitions = (status, ts, given) => {
 }
 
 
-const selectRequisitionById = (req_id, status) => ExecuteIT(`  SELECT VE.NAME_ENGLISH, VE.MOBILE_PHONE, VE.DEPARTEMENT, VE.DESIGNATION, R.REQ_ID, 
+const selectRequisitionById = (req_id, status) => ExecuteIT(`SELECT VE.NAME_ENGLISH, VE.MOBILE_PHONE, VE.DEPARTEMENT, VE.DESIGNATION, R.REQ_ID, 
   TO_CHAR(R.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, TO_CHAR(R.REQ_DATE,'HH12:MI AM') AS REQ_TIME, IP.UNIQUE_V, B.BRAND_NAME, U.UNIT_NAME,
   R.USER_REMARKS, PR.PRO_REQ_ID, PR.QUNTITY, PR.APR_QTY, PL.PRODUCT_ID, PL.PRODUCT_NAME,
   sum(PR.QUNTITY) over(partition by (PR.REQ_ID)) as T_REQQUNTITY, sum(PR.APR_QTY) over(partition by (PR.REQ_ID)) as T_APR_QTY FROM REQUISITION R
@@ -134,9 +136,14 @@ const selectIndividualUserRequisitions = (user_id) =>
   LEFT OUTER JOIN CATEGORIES C ON C.CATEGORY_ID = PL.CATEGORY_ID
   WHERE R.REQ_STATUS = 2 AND R.HR_ID =  ${Number(user_id)} AND (I.STATUS = 0 OR I.STATUS = 3)`);
 
+/*------------------------------------------- END SELECT --------------------------------------------*/
 
-/*------------- INSERT ------------*/
-// INSERT requisition information
+
+
+
+
+/*--------------------------------------------- INSERT ----------------------------------------------*/
+
 const insertRequisitionInfo = ({
   hrid,
   status,
@@ -177,8 +184,13 @@ const insertSummaries = (data) =>
     { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
+/*--------------------------------------------- END INSERT ----------------------------------------------*/
 
-/*----------- UPDATE ----------- */
+
+
+
+
+/*---------------------------------------------- UPDATE ------------------------------------------------- */
 // TODO: working letter, should be modified 
 const updateRequisition = (data, given, OTP) => {
   if (data.REQ_STATUS == 2) {
@@ -235,28 +247,13 @@ const updateManyIndProduct = (array) => {
 }
 
 const updateIndProReq = (ind_pro_req_id, status, current_date) =>
-  ExecuteIT(`UPDATE IND_PRO_REQUISITION SET STATUS = ${Number(status)}, RETURN_DATE = TO_DATE('${current_date}', 'YYYY-MM-DD') WHERE IND_PRO_ID = ${Number(ind_pro_req_id)}`)
+  ExecuteIT(`UPDATE IND_PRO_REQUISITION SET STATUS = ${Number(status)}, RETURN_DATE = TO_DATE('${current_date}', 'YYYY-MM-DD') WHERE IND_PRO_ID = ${Number(ind_pro_req_id)}`);
+
+/*---------------------------------------------- END UPDATE ------------------------------------------------- */
 
 module.exports = {
   // selectProductBalance,
-  selectUserReqIsPending,
-  selectUserRequisitions,
-  selectUserAcceptRequisitions,
-  selectUserAcceptActiveRequisitions,
-  selectStatusRequisitions,
-  selectIndProductList,
-  selectRequisitionById,
-  selectAllDetailsRequisitionById,
-  selectIndRequisitionById,
-  selectIndividualUserRequisitions,
-  insertRequisitionInfo,
-  insertManyProRequisition,
-  insertManyIndProRequisition,
-  insertSummaries,
-  updateRequisition,
-  updateStrBalance,
-  updateProRequisition,
-  updateManyIndProduct,
-  updateIndProReq,
-  updateReqGivenByIT
+  selectUserReqIsPending, selectUserRequisitions, selectUserAcceptRequisitions, selectUserAcceptActiveRequisitions, selectStatusRequisitions, selectIndProductList, selectRequisitionById, selectAllDetailsRequisitionById, selectIndRequisitionById, selectIndividualUserRequisitions,
+  insertRequisitionInfo, insertManyProRequisition, insertManyIndProRequisition, insertSummaries,
+  updateRequisition, updateStrBalance, updateProRequisition, updateManyIndProduct, updateIndProReq, updateReqGivenByIT
 }

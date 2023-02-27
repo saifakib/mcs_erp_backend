@@ -1,7 +1,10 @@
 const { oracledb } = require("../../../db/db");
 const { Execute, ExecuteMany } = require("../../../utils/dynamicController");
 
-// use of work
+
+
+/*------------------------------------------------- SELECT ---------------------------------------------------*/
+
 module.exports.getLastReqNo = () =>
   Execute(`select requisitionno from str_requisitions WHERE
   reqid = (SELECT MAX(reqid) FROM str_requisitions)`);
@@ -50,7 +53,6 @@ module.exports.userInfo = (id, status = 0) => {
   )} AND R.REQUISTATUS = ${Number(status)}`);
 };
 
-/*------------- Get ------------*/
 
 module.exports.getTotalProReqQuantities = () =>
   Execute(
@@ -272,20 +274,20 @@ module.exports.deniedReqProducts = (id) => {
   );
 };
 
+/*-------------------------------------------------END SELECT ---------------------------------------------------*/
+
+
+
+
+
+
+
+
+/*------------------------------------------------- INSERT ---------------------------------------------------*/
+
 /*------------- Post ------------*/
 // post requisition information
-module.exports.postRequisitionInfo = ({
-  profilehrId,
-  requiTime,
-  requiMonth,
-  requiDate,
-  lastReqNo,
-  status,
-  approve,
-  storeaccept,
-  proaccept,
-  deny,
-}) =>
+module.exports.postRequisitionInfo = ({ profilehrId, requiTime, requiMonth, requiDate, lastReqNo, status, approve, storeaccept, proaccept, deny }) =>
   Execute(
     `INSERT INTO STR_REQUISITIONS (REQUISITIONNO, REQUITIME, REQUIDATE, REQUIMONTH, REQUISTATUS, PROFILEHRID, APPROVED, STOREACCEPT, PROACCEPT, DENY) VALUES ('${lastReqNo}', '${requiTime}', '${requiDate}', '${requiMonth}', ${Number(
       status
@@ -295,16 +297,9 @@ module.exports.postRequisitionInfo = ({
     { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
   );
 
-//manual post requisition
 
-module.exports.manualPostRequisitionInfo = (
-  lastReqN,
-  hrid,
-  requitime,
-  requidate,
-  requimonth,
-  approvedby
-) =>
+//manual post requisition
+module.exports.manualPostRequisitionInfo = (lastReqN, hrid, requitime, requidate, requimonth, approvedby) =>
   Execute(
     `INSERT INTO STR_REQUISITIONS (REQUISITIONNO, PROFILEHRID, REQUITIME, REQUIDATE, REQUIMONTH, REQUISTATUS, APPROVED, APPROVEDBY, APROVEDTIME, APPROVEDDATE, STOREACCEPT, PROACCEPT, PROACCEPTTIME, PROACCEPTDATE) VALUES ('${lastReqN}', ${Number(
       hrid
@@ -337,18 +332,49 @@ module.exports.postReqProduct = (array) => {
   return ExecuteMany(statement, newArray);
 };
 
-/*------------- Put ------------*/
+module.exports.insertSummeries = (data) => {
+  const { PRODUCTID, PRODUCTNAME, PROCAT, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH, REQUISITIONFOR, SUMMERTYPE, } = data;
+
+  return Execute(
+    `INSERT INTO STR_PRODUCTSUMMARIES (PRODUCTID, PRODUCTNAME, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH, REQUISITIONFOR, SUMMERTYPE, PROCAT) VALUES (${Number(
+      PRODUCTID
+    )}, '${PRODUCTNAME}', ${Number(INTIALQTY)}, ${Number(
+      TOTALBALANCE
+    )}, ${Number(TOTALOUT)}, ${Number(
+      PRESENTBALANCE
+    )}, '${SUMMDATE}', '${SUMMMONTH}', ${Number(
+      REQUISITIONFOR
+    )}, '${SUMMERTYPE}', ${Number(PROCAT)})`
+  );
+};
+
+// get roles
+module.exports.getStoreRoles = () =>
+  Execute(
+    "SELECT R.ROLE_ID, R.ROLE_NAME, E.EMPLOYE_ID, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION from STR_ROLE R left outer join HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.EMP_ID LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID LEFT OUTER JOIN HRM.DESIGNATION DG ON  DG.DESIGNATION_ID = E.DESIGNATION_ID"
+  );
+
+// get single roles
+module.exports.singleStoreRoles = (id) =>
+  Execute(
+    `SELECT R.ROLE_ID, R.ROLE_NAME, E.NAME_ENGLISH, E.EMPLOYE_ID, D.DEPARTEMENT, DG.DESIGNATION from STR_ROLE R left outer join HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.EMP_ID LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID LEFT OUTER JOIN HRM.DESIGNATION DG ON  DG.DESIGNATION_ID = E.DESIGNATION_ID WHERE ROLE_ID = ${Number(
+      id
+    )}`
+  );
+
+/*------------------------------------------------- END INSERT ---------------------------------------------------*/
+
+
+
+
+
+
+
+/*------------------------------------------------- UPDATE ---------------------------------------------------*/
 
 /*------- update requisition for admin ------ */
 module.exports.updateRequisitionInfo = (updatedInfo) => {
-  const {
-    REQUISTATUS,
-    APPROVED,
-    APPROVEDBY,
-    APROVEDTIME,
-    APPROVEDDATE,
-    REQID,
-  } = updatedInfo;
+  const { REQUISTATUS, APPROVED, APPROVEDBY, APROVEDTIME, APPROVEDDATE, REQID, } = updatedInfo;
 
   return Execute(
     `UPDATE STR_REQUISITIONS SET REQUISTATUS = ${Number(
@@ -395,34 +421,6 @@ module.exports.updateStoreProducts = ({
     )}, REQUPRODSTATUS = ${Number(
       REQUPRODSTATUS
     )}, STOREREMARKS = '${STOREREMARKS}' WHERE PROREQID = ${Number(PROREQID)}`
-  );
-};
-
-module.exports.insertSummeries = (data) => {
-  const {
-    PRODUCTID,
-    PRODUCTNAME,
-    PROCAT,
-    INTIALQTY,
-    TOTALBALANCE,
-    TOTALOUT,
-    PRESENTBALANCE,
-    SUMMDATE,
-    SUMMMONTH,
-    REQUISITIONFOR,
-    SUMMERTYPE,
-  } = data;
-
-  return Execute(
-    `INSERT INTO STR_PRODUCTSUMMARIES (PRODUCTID, PRODUCTNAME, INTIALQTY, TOTALBALANCE, TOTALOUT, PRESENTBALANCE, SUMMDATE, SUMMMONTH, REQUISITIONFOR, SUMMERTYPE, PROCAT) VALUES (${Number(
-      PRODUCTID
-    )}, '${PRODUCTNAME}', ${Number(INTIALQTY)}, ${Number(
-      TOTALBALANCE
-    )}, ${Number(TOTALOUT)}, ${Number(
-      PRESENTBALANCE
-    )}, '${SUMMDATE}', '${SUMMMONTH}', ${Number(
-      REQUISITIONFOR
-    )}, '${SUMMERTYPE}', ${Number(PROCAT)})`
   );
 };
 
@@ -492,20 +490,6 @@ module.exports.updateProReqOnDeny = (req_id) => {
   );
 };
 
-// get roles
-module.exports.getStoreRoles = () =>
-  Execute(
-    "SELECT R.ROLE_ID, R.ROLE_NAME, E.EMPLOYE_ID, E.NAME_ENGLISH, D.DEPARTEMENT, DG.DESIGNATION from STR_ROLE R left outer join HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.EMP_ID LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID LEFT OUTER JOIN HRM.DESIGNATION DG ON  DG.DESIGNATION_ID = E.DESIGNATION_ID"
-  );
-
-// get single roles
-module.exports.singleStoreRoles = (id) =>
-  Execute(
-    `SELECT R.ROLE_ID, R.ROLE_NAME, E.NAME_ENGLISH, E.EMPLOYE_ID, D.DEPARTEMENT, DG.DESIGNATION from STR_ROLE R left outer join HRM.EMPLOYEE E ON E.EMPLOYE_ID = R.EMP_ID LEFT OUTER JOIN HRM.DEPARTMENT_LIST D ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID LEFT OUTER JOIN HRM.DESIGNATION DG ON  DG.DESIGNATION_ID = E.DESIGNATION_ID WHERE ROLE_ID = ${Number(
-      id
-    )}`
-  );
-
 // update roles
 module.exports.updateStoreRoles = (role_id, emp_id) => {
   return Execute(
@@ -514,3 +498,8 @@ module.exports.updateStoreRoles = (role_id, emp_id) => {
     )}`
   );
 };
+
+/*------------------------------------------------- END UPDATE ---------------------------------------------------*/
+
+
+

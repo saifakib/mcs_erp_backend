@@ -521,19 +521,7 @@ const putIndRequisition = async (req, res, next) => {
 
 
 module.exports = {
-    getRequsition,
-    getUserReqIsPending,
-    getUserRequitions,
-    getUserAcceptRequitions,
-    getUserAcceptRequition,
-    getUserAcceptActiveRequitions,
-    getAdminRequisitions,
-    getAllDetailsRequisition,
-    getIndividualUserRequitions,
-    postRequisition,
-    putReqByItStoreOfficer,
-    putRequisitionGivenStatus,
-    putIndRequisition,
-    denyRequisition,
-    acceptUserRequisition
+    getRequsition, getUserReqIsPending, getUserRequitions, getUserAcceptRequitions, getUserAcceptRequition, getUserAcceptActiveRequitions, getAdminRequisitions, getAllDetailsRequisition, getIndividualUserRequitions,
+    postRequisition, 
+    putReqByItStoreOfficer, putRequisitionGivenStatus, putIndRequisition, denyRequisition, acceptUserRequisition
 }

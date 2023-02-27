@@ -300,11 +300,7 @@ module.exports = {
   postAssetProducts,
   deleteAssetProducts,
   putAssetProducts,
-  getAssetManual,
+  getAssetManual, getAssetManualById, getAssetManualPersonReport, getAssetManualDepartmentReport, getAssetManualReturnReport,
   postAssetManual,
-  getAssetManualById,
-  putAssetManual,
-  putAssetManualStatus,
-  getAssetManualPersonReport,
-  getAssetManualDepartmentReport, getAssetManualReturnReport,
+  putAssetManual, putAssetManualStatus
 };

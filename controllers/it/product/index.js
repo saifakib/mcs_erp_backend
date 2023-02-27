@@ -133,7 +133,16 @@ const getIndStrProductsbyStrId = async (req, res, next) => {
             res.json(createResponse(null, "Something went wrong", true))
         } else {
             const response = await selectIndStrProductsByStrId(product_id, supplier_id, str_pro_id);
-            res.json(createResponse(response.rows));
+            const { rows: storeProdInfo } = await selectStoreProductsById(str_pro_id);
+            console.log(storeProdInfo)
+
+            res.json(createResponse({
+                storeProdInfo: {
+                    LICENSE_EXPIRE_DATE: storeProdInfo[0].LICENSE_E_DATE,
+                    FILES: storeProdInfo[0].FILES
+                },
+                products: response.rows
+            }));
         }
     } catch (err) {
         next(err.message)

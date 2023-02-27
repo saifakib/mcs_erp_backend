@@ -29,12 +29,8 @@ const selectProductEntriLists = (supplier_id, mrr_log_id) =>
         WHERE SUP_ID = ${supplier_id} AND MRR_ID=${mrr_log_id}`
     );
 
+/*-------------------------------- END SELECT --------------------------------*/
 
 
 
-module.exports = {
-    selectSupplierWithProductEntriesInfo,
-    selectMrrProListBySupplierId,
-    selectmrrByMrrno,
-    selectProductEntriLists
-}
+module.exports = { selectSupplierWithProductEntriesInfo, selectMrrProListBySupplierId, selectmrrByMrrno, selectProductEntriLists }

@@ -1,7 +1,7 @@
 const { Execute } = require("../../../utils/dynamicController");
 
-/*------------- Get ------------*/
 
+/*------------------------------------------------- SELECT ---------------------------------------------------*/
 // Dynamic find individula item
 module.exports.selectDynamicQuery = (tableName, columName, findValue) =>
   Execute(`SELECT * FROM ${tableName} WHERE ${columName} = '${findValue}'`);
@@ -79,7 +79,16 @@ module.exports.getCategoryWithLength = () =>
     "SELECT distinct(C.CAT_ID), C.CATEGORYBN, C.CATEGORYEN, COUNT(P.PRODID) OVER(PARTITION BY P.PROCATE) AS PRODUCTS FROM STR_CATEGORIES C LEFT OUTER JOIN STR_PRODUCTLISTS P ON C.CAT_ID = P.PROCATE ORDER BY CAT_ID DESC"
   );
 
-/*------------------ Post -------------------*/
+/*------------------------------------------------- END SELECT ---------------------------------------------------*/
+
+
+
+
+
+
+
+/*------------------------------------------------- INSERT ---------------------------------------------------*/
+
 module.exports.postCategory = ({ categoryen, categorybn }) =>
   Execute(
     `INSERT INTO STR_CATEGORIES (CATEGORYBN, CATEGORYEN) VALUES ('${categorybn}', '${categoryen}')`
@@ -96,7 +105,17 @@ module.exports.postProduct = ({ proname, pronametwo, procate }) =>
     `INSERT INTO STR_PRODUCTLISTS (proname, pronametwo, procate) VALUES ('${proname}', '${pronametwo}', '${procate}')`
   );
 
-/* --------------- Update -------------------*/
+/*------------------------------------------------- END INSERT ---------------------------------------------------*/
+
+
+
+
+
+
+
+
+/*------------------------------------------------- UPDATE ---------------------------------------------------*/
+
 module.exports.updateCategory = ({ CATEGORYBN, CATEGORYEN, CAT_ID }) =>
   Execute(
     `UPDATE STR_CATEGORIES SET categorybn = '${CATEGORYBN}', categoryen = '${CATEGORYEN}' WHERE cat_id = ${CAT_ID}`
@@ -115,7 +134,14 @@ module.exports.updateProducts = ({ PRONAME, PRONAMETWO, PROCATE, PRODID }) =>
     `UPDATE STR_PRODUCTLISTS SET proname = '${PRONAME}', pronametwo = '${PRONAMETWO}', procate = ${PROCATE} WHERE prodid = ${PRODID}`
   );
 
-/*------------------ Delete ----------------*/
+/*------------------------------------------------- END UPDATE ---------------------------------------------------*/
+
+
+
+
+
+
+/*------------------------------------------------- DELETE ---------------------------------------------------*/
 module.exports.deleteCategory = ({ CAT_ID }) =>
   Execute(`DELETE FROM STR_CATEGORIES WHERE CAT_ID = ${CAT_ID}`);
 
@@ -127,3 +153,5 @@ module.exports.deleteSupplier = ({ SUP_ID }) =>
 
 module.exports.deleteProducts = ({ PRODID }) =>
   Execute(`DELETE FROM STR_PRODUCTLISTS WHERE PRODID = ${PRODID}`);
+
+/*------------------------------------------------- END DELETE ---------------------------------------------------*/

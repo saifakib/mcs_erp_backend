@@ -1,8 +1,7 @@
 const { ExecuteIT } = require("../../../utils/itDynamicController");
 
-/*-------------------------------- SELECT --------------------------------*/
+/*--------------------------------------- SELECT -------------------------------------*/
 
-/*--------------------- Entries Report ----------------- */
 const selectAllEntriesReports = (fdate, tdate) =>
   ExecuteIT(
     `SELECT pel.PRO_EN_L_ID, pel.pro_id, TO_CHAR(pel.ENTRY_DATE,'DD-MON-YYYY') AS Dates,  b.brand_name,m.model_name,
@@ -272,16 +271,11 @@ const selectSpecificationsByIndProdId = (ind_prod_id) => ExecuteIT(`SELECT M.MOD
   WHERE IP.IND_PRODUCT_ID =${ind_prod_id}`);
 
 
-const selectChangesSpecificationsByIndProdId = (ind_prod_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, TO_CHAR(M.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE, M.COST, CS.NAME, CS.S_VALUE FROM CUS_SPECIFICATION CS
+const selectChangesSpecificationsByIndProdId = (ind_prod_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, TO_CHAR(M.REQ_DATE,'DD-MM-YYYY') AS REQ_DATE,  M.COST, CS.NAME, CS.S_VALUE FROM CUS_SPECIFICATION CS
   LEFT OUTER JOIN MAINTENANCE M ON M.MAINTENANCE_ID = CS.MAINTENANCE_ID WHERE IND_PROD_ID =${ind_prod_id}`);
 
+/*---------------------------------------- END SELECT -------------------------------------*/
 
-
-
-/*--------------------- End Entries Report ----------------- */
-
-
-/*--------------------------------END SELECT --------------------------------*/
 
 module.exports = {
   selectAllEntriesReports,
@@ -301,5 +295,4 @@ module.exports = {
   selectProductListRequisitions,
   selectProductRequisitionsByProId,
   selectChangesSpecificationsByIndProdId
-
 };

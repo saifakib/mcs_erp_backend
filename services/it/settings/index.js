@@ -2,7 +2,7 @@ const { ExecuteIT, ExecuteITMany } = require("../../../utils/itDynamicController
 const { oracledb } = require("../../../db/db");
 
 
-/*------------- Get ------------*/
+/*----------------------------------------- SELECT ----------------------------------------------*/
 
 // Dynamic find individula item
 const selectDynamicQuery = (tableName, columName, findValue) =>
@@ -17,7 +17,6 @@ const categories = () => {
 const selectCategory = (category_id) => ExecuteIT(
     `SELECT * FROM CATEGORIES WHERE CATEGORY_ID = ${Number(category_id)}`
 );
-
 
 // ProductLists
 const productLists = () => {
@@ -87,10 +86,12 @@ const selectBrand = (brand_id) => ExecuteIT(`SELECT * FROM BRAND WHERE BRAND_ID 
 const suppliers = () => ExecuteIT(
     `SELECT * FROM SUPPLIERS ORDER BY SUPPLIER_ID DESC`
 );
-const selectSupplier = (supplier_id) => ExecuteIT(`SELECT * FROM SUPPLIERS WHERE SUPPLIER_ID = ${Number(supplier_id)}`)
+const selectSupplier = (supplier_id) => ExecuteIT(`SELECT * FROM SUPPLIERS WHERE SUPPLIER_ID = ${Number(supplier_id)}`);
+
+/*----------------------------------------- END SELECT ----------------------------------------------*/
 
 
-/*------------------ Post -------------------*/
+/*-----------------------------------------  INSERT ----------------------------------------------*/
 // Category
 const insertCategory = ({ category_name }) =>
     ExecuteIT(
@@ -133,10 +134,14 @@ const insertBrand = ({ brand_name }) =>
 const insertSupplier = ({ sup_type, sup_name, sup_details }) =>
     ExecuteIT(`INSERT INTO SUPPLIERS (SUP_TYPE,SUP_NAME,SUPPLIER_DETAILS) VALUES ('${sup_type}', '${sup_name}', '${sup_details}')`);
 
+/*----------------------------------------- END INSERT ----------------------------------------------*/
 
 
 
-/* --------------- Update -------------------*/
+
+
+
+/*----------------------------------------- UPDATE ----------------------------------------------*/
 // Category
 const updateCategory = ({ CATEGORY_NAME, CATEGORY_ID }) =>
     ExecuteIT(
@@ -173,7 +178,14 @@ const updateBrand = ({ BRAND_NAME, BRAND_ID }) =>
 const updateSupplier = ({ SUP_ID, SUP_TYPE, SUP_NAME, SUPPLIER_DETAILS }) =>
     ExecuteIT(`UPDATE SUPPLIERS SET SUP_TYPE = '${SUP_TYPE}', SUP_NAME = '${SUP_NAME}', SUPPLIER_DETAILS = '${SUPPLIER_DETAILS}' WHERE SUPPLIER_ID = ${Number(SUP_ID)}`);
 
-/*------------------ Delete ----------------*/
+/*----------------------------------------- END UPDATE ----------------------------------------------*/
+
+
+
+
+
+
+/*------------------------------------------- DELETE ----------------------------------------------*/
 
 // Category
 const deleteCategory = ({ CATEGORY_ID }) =>
@@ -202,6 +214,9 @@ const deleteBrand = ({ BRAND_ID }) =>
 // Suppliers
 const deleteSupplier = ({ SUP_ID }) =>
     ExecuteIT(`DELETE FROM SUPPLIERS WHERE SUPPLIER_ID = ${Number(SUP_ID)}`);
+
+
+/*------------------------------------------- END DELETE ----------------------------------------------*/
 
 
 

@@ -92,18 +92,15 @@ const getProListById = ({ prolistid }) =>
 
 /*--------------------------------END SELECT --------------------------------*/
 
+
+
+
+
+
+
 /*----------------------------------INSERT ----------------------------------*/
 
-const insertMrrLogs = (
-  proid,
-  action,
-  oldquantity,
-  oldamount,
-  changequantity,
-  changeamount,
-  logdatetime,
-  username
-) =>
+const insertMrrLogs = ( proid, action, oldquantity, oldamount, changequantity, changeamount, logdatetime, username) =>
   Execute(
     `INSERT INTO STR_MRRLOGS (PRODUCT_ID, ACTION, OLDQTY, OLDPRICE, CHANGEQTY, CHANGEPRICE, LOGDATETIME, LOGEDBY) VALUES (${Number(
       proid
@@ -112,17 +109,7 @@ const insertMrrLogs = (
     )}, ${Number(changeamount)}, ${logdatetime}, '${username}')`
   );
 
-const insertMrrLogsWithRemarks = (
-  proid,
-  action,
-  remarks,
-  oldquantity,
-  oldamount,
-  changequantity,
-  changeamount,
-  logdatetime,
-  username
-) =>
+const insertMrrLogsWithRemarks = (proid, action, remarks, oldquantity, oldamount, changequantity, changeamount, logdatetime, username) =>
   Execute(
     `INSERT INTO STR_MRRLOGS (PRODUCT_ID, ACTION, REMARKS, OLDQTY, OLDPRICE, CHANGEQTY, CHANGEPRICE, LOGDATETIME, LOGEDBY) VALUES (${Number(
       proid
@@ -134,6 +121,12 @@ const insertMrrLogsWithRemarks = (
   );
 
 /*---------------------------------END INSERT -------------------------------*/
+
+
+
+
+
+
 
 /*---------------------------------- UPDATE -----------------------------------*/
 
@@ -153,14 +146,7 @@ const updateStoreProductById = (proid, changproqty) =>
     )} WHERE proid = ${Number(proid)}`
   );
 
-const updateSingleProEntriesByMrrno = (
-  mrrno,
-  supplier,
-  suppdate,
-  workorder,
-  workodate,
-  cashmemono,
-  cashmemodate
+const updateSingleProEntriesByMrrno = ( mrrno, supplier, suppdate, workorder, workodate, cashmemono, cashmemodate
 ) => {
   return Execute(
     `UPDATE STR_PRODUCTENTRIES SET SUPPLIER = '${Number(
@@ -180,12 +166,22 @@ const updateProductEntriListsSupplier = (mrrno, supplier) =>
 
 /*---------------------------------- END UPDATE -----------------------------------*/
 
+
+
+
+
+
 /*---------------------------------- FIND -----------------------------------*/
 
 const findProductEntriListById = (prolistid) => Execute(`SELECT PROLISTID from STR_PRODUCTENTRILISTS  WHERE PROLISTID = ${Number(prolistid)}`);
 
 
 /*---------------------------------- END FIND -----------------------------------*/
+
+
+
+
+
 
 /*---------------------------------- DELETE -----------------------------------*/
 
@@ -196,26 +192,11 @@ const deleteProductEntriListById = (prolistid) =>
 
 /*---------------------------------- END DELETE -----------------------------------*/
 
+
+
 module.exports = {
-  getSupplierWithProductEntriesInfo,
-  getRecentMonthSupply,
-  getMrrProListBySupplierId,
-  getProductEntiresFirst,
-  getProductEntriLists,
-  getProductEntriListsFirst,
-  updateProductEntriListById,
-  updateStoreProductById,
-  insertMrrLogs,
-  insertMrrLogsWithRemarks,
-  deleteProductEntriListById,
-  getSingleProEntriesByMrrno,
-  updateSingleProEntriesByMrrno,
-  updateProductEntriListsSupplier,
-  getProductEntiresFirsts,
-  getProductEntiresFirstMrr,
-  getProductEntriListss,
-  getProductEntriListMrr,
-  getCurrentStock,
-  getProListById,
-  findProductEntriListById
+  getSupplierWithProductEntriesInfo, getRecentMonthSupply, getMrrProListBySupplierId, getProductEntiresFirst, getProductEntriLists, getProductEntriListsFirst,getSingleProEntriesByMrrno, getProductEntiresFirsts, getProductEntiresFirstMrr, getProductEntriListss, getProductEntriListMrr, getCurrentStock, getProListById, findProductEntriListById,
+  updateProductEntriListById, updateStoreProductById, updateSingleProEntriesByMrrno, updateProductEntriListsSupplier,
+  insertMrrLogs, insertMrrLogsWithRemarks,
+  deleteProductEntriListById
 };

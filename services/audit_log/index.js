@@ -1,31 +1,34 @@
 const { format } = require("date-fns");
 const { ExecuteHR } = require("../../utils/hrDynamicController");
 
+
+/*-------------------------------- SELECT --------------------------------*/
 // track login activity
-module.exports.loginActivity = (
-  userId,
-  type,
-  device,
-  ip,
-  entryDate,
-  entryTime,
-  elapsedMin,
-  token
-) => {
+module.exports.loginActivity = (userId, type, device, ip, entryDate, entryTime, elapsedMin, token) => {
   const n_date = format(new Date(entryDate), "dd-MM-yyyy");
   return ExecuteHR(
     `INSERT INTO AUDIT_LOG (USER_NAME, TYPE_NAME, LOG_SESSION, DEVICE, IP, ENTRY_DAY, ENTRY_TIME, ELAPSED_MIN) VALUES ('${userId}', '${type}', '${token}', '${device}', '${ip}', to_date('${n_date}', 'dd-mm-yy'), '${entryTime}', ${elapsedMin})`
   );
 };
 
-// update audit log
-module.exports.updateAuditLog = (token, exitDay, exitTime) => {
-  const n_date = format(new Date(exitDay), "dd-MM-yyyy");
-  return ExecuteHR(
-    `UPDATE AUDIT_LOG SET EXIT_DAY=to_date('${n_date}', 'dd-mm-yy'), EXIT_TIME='${exitTime}' WHERE LOG_SESSION = '${token}'`
-  );
-};
+// get all logs
+module.exports.getAllLogs = () =>
+  ExecuteHR(`SELECT U.EMPLOYE_ID, AL.TYPE_NAME, AL.DEVICE, AL.IP, TO_CHAR(AL.ENTRY_DAY, 'YYYY-MM-DD') AS ENTRY_DAY , AL.ENTRY_TIME, AL.EXIT_TIME, AL.ELAPSED_MIN, E.NAME_ENGLISH, D.DEPARTEMENT, D.DEPARTEMENT_ID, DG.DESIGNATION FROM HRM.AUDIT_LOG AL LEFT OUTER JOIN HRM.USERS U
+  ON AL.USER_NAME = U.USER_ID
+  LEFT OUTER JOIN HRM.EMPLOYEE E
+  ON E.EMPLOYE_ID = U.EMPLOYE_ID
+  LEFT OUTER JOIN HRM.DEPARTMENT_LIST D
+  ON D.DEPARTEMENT_ID = E.DEPARTEMENT_ID
+  LEFT OUTER JOIN HRM.DESIGNATION DG ON
+  DG.DESIGNATION_ID = E.DESIGNATION_ID  ORDER BY
+  ENTRY_DAY DESC`);
 
+/*-------------------------------- END SELECT --------------------------------*/
+
+
+
+
+/*------------------------------------  INSERT --------------------------------------*/
 // track logout activity
 module.exports.logOutActivity = (
   userId,
@@ -43,16 +46,23 @@ module.exports.logOutActivity = (
     )})`
   );
 };
+/*------------------------------------ END INSERT --------------------------------------*/
 
-// get all logs
-module.exports.getAllLogs = () =>
-  ExecuteHR(`select u.employe_id, al.type_name, al.device, al.ip, to_char(al.entry_day, 'yyyy-mm-dd') as entry_day , al.entry_time, al.exit_time, al.elapsed_min, e.name_english, d.departement, d.departement_id, dg.designation from hrm.audit_log al left outer join hrm.users u
-  on al.user_name = u.user_id
-  left outer join hrm.employee e
-  on e.employe_id = u.employe_id
-  left outer join hrm.department_list d
-  on d.departement_id = e.departement_id
-  left outer join hrm.designation dg on
-  dg.designation_id = e.designation_id  ORDER BY
-  entry_day
-    DESC`);
+
+
+
+
+/*------------------------------------  UPDATE --------------------------------------*/
+// update audit log
+module.exports.updateAuditLog = (token, exitDay, exitTime) => {
+  const n_date = format(new Date(exitDay), "dd-MM-yyyy");
+  return ExecuteHR(
+    `UPDATE AUDIT_LOG SET EXIT_DAY=to_date('${n_date}', 'dd-mm-yy'), EXIT_TIME='${exitTime}' WHERE LOG_SESSION = '${token}'`
+  );
+};
+/*------------------------------------  END UPDATE --------------------------------------*/
+
+
+
+
+

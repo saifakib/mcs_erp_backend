@@ -1,6 +1,6 @@
 const { Execute } = require("../../../utils/dynamicController");
 
-/*------------- Get ------------*/
+/*------------------------------------------- SELECT -----------------------------------------------*/
 
 const selectCategoryProductsWTStatus = (empid, catid) =>
     Execute(`SELECT SP.PROID, SP.PROCATE,  C.CATEGORYEN, SP.PRONAME, SP.PRONAMETWO, CASE
@@ -22,18 +22,28 @@ const selectUserNotAccessProductInd = (empid, proid) => Execute(
     `SELECT COUNT(*) AS COUNT FROM STR_ACCESS_PRODUCTS WHERE EMP_ID = ${Number(empid)} AND PROID = ${Number(proid)}`
 );
 
-/*------------------ Post -------------------*/
+/*------------------------------------------- END SELECT -----------------------------------------------*/
+
+
+
+
+/*-------------------------------------------  INSERT -----------------------------------------------*/
 const insertProdNotAccessToUser = ({ empid, proid }) =>
     Execute(
         `INSERT INTO STR_ACCESS_PRODUCTS (EMP_ID, PROID) VALUES (${Number(empid)}, ${Number(proid)})`
     );
+/*------------------------------------------- END INSERT -----------------------------------------------*/
 
 
 
-/*------------------ Delete ----------------*/
+
+
+/*-------------------------------------------- DELETE --------------------------------------------------*/
+
 const deleteProdNotAccessToUser = ({ empid, proid }) =>
     Execute(`DELETE FROM STR_ACCESS_PRODUCTS WHERE EMP_ID = ${Number(empid)} AND PROID = ${Number(proid)}`);
 
+/*-------------------------------------------- END DELETE --------------------------------------------------*/
 
 module.exports = {
     selectCategoryProductsWTStatus, selectUserNotAccessProduct, selectUserNotAccessProductInd, insertProdNotAccessToUser, deleteProdNotAccessToUser

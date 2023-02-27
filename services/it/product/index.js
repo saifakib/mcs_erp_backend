@@ -1,7 +1,7 @@
 const { ExecuteIT, ExecuteITMany } = require("../../../utils/itDynamicController");
 const { oracledb } = require("../../../db/db");
 
-/*------------- SELECT ------------*/
+/*--------------------------------------- SELECT ------------------------------------*/
 const selectNewProductListByCatId = (CAT_ID) =>
     ExecuteIT(
         `SELECT * FROM PRODUCT_LIST PL WHERE PL.CATEGORY_ID = ${CAT_ID} AND PL.PRODUCT_ID NOT IN (SELECT SP.PRO_ID FROM STORE_PRODUCTS SP)`
@@ -82,7 +82,7 @@ FROM STORE_PRODUCTS SP
 
 
 const selectStoreProductsById = (str_pro_id) => ExecuteIT(`SELECT SP.STR_PRO_ID, PL.PRODUCT_NAME, M.MODEL_NAME, U.UNIT_NAME, B.BRAND_NAME, 
-    SP.PRICE, SP.STOCK_ALERT, SP.QUANTITY, SP.NON_WORKABLE, SP.STOCK_ALERT FROM STORE_PRODUCTS SP 
+    SP.PRICE, SP.STOCK_ALERT, SP.QUANTITY, SP.NON_WORKABLE, SP.STOCK_ALERT, TO_CHAR(SP.LICENSE_E_DATE, 'DD-MM-YYYY') AS LICENSE_E_DATE, SP.FILES FROM STORE_PRODUCTS SP 
     LEFT OUTER JOIN PRODUCT_LIST PL ON SP.PRO_ID = PL.PRODUCT_ID
     LEFT OUTER JOIN MODELS M ON SP.MODEL_ID = M.MODEL_ID
     LEFT OUTER JOIN UNIT U ON SP.UNIT_ID = U.UNIT_ID
@@ -127,10 +127,12 @@ const selectLastMrrNumber = () =>
 const selectLastStrProdIndList = (prod_id) => ExecuteIT(`SELECT * FROM IND_PRODUCT IP
 WHERE IP.STR_PRO_ID = (SELECT MAX(STR_PRO_ID) FROM STORE_PRODUCTS WHERE PRO_ID = ${Number(prod_id)}) ORDER BY IND_PRODUCT_ID DESC`);
 
+/*----------------------------------------- END INSERT -----------------------------------------------*/
 
 
 
-/*------------- INSERT ------------*/
+
+/*------------------------------------------- INSERT -------------------------------------------------*/
 // Product Entries
 const insertMrrLogs = (
     {
@@ -239,9 +241,13 @@ const insertExProdSummaries = (
         { id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
 
-// 
+/*------------------------------------------- END INSERT -------------------------------------------------*/
 
-/*------------ UPDATE ------------*/
+
+
+
+
+/*--------------------------------------------- UPDATE ---------------------------------------------------*/
 
 const updateStoreProduct = ({ str_pro_id, qty, price }, stock_alert = false, stock_alert_number) =>
     stock_alert ? ExecuteIT(
@@ -255,9 +261,12 @@ const updateStoreProduct = ({ str_pro_id, qty, price }, stock_alert = false, sto
         )}, PRICE = ${Number(price)}, NON_WORKABLE = NON_WORKABLE + ${Number(non_workable)} WHERE STR_PRO_ID = ${Number(str_pro_id)} RETURN QUANTITY INTO :storeQuantity`,
         { storeQuantity: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } }
     );
+
 const updateIndProduct = (id, status) => ExecuteIT(`UPDATE IND_PRODUCT SET STATUS = ${Number(status)} WHERE IND_PRODUCT_ID = ${Number(id)}`);
+
 const updateStrProNonWCount = (str_pro_id) => ExecuteIT(`UPDATE STORE_PRODUCTS SET NON_WORKABLE = NON_WORKABLE - ${Number(1)} WHERE STR_PRO_ID = ${Number(str_pro_id)}`)
 
+/*--------------------------------------------- END UPDATE ---------------------------------------------------*/
 
 
 module.exports = {

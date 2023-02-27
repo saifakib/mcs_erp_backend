@@ -118,8 +118,4 @@ const viewProductReceptBySupIdMrr = async (req, res, next) => {
 };
 
 
-module.exports = {
-  manageSupplier,
-  mrrProListBySupId,
-  viewProductReceptBySupIdMrr
-}
+module.exports = { manageSupplier, mrrProListBySupId, viewProductReceptBySupIdMrr }
