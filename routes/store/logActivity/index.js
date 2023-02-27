@@ -8,7 +8,7 @@ const { validateToken } = require("../../../middlewares/JWT");
 router.post("/", validateToken, checkLogActivity, postLogActivity);   // employee_id collect from token
 
 // get route
-router.get('/', getLogActivity);
+router.get('/', validateToken, getLogActivity);
 
 
 module.exports = router;

@@ -26,8 +26,6 @@ const getLogActivity = async (req, res, next) => {
         return acc;
       }, "");
 
-      console.log(modifyQuery)
-
       const response = await selectLogActivityFilter(modifyQuery);
       res.json(createResponse(response.rows));
     } else {
@@ -56,7 +54,6 @@ const postLogActivity = async (req, res, next) => {
     } else {
       res.json(createResponse({ message: "Error Occured", error: true }));
     }
-    res.json(createResponse());
   } catch (err) {
     next(err);
   }

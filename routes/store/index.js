@@ -5,7 +5,6 @@ const productsRoute = require("./product");
 const supplierRoute = require("./mrr");
 const reportsRoute = require("./reports");
 const wareHouseRoute = require("./warehouse");
-const logActivityRoute = require("./logActivity");
 const permissionRoute = require("./systemAccess");
 const { checkBoth } = require("../../middlewares/checkStoreAuthorization");
 
@@ -15,7 +14,6 @@ router.use("/products", productsRoute);
 router.use("/mrr", checkBoth, supplierRoute);
 router.use("/reports", reportsRoute);
 router.use("/warehouse", checkBoth, wareHouseRoute);
-router.use("/logs", logActivityRoute);
 router.use("/permission", checkBoth, permissionRoute);
 
 module.exports = router;

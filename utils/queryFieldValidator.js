@@ -1,3 +1,5 @@
+
+
 module.exports.queryFieldValidator = (fields, query) => {
     const { missingFields } = Object.keys(query).reduce((acc, key) => {
         if (fields.includes(key.toLocaleLowerCase())) {

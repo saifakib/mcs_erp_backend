@@ -20,16 +20,18 @@ module.exports.validateToken = (req, res, next) => {
     //const accessToken = req.cookies["token"];
 
     const { authorization } = req.headers;
-    if (authorization === "") {
+    
+    if (authorization === "" || !authorization) {
       return res.json(createResponse(null, "User not Authenticated!", true));
-    } else {
+    }
+    else {
       const accessToken = authorization.split(" ");
-      if(accessToken[0] === 'Bearer') {
+      if (accessToken[0] === 'Bearer') {
         if (!accessToken[1]) {
           return res.json(createResponse(null, "User not Authenticated!", true));
         } else {
           const validToken = verify(accessToken[1], process.env.JWT_SECRET);
-          
+
           if (validToken) {
             req.user = validToken.user_id;
             req.employe_id = validToken.employe_id;

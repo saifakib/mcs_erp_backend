@@ -27,20 +27,33 @@ app.use(
 // app.use(morgan());
 app.use(express.json());
 app.use(cookieParser());
+
+
+let requestCount = 0;
+// Middleware function to log incoming requests
+function logRequests(req, res, next) {
+  requestCount++;
+  next();
+}
+app.use(logRequests);
+
+
 app.use("/api/v1", routes);
 app.use("/api/hr/report", hrReportRouter);
 //error handler
 const port = process.env.PORT || 4000;
 
+
 app.get("/routes", (req, res) => {
   res.json({
+    requestCount,
     Server: `${req.protocol}://${req.hostname}:${port}`,
     Routes: route_lists(app).reduce((acc, route) => {
       acc += route.methods.length;
       return acc;
     }, 0)
   });
-});0
+}); 0
 
 // error handling
 app.use([notFoundHandler, errorHandler]);

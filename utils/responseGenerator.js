@@ -13,4 +13,4 @@ function *generator(num) {
   }
 }
 
-module.exports = { createResponse, generator };
+module.exports = { createResponse, generator  };
