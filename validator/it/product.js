@@ -32,7 +32,6 @@ const checkProdEntries = (req, res, next) => {
                 serial_numbers: Joi.array().min(1).items(Joi.string())
                   .required()
                   .length(Joi.ref('qty'))
-                  .unique()
                   .required()
               }).required()
             ).unique((a, b) => a.pro_id === b.pro_id).required()

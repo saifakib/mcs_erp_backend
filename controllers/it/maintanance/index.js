@@ -1,5 +1,5 @@
 const { createResponse } = require("../../../utils/responseGenerator");
-const { selectMaintanances, selectMaintanance, selectExitMaintanace, insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateServicing } = require("../../../services/it/maintanance");
+const { selectMaintanances, selectMaintanance, selectExitMaintanace, insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateMaintananceWItRemarks, updateServicing } = require("../../../services/it/maintanance");
 const { updateIndProReq } = require("../../../services/it/requisition");
 const { updateIndProduct } = require("../../../services/it/product")
 
@@ -68,13 +68,13 @@ const postMaintanance = async (req, res, next) => {
         };
 
         const checkExitMaintanance = await selectExitMaintanace(user_id, ind_pro_req_id, ind_pro_id);
-        if(checkExitMaintanance.rows.length > 0) {
+        if (checkExitMaintanance.rows.length > 0) {
             res.json(createResponse(null, "Allready in maintanace process", true));
         } else {
             const maintananceRequestR = await insertMaintananceReq(maintananceRequest);
             const updateIndProReqU = await updateIndProReq(ind_pro_req_id, 1);
             const updateIndPro = await updateIndProduct(ind_pro_id, 2);
-    
+
             if (maintananceRequestR.rowsAffected >= 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
                 res.json(createResponse(null, "Maintanance Request Success", false));
             }
@@ -107,7 +107,7 @@ const postServicing = async (req, res, next) => {
 
 const putMaintanance = async (req, res, next) => {
     try {
-        const { status, maintanance_id, otp } = req.body;
+        const { status, maintanance_id, otp, it_remarks } = req.body;
         if (typeof (status) !== 'number' && typeof (maintanance_id) !== 'number') {
             res.json(createResponse("Error Occured", "Value should be a number", true));
         }
@@ -126,20 +126,37 @@ const putMaintanance = async (req, res, next) => {
                         res.json(createResponse(null, "Maintanance status has been Updated"));
                     }
                 }
-            } 
+            }
             else {
-                const accept = await updateMaintanance(status, maintanance_id);
+                // const accept = await updateMaintanance(status, maintanance_id);
 
                 //const conStatus = [5, 7];
                 // if (conStatus.includes(status))
                 if (status === 5) {      // Maintanace Dead Status 5
+                    const accept = await updateMaintanance(status, maintanance_id);
                     const updateIndProReqU = await updateIndProReq(maintanance.rows[0].IND_PRO_REQ_ID, 2);
                     const updateIndPro = await updateIndProduct(maintanance.rows[0].IND_PRO_ID, 4);
 
                     if (accept.rowsAffected === 1 && updateIndProReqU.rowsAffected === 1 && updateIndPro.rowsAffected === 1) {
                         res.json(createResponse(null, "Maintanance status has been Updated"));
                     }
-                } else {
+                }
+                else if (status === 1) {
+                    if (it_remarks) {
+                        const accept = await updateMaintananceWItRemarks(status, maintanance_id, it_remarks);
+                        if (accept.rowsAffected === 1) {
+                            res.json(createResponse(null, "Maintanance status has been Updated"));
+                        }
+                    }
+                    else {
+                        const accept = await updateMaintanance(status, maintanance_id);
+                        if (accept.rowsAffected === 1) {
+                            res.json(createResponse(null, "Maintanance status has been Updated"));
+                        }
+                    }
+                }
+                else {
+                    const accept = await updateMaintanance(status, maintanance_id);
                     if (accept.rowsAffected === 1) {
                         res.json(createResponse(null, "Maintanance status has been Updated"));
                     }

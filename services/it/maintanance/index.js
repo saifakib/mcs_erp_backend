@@ -27,7 +27,7 @@ const selectMaintanances = (hrid) => {
         LEFT OUTER JOIN MODELS MO ON MO.MODEL_ID = SP.MODEL_ID WHERE M.HR_ID = ${Number(hrid)}`);
     } else {
         return ExecuteIT(`  SELECT M.MAINTENANCE_ID, M.IND_PRO_ID, M.IND_PRO_REQ_ID, TO_CHAR(M.REQ_DATE, 'MON DD, YYYY') AS REQUEST_DATE, C.CATEGORY_NAME, M.STATUS, PL.PRODUCT_NAME,
-        IP.UNIQUE_V, M.HR_ID, VE.NAME_ENGLISH, VE.DEPARTEMENT, VE.DESIGNATION, B.BRAND_NAME, MO.MODEL_NAME, M.OTP,
+        IP.UNIQUE_V, M.HR_ID, VE.NAME_ENGLISH, VE.DEPARTEMENT, VE.DESIGNATION, B.BRAND_NAME, MO.MODEL_NAME, M.OTP, M.STR_REMARKS AS IT_REMARKS, M.USER_REMARKS,
         CASE
           WHEN M.STATUS = 0 THEN 'Pending'
           WHEN M.STATUS = 1 THEN 'Approved'
@@ -51,7 +51,7 @@ const selectMaintanances = (hrid) => {
 
 const selectMaintanance = (maintanance_id) => ExecuteIT(`SELECT M.MAINTENANCE_ID, M.IND_PRO_ID, M.IND_PRO_REQ_ID, 
     TO_CHAR(M.REQ_DATE, 'MON DD, YYYY') AS REQUEST_DATE, C.CATEGORY_NAME, M.STATUS, PL.PRODUCT_NAME,
-    IP.UNIQUE_V, M.HR_ID, VE.NAME_ENGLISH, VE.NAME_BANGLA, VE.DEPARTEMENT, VE.DESIGNATION, VE.DESIGNATION_BANGLA, B.BRAND_NAME, MO.MODEL_NAME, M.USER_REMARKS, M.OTP,
+    IP.UNIQUE_V, M.HR_ID, VE.NAME_ENGLISH, VE.NAME_BANGLA, VE.DEPARTEMENT, VE.DESIGNATION, VE.DESIGNATION_BANGLA, B.BRAND_NAME, MO.MODEL_NAME, M.STR_REMARKS AS IT_REMARKS, M.USER_REMARKS, M.OTP,
     CASE
         WHEN M.STATUS = 0 THEN 'Pending'
         WHEN M.STATUS = 1 THEN 'Approved'
@@ -114,11 +114,14 @@ const updateMaintanance = (status, maintanance_id, cost) => {
     }
 }
 
+//maintanance update when approve
+const updateMaintananceWItRemarks = (status, maintanance_id, it_remarks) => ExecuteIT(`UPDATE MAINTENANCE SET STATUS = ${Number(status)}, STR_REMARKS = '${it_remarks}' WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
+
 // servicing statue
 const updateServicing = (maintanance_id, remarks) => ExecuteIT(`UPDATE SERVICES SET STATUS = ${Number(1)}, REMARKS = '${remarks}' WHERE MAINTENANCE_ID = ${Number(maintanance_id)} `);
 
 /*---------------------------------------------- END UPDATE ---------------------------------------*/
 
 module.exports = {
-    selectMaintanances, selectMaintanance, selectExitMaintanace,  insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateServicing
+    selectMaintanances, selectMaintanance, selectExitMaintanace, insertMaintananceReq, insertServicing, insertManySpecifications, updateMaintanance, updateMaintananceWItRemarks, updateServicing
 }
