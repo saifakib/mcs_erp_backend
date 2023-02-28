@@ -31,7 +31,7 @@ app.use(cookieParser());
 
 let requestCount = 0;
 // Middleware function to log incoming requests
-function logRequests(req, res, next) {
+function logRequests(_, _, next) {
   requestCount++;
   next();
 }

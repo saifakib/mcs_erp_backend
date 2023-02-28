@@ -18,6 +18,7 @@ const checkMaintanance = (req, res, next) => {
         checkMaintananceSchema = Joi.object().keys({
             status: Joi.number().required(),
             maintanance_id: Joi.number().required(),
+            it_remarks: Joi.string(),
             otp: Joi.number()
         })
     }

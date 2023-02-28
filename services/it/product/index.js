@@ -266,6 +266,8 @@ const updateIndProduct = (id, status) => ExecuteIT(`UPDATE IND_PRODUCT SET STATU
 
 const updateStrProNonWCount = (str_pro_id) => ExecuteIT(`UPDATE STORE_PRODUCTS SET NON_WORKABLE = NON_WORKABLE - ${Number(1)} WHERE STR_PRO_ID = ${Number(str_pro_id)}`)
 
+const updateIndProductSerialNumber = (ind_prod_id, serial_number) => ExecuteIT(`UPDATE IND_PRODUCT SET SERIAL_NUMBER = '${serial_number}' WHERE IND_PRODUCT_ID = ${Number(ind_prod_id)}`)
+
 /*--------------------------------------------- END UPDATE ---------------------------------------------------*/
 
 
@@ -275,7 +277,7 @@ module.exports = {
     selectNewProductListByCatId, selectStrProductsByCatId, selectCategoryWithStore,
     selectProductWithSup, selectIndStrProductsByProId, selectLastStrProdIndList, selectIndProductWIthDetails, selectIndividualListByProId, selectMaintananceProducts,
     insertMrrLogs, insertStoreProduct, insertManyInd_Product, insertProductEntryLists, insertProdSummaries,
-    updateStoreProduct, updateIndProduct, updateStrProNonWCount,
+    updateStoreProduct, updateIndProduct, updateStrProNonWCount, updateIndProductSerialNumber,
     insertExProdSummaries,
 
 }
